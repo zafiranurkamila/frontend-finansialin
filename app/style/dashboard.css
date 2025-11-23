@@ -1,0 +1,272 @@
+/*Global*/
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #F5F7FA;
+  color: #111827;
+  height: 100%; 
+  overflow: hidden;
+}
+
+/*container*/
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  gap: 24px; /* jarak antar sidebar & main content */
+}
+
+.dashboard-header {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB; 
+  height: 80px;         
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;           
+  padding: 0 32px;       
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+/*main content*/
+.main-content-area {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  padding: 0; 
+  background-color: #F9FAFB; 
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.main-content-wrapper {
+  padding: 24px 48px; /* kiri-kanan lebih lega */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/*sidebar - versi awal*/
+.sidebar {
+  width: 256px;
+  background: #344d33;  /* Dark green */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0; /* mepet kiri & kanan tetap */
+  overflow: hidden;
+}
+
+.sidebar-header {
+  text-align: center;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom:25px;
+}
+
+.sidebar-nav {
+  flex-grow: 1;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.nav-item {
+  padding: 14px 24px;
+  font-size: 15px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: all 0.2s ease;
+  margin-bottom: 0px;
+}
+
+.nav-item a {
+  text-decoration: none;
+  color: #E8F4FD;
+  display: block;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.nav-item.active {
+  background: #E5F0E3;
+  color: #243A1F !important;
+  border-radius: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.nav-item.active a {
+  color: #243A1F !important;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 20px 32px;
+  margin-top: auto;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: #ffffff20;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.logout-btn:hover {
+  background: #ffffff35;
+}
+
+/*page title*/
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+/*content grid*/
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px 0;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Tombol Add Transaction */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.add-transaction-btn {
+  padding: 8px 16px;
+  background: #344d33;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.add-transaction-btn:hover {
+  background: #224820;
+}
+
+.notif-icon {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.profile-avatar img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+/*card*/
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  border: 1px solid #EFEFEF;
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #4C4C4C;
+}
+
+.card .value {
+  margin-top: 8px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.content-split {
+  display: flex;       
+  gap: 24px;        
+  width: 100%;
+  margin-top: 10px; 
+}
+
+/*RIGHT & LEFT SECTIONS*/
+.left-section {
+  flex: 2;             
+  display: flex;
+  flex-direction: column;
+}
+
+.right-section {
+  flex: 1;              
+  display: flex;
+  flex-direction: column;
+  gap: 24px;            
+}
+
+.budget-section {
+  background: #344d33;
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  height: auto;
+  min-height: 220px; 
+}
+
+.budget-section h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/*notif*/
+.side-widgets {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.widget-box {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #EFEFEF;
+  min-height: 160px;
+}
+
+.widget-box h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.widget-box .empty-state {
+  color: #6C6C6C;
+  font-size: 14px;
+}
