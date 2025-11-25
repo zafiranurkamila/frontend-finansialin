@@ -121,21 +121,25 @@ html, body {
 
 .password-wrapper input {
   width: 100%;
-  padding-right: 40px;
+  padding-right: 40px; /* Pastikan ada ruang untuk ikon */
   box-sizing: border-box;
+  /* ... (gaya input lainnya) ... */
 }
 
 .toggle-password {
   position: absolute;
   right: 14px;
   top: 50%;
-  transform: translateY(-95%);
+  /* GANTI -95% menjadi -50% untuk pemusatan vertikal yang sempurna */
+  transform: translateY(-100%); 
+  
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #344d33;
   transition: opacity 0.2s ease, color 0.2s ease;
+  z-index: 10; /* Tambahkan z-index untuk memastikan di atas ikon browser */
 }
 
 .toggle-password:hover {
@@ -235,4 +239,38 @@ html, body {
 .btn-login-register:hover,
 .btn-signup-login:hover {
   text-decoration: none !important;
+}
+
+/* --- CSS BRUTAL FORCE UNTUK MENGHILANGKAN IKON MATA BROSWER --- */
+
+.password-wrapper input {
+    /* Mencegah browser menunjukkan tombol built-in yang muncul saat diketik */
+    /* Ini adalah cara untuk menyembunyikan elemen shadow DOM di Chrome/Safari */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Menyembunyikan ikon reveal (mata) bawaan browser */
+.password-wrapper input::-ms-reveal,
+.password-wrapper input::-ms-clear {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Menyembunyikan ikon yang disuntikkan oleh autofill/password manager (yang muncul saat aktif) */
+.password-wrapper input[type="password"]::-webkit-contacts-auto-fill-button,
+.password-wrapper input[type="text"]::-webkit-contacts-auto-fill-button,
+.password-wrapper input[type="password"]::-webkit-credentials-auto-fill-button,
+.password-wrapper input[type="text"]::-webkit-credentials-auto-fill-button {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Pastikan elemen kustom Anda tetap memiliki z-index yang tinggi */
+.toggle-password {
+    z-index: 20; /* Naikkan ini lebih tinggi dari sebelumnya */
 }

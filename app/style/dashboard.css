@@ -1,11 +1,12 @@
 /*Global*/
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   font-family: 'Poppins', sans-serif;
   background: #F5F7FA;
   color: #111827;
-  height: 100%; 
+  height: 100%;
   overflow: hidden;
 }
 
@@ -15,20 +16,22 @@ body, html {
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  gap: 24px; /* jarak antar sidebar & main content */
+  gap: 24px;
+  /* jarak antar sidebar & main content */
 }
 
 .dashboard-header {
   background-color: #FFFFFF;
-  border-bottom: 1px solid #E5E7EB; 
-  height: 80px;         
+  border-bottom: 1px solid #E5E7EB;
+  height: 80px;
   display: flex;
-  justify-content: space-between; 
-  align-items: center;           
-  padding: 0 32px;       
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 20px;
+  /* Hapus margin-bottom: 20px; */
+  margin-bottom: 0;
   position: relative;
   z-index: 100;
   overflow: visible;
@@ -36,29 +39,37 @@ body, html {
 
 /*main content*/
 .main-content-area {
-  flex: 1; 
-  display: flex;
-  flex-direction: column;
-  padding: 0; 
-  background-color: #F9FAFB; 
-  overflow-x: hidden; /* Horizontal scroll disabled */
-  overflow-y: auto; /* Vertical scroll enabled */
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    /* --- TAMBAHKAN PADDING UNTUK JARA DARI TEPI BROWSER --- */
+    padding-top: 24px; /* Memberi jarak ke tepi atas browser */
+    padding-right: 24px; /* Memberi jarak ke tepi kanan browser (karena ada gap: 24px di container) */
+    
+    background-color: #F9FAFB; 
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .main-content-wrapper {
-  padding: 24px 48px; /* kiri-kanan lebih lega */
-  width: 100%;
-  box-sizing: border-box;
+    /* Hapus padding atas dan bawah jika sudah diatur di tempat lain, atau sesuaikan */
+    padding: 0 48px 24px 0; /* Padding: Top 0, Right 48px, Bottom 24px, Left 0 */
+    width: 100%;
+    box-sizing: border-box;
+    /* Tambahkan margin-top untuk jarak antara header dan konten */
+    margin-top: 24px; /* Jarak antara dashboard-header dan page-title/content */
 }
 
 /*sidebar - versi awal*/
 .sidebar {
   width: 256px;
-  background: #344d33;  /* Dark green */
+  background: #344d33;
+  /* Dark green */
   color: white;
   display: flex;
   flex-direction: column;
-  padding: 24px 0; /* mepet kiri & kanan tetap */
+  padding: 24px 0;
+  /* mepet kiri & kanan tetap */
   overflow: hidden;
 }
 
@@ -66,7 +77,7 @@ body, html {
   text-align: center;
   font-size: 25px;
   font-weight: bold;
-  margin-bottom:25px;
+  margin-bottom: 25px;
 }
 
 .sidebar-nav {
@@ -98,7 +109,7 @@ body, html {
 }
 
 .nav-item:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .nav-item.active {
@@ -204,7 +215,7 @@ body, html {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   border: 1px solid #EFEFEF;
 }
 
@@ -221,24 +232,24 @@ body, html {
 }
 
 .content-split {
-  display: flex;       
-  gap: 24px;        
+  display: flex;
+  gap: 24px;
   width: 100%;
-  margin-top: 10px; 
+  margin-top: 10px;
 }
 
 /*RIGHT & LEFT SECTIONS*/
 .left-section {
-  flex: 2;             
+  flex: 2;
   display: flex;
   flex-direction: column;
 }
 
 .right-section {
-  flex: 1;              
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;            
+  gap: 24px;
 }
 
 .budget-section {
@@ -246,9 +257,9 @@ body, html {
   border-radius: 12px;
   padding: 24px;
   color: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   height: auto;
-  min-height: 220px; 
+  min-height: 220px;
 }
 
 .budget-section h3 {

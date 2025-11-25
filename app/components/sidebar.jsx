@@ -1,3 +1,4 @@
+// Sidebar.jsx
 "use client";
 import React from 'react';
 import Link from 'next/link';
@@ -11,19 +12,26 @@ const menuItems = [
     { name: 'Settings', path: '/settings' },
 ];
 
-function Sidebar() {
+// Sidebar menerima prop onLogoutAttempt (opsional)
+function Sidebar({ onLogoutAttempt }) {
     const pathname = usePathname();
-    const router = useRouter();
+    const router = useRouter(); // Tetap inisialisasi router di sini
 
-    const handleLogout = () => {
-        // Clear token/session
-        localStorage.removeItem('token');
-        // Redirect to login
-        router.push('/login');
+    // Fungsi ini sekarang memeriksa apakah onLogoutAttempt diberikan
+    const handleClick = () => {
+        if (onLogoutAttempt) {
+            // Jika handler dari DashboardPage ada, panggil untuk memunculkan ConfirmDialog
+            onLogoutAttempt();
+        } else {
+            // Jika tidak ada handler (misalnya, di halaman lain), lakukan logout standar (opsi cadangan)
+            localStorage.removeItem('token');
+            router.push('/login');
+        }
     };
 
     return (
         <aside className="sidebar">
+            {/* ... bagian header dan nav tetap sama ... */}
             <div>
                 <div className="sidebar-header">
                     Finansialin
@@ -44,7 +52,10 @@ function Sidebar() {
             </div>
 
             <div className="sidebar-footer">
-                <button className="logout-btn" onClick={handleLogout}>
+                <button 
+                    className="logout-btn" 
+                    onClick={handleClick} // Memanggil handleClick
+                >
                     Logout
                 </button>
             </div>

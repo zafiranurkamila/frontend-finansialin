@@ -1,12 +1,14 @@
+// ProfileDropdown.jsx
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaUserCircle, FaCog, FaSignOutAlt, FaUser, FaBell } from 'react-icons/fa';
+import { FaUserCircle, FaCog, FaSignOutAlt } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../context/UserContext';
 import '../style/profile-dropdown.css';
 
-function ProfileDropdown() {
+// Menerima prop onLogoutAttempt
+function ProfileDropdown({ onLogoutAttempt }) {
     const [isOpen, setIsOpen] = useState(false);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
     const buttonRef = useRef(null);
@@ -49,13 +51,14 @@ function ProfileDropdown() {
         setIsOpen(false);
     };
 
+    // [5] Fungsi Logout yang Baru: Hanya memicu alert di parent
     const handleLogout = () => {
-        if (confirm('Are you sure you want to logout?')) {
-            // Clear localStorage
-            localStorage.clear();
-            router.push('/login');
+        setIsOpen(false); // Tutup dropdown terlebih dahulu
+        
+        if (onLogoutAttempt) {
+            onLogoutAttempt(); // Panggil handler di DashboardPage
         }
-        setIsOpen(false);
+        // Logika logout sebenarnya sudah DIPINDAHKAN ke DashboardPage.jsx
     };
 
     const ProfileDropdownContent = () => (

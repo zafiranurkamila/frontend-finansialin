@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Sidebar from "../components/sidebar";
 import NotificationDropdown from "../components/NotificationDropdown";
 import ProfileDropdown from "../components/ProfileDropdown";
-import ConfirmDialog from "../components/ConfirmDialog"; // <--- IMPORT CONFIRM DIALOG
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useUser } from "../context/UserContext";
 import "../style/dashboard.css";
 import "../style/settings.css";
@@ -21,10 +21,9 @@ function SettingsPage() {
         avatar: user?.avatar || ''
     });
 
-    // --- State untuk Notifikasi ---
+    // --- State untuk Notifikasi (Hanya Transaction dan Budget) ---
     const [notifSettings, setNotifSettings] = useState({
-        emailNotifications: true,
-        pushNotifications: true,
+        // EmailNotifications dan PushNotifications dihapus
         transactionAlerts: true,
         budgetAlerts: true
     });
@@ -199,35 +198,9 @@ function SettingsPage() {
                                     <p className="section-description">Manage how you receive notifications</p>
 
                                     <div className="settings-list">
-                                        <div className="setting-item">
-                                            <div className="setting-info">
-                                                <h4>Email Notifications</h4>
-                                                <p>Receive updates via email</p>
-                                            </div>
-                                            <label className="toggle-switch">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={notifSettings.emailNotifications}
-                                                    onChange={() => handleNotifChange('emailNotifications')}
-                                                />
-                                                <span className="toggle-slider"></span>
-                                            </label>
-                                        </div>
-
-                                        <div className="setting-item">
-                                            <div className="setting-info">
-                                                <h4>Push Notifications</h4>
-                                                <p>Get push notifications on your device</p>
-                                            </div>
-                                            <label className="toggle-switch">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={notifSettings.pushNotifications}
-                                                    onChange={() => handleNotifChange('pushNotifications')}
-                                                />
-                                                <span className="toggle-slider"></span>
-                                            </label>
-                                        </div>
+                                        
+                                        {/* Email Notifications DIHAPUS */}
+                                        {/* Push Notifications DIHAPUS */}
 
                                         <div className="setting-item">
                                             <div className="setting-info">
@@ -290,27 +263,23 @@ function SettingsPage() {
                                         <FaPalette className="coming-soon-icon" />
                                         <h4>Coming Soon</h4>
                                         <p>Theme customization and dark mode features are under development</p>
-                                    </div>
-                                </div>
+                                    </div >
+                                </div >
                             )}
-                        </div>
-                    </div>
-                </main>
-            </div>
+                        </div >
+                    </div >
+                </main >
+            </div >
 
             {/* --- CONFIRM DIALOG UNTUK NOTIFIKASI --- */}
             <ConfirmDialog
                 isOpen={isNotificationOpen}
                 title={notificationTitle}
                 message={notificationMessage}
-                // Karena ini hanya notifikasi sukses, kita hanya menggunakan onConfirm
-                // sebagai tombol 'OK' atau 'Tutup'.
                 onConfirm={handleCloseNotification}
                 onCancel={handleCloseNotification}
-                // Anda mungkin perlu menambahkan prop 'isAlert' ke ConfirmDialog 
-                // Anda jika Anda ingin hanya menampilkan tombol 'OK' tanpa tombol 'Cancel'
             />
-        </div>
+        </div >
     );
 }
 
