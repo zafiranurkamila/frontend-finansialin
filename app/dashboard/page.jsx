@@ -1,39 +1,56 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Sidebar from "../components/sidebar";
-import DashboardContent from "../components/dashboardContent"; // Sesuaikan casing
+import DashboardContent from "../components/dashboardContent";
+import AddTransactionModal from "../components/AddTransactionModal";
+import NotificationDropdown from "../components/NotificationDropdown";
+import { useTransactions } from "../context/TransactionContext";
 import "../style/dashboard.css";
+import { FaUserCircle } from 'react-icons/fa';
 
 function DashboardPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { addTransaction } = useTransactions();
+
+  const handleAddTransaction = (transaction) => {
+    addTransaction(transaction);
+  };
+
   return (
     <div className="dashboard-container">
-
       <Sidebar />
 
       <div className="main-content-area">
-
-        {/* ===== HEADER ATAS (Full Width) ===== */}
         <header className="dashboard-header">
           <h2 className="page-title">Dashboard</h2>
 
-          <div className="header-right">
-            <button className="notif-btn">🔔</button>
-            <img src="/user.png" className="user-avatar" alt="User"/>
+          <div className="header-actions">
+            <NotificationDropdown />
+            <div className="profile-avatar">
+              <FaUserCircle />
+            </div>
           </div>
         </header>
 
-        <main className="dashboard-main-content">
-          
+        <main className="main-content-wrapper">
           <div className="add-transaction-wrapper">
-            <button className="add-transaction-btn">
+            <button 
+              className="add-transaction-btn"
+              onClick={() => setIsModalOpen(true)}
+            >
               + Add Transaction
             </button>
           </div>
 
           <DashboardContent />
-          
         </main>
-        
       </div>
+
+      <AddTransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddTransaction={handleAddTransaction}
+      />
     </div>
   );
 }

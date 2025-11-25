@@ -1,17 +1,30 @@
+"use client";
 import React from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 
 const menuItems = [
-    { name: 'Dashboard', active: true },
-    { name: 'Transaction', active: false },
-    { name: 'Budget Goals', active: false },
-    { name: 'Analytics', active: false },
-    { name: 'Settings', active: false },
+    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Transaction', path: '/transaction' },
+    { name: 'Budget Goals', path: '/budget' },
+    { name: 'Analytics', path: '/analytics' },
+    { name: 'Settings', path: '/settings' },
 ];
 
 function Sidebar() {
+    const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        // Clear token/session
+        localStorage.removeItem('token');
+        // Redirect to login
+        router.push('/login');
+    };
+
     return (
         <aside className="sidebar">
-            <div> {/* Wadah untuk Header dan Nav */}
+            <div>
                 <div className="sidebar-header">
                     Finansialin
                 </div>
@@ -21,9 +34,9 @@ function Sidebar() {
                         {menuItems.map((item) => (
                             <li
                                 key={item.name}
-                                className={`nav-item ${item.active ? 'active' : ''}`}
+                                className={`nav-item ${pathname === item.path ? 'active' : ''}`}
                             >
-                                <a href="#">{item.name}</a>
+                                <Link href={item.path}>{item.name}</Link>
                             </li>
                         ))}
                     </ul>
@@ -31,7 +44,7 @@ function Sidebar() {
             </div>
 
             <div className="sidebar-footer">
-                <button className="logout-btn">
+                <button className="logout-btn" onClick={handleLogout}>
                     Logout
                 </button>
             </div>

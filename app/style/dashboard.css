@@ -29,6 +29,9 @@ body, html {
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 20px;
+  position: relative;
+  z-index: 100;
+  overflow: visible;
 }
 
 /*main content*/
@@ -38,8 +41,8 @@ body, html {
   flex-direction: column;
   padding: 0; 
   background-color: #F9FAFB; 
-  overflow: hidden;
-  overflow-y: auto;
+  overflow-x: hidden; /* Horizontal scroll disabled */
+  overflow-y: auto; /* Vertical scroll enabled */
 }
 
 .main-content-wrapper {
@@ -152,13 +155,24 @@ body, html {
   gap: 20px;
 }
 
-/* Tombol Add Transaction */
+/* Header Actions */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 18px;
+  position: relative;
+  z-index: 100;
 }
 
+/* Notification Wrapper - Prevent Collapse */
+.notification-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tombol Add Transaction */
 .add-transaction-btn {
   padding: 8px 16px;
   background: #344d33;
@@ -269,4 +283,211 @@ body, html {
 .widget-box .empty-state {
   color: #6C6C6C;
   font-size: 14px;
+}
+
+/* Header Actions */
+.notif-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.notif-icon:hover {
+  background: #F3F4F6;
+}
+
+.notif-icon svg,
+.notif-icon i {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+}
+
+.profile-avatar {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.profile-avatar svg,
+.profile-avatar i {
+  width: 36px;
+  height: 36px;
+  font-size: 36px;
+  color: #344d33;
+}
+
+.profile-avatar img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Fix header-right jadi header-actions */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/*card*/
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #4C4C4C;
+  font-weight: 500;
+}
+
+.card-icon {
+  font-size: 28px;
+  opacity: 0.9;
+}
+
+.card .value {
+  margin-top: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Transaction List */
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.transaction-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.transaction-info {
+  flex: 1;
+}
+
+.transaction-category {
+  margin: 0;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+  font-size: 14px;
+}
+
+.transaction-desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.transaction-date {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.transaction-amount {
+  font-weight: 700;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.transaction-amount.income {
+  color: #10B981;
+}
+
+.transaction-amount.expense {
+  color: #EF4444;
+}
+
+/* Notifications Widget */
+.notifications-widget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification-widget-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #F9FAFB;
+  border-radius: 8px;
+  align-items: flex-start;
+}
+
+.notif-widget-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.notif-widget-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-widget-content p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.notif-widget-time {
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+/* Quick Stats */
+.quick-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quick-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #F9FAFB;
+  border-radius: 8px;
+}
+
+.quick-stat-label {
+  font-size: 13px;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.quick-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #344d33;
 }

@@ -1,12 +1,21 @@
+// app/layout.jsx
+import './globals.css';
+import ClientProviders from './components/ClientProviders'; // Import the new wrapper
+
 export const metadata = {
   title: 'Finansialin',
-  description: 'Migrated Next.js app',
-}
+  description: 'Personal Finance Management',
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* Replace the TransactionProvider with the combined ClientProviders */}
+        <ClientProviders>
+          {children}
+        </ClientProviders>
+      </body>
     </html>
-  )
+  );
 }

@@ -1,39 +1,111 @@
-import React from 'react';
-import SummaryCard from './summaryCard'; 
-import Notifications from './notification'; 
-import Categories from './categories';
+"use client";
+import React from "react";
+import { FaChartLine, FaChartBar, FaWallet } from 'react-icons/fa';
+import { useTransactions } from "../context/TransactionContext";
 
-function MainContent() {
+function DashboardContent() {
+  const { transactions, notifications, totalIncome, totalExpenses, currentBalance } = useTransactions();
+
   return (
-    <>
-      {/*GRID KARTU */}
-      <div className="cards-grid"> 
-        <SummaryCard title="Total Income" value="$0,0" icon="📈" />
-        <SummaryCard title="Total Expenses" value="$0,0" icon="📉" />
-        <SummaryCard title="Current Balance" value="$0,0" icon="💰" />
+    <div className="dashboard-content">
+      {/* Cards Grid */}
+      <div className="cards-grid">
+        <div className="card">
+          <div className="card-header">
+            <h4>Total Income</h4>
+            <FaChartLine className="card-icon" style={{ color: '#10B981' }} />
+          </div>
+          <div className="value">${totalIncome.toLocaleString()}</div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h4>Total Expenses</h4>
+            <FaChartBar className="card-icon" style={{ color: '#EF4444' }} />
+          </div>
+          <div className="value">${totalExpenses.toLocaleString()}</div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h4>Current Balance</h4>
+            <FaWallet className="card-icon" style={{ color: '#F59E0B' }} />
+          </div>
+          <div className="value">${currentBalance.toLocaleString()}</div>
+        </div>
       </div>
 
-      {/*BAGIAN BAWAH (SPLIT KIRI & KANAN) */}
+      {/* Content Split */}
       <div className="content-split">
-        
-        {/* KIRI: Budget Progress */}
+        {/* Left Section */}
         <div className="left-section">
           <div className="budget-section">
-            <h3>Budget Progress</h3>
-            <p style={{ opacity: 0.8, fontSize: '14px' }}>No budget data yet.</p>
+            <h3>Recent Transactions</h3>
+            {transactions.length === 0 ? (
+              <p>No transactions yet.</p>
+            ) : (
+              <div className="transactions-list">
+                {transactions.slice(0, 5).map(transaction => (
+                  <div key={transaction.id} className="transaction-item">
+                    <div className="transaction-info">
+                      <p className="transaction-category">{transaction.category}</p>
+                      <p className="transaction-desc">{transaction.description || 'No description'}</p>
+                      <p className="transaction-date">{new Date(transaction.date).toLocaleDateString()}</p>
+                    </div>
+                    <div className={`transaction-amount ${transaction.type}`}>
+                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        
-        {/* KANAN: Widgets (Tumpuk Vertikal) */}
-        <div className="right-section">
-          {/* Panggil komponen di sini */}
-          <Notifications />
-          <Categories />
-        </div>
 
+        {/* Right Section */}
+        <div className="right-section">
+          <div className="widget-box">
+            <h3>Recent Notifications</h3>
+            {notifications.length === 0 ? (
+              <p className="empty-state">You have no notifications.</p>
+            ) : (
+              <div className="notifications-widget-list">
+                {notifications.slice(0, 3).map(notification => (
+                  <div key={notification.id} className="notification-widget-item">
+                    <span className="notif-widget-icon">
+                      {notification.type === 'income' ? '💰' : notification.type === 'expense' ? '💸' : '🗑️'}
+                    </span>
+                    <div className="notif-widget-content">
+                      <p>{notification.message}</p>
+                      <span className="notif-widget-time">
+                        {new Date(notification.date).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="widget-box">
+            <h3>Quick Stats</h3>
+            <div className="quick-stats">
+              <div className="quick-stat-item">
+                <span className="quick-stat-label">Transactions</span>
+                <span className="quick-stat-value">{transactions.length}</span>
+              </div>
+              <div className="quick-stat-item">
+                <span className="quick-stat-label">Savings Rate</span>
+                <span className="quick-stat-value">
+                  {totalIncome > 0 ? ((currentBalance / totalIncome) * 100).toFixed(1) : 0}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
-export default MainContent;
+export default DashboardContent;
