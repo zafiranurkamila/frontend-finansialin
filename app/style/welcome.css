@@ -2,6 +2,8 @@
 .welcome-page {
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  width: 100vw;
   height: 100vh;
   font-family: "Poppins", sans-serif;
   display: flex;
@@ -9,13 +11,16 @@
   justify-content: center;
   align-items: center;
   color: #344d33;
-  background: linear-gradient(135deg, #f2f7f3 0%, #e8f0ec 0%, #f7f9f8 0%);
   background-image: url("https://i.pinimg.com/1200x/e4/f2/3a/e4f23a358dd572f90270edad95b77f7f.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
 }
 
@@ -30,13 +35,14 @@
 
 /* ===== Konten ===== */
 .welcome-page h1 {
-  font-size: 36px;
+  font-size: 48px;
   font-weight: 700;
   color: #344d33;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   text-align: center;
   position: relative;
   z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* ===== Tombol ===== */
@@ -44,26 +50,28 @@
   text-decoration: none;
   background-color: #344d33;
   color: #ffffff;
-  padding: 14px 50px;
+  padding: 16px 60px;
   border-radius: 40px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(52, 77, 51, 0.25);
   position: relative;
   z-index: 1;
+  display: inline-block;
 }
 
 .welcome-page a:hover {
   background-color: #2b3d28;
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 77, 51, 0.3);
 }
 
 /* ===== Animasi Masuk ===== */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -75,14 +83,34 @@
   animation: fadeIn 0.7s ease-out;
 }
 
+.welcome-page h1 {
+  animation: fadeIn 0.7s ease-out 0.2s backwards;
+}
+
+.welcome-page a {
+  animation: fadeIn 0.7s ease-out 0.4s backwards;
+}
+
 /* ===== Responsif ===== */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .welcome-page h1 {
+    font-size: 36px;
+    padding: 0 20px;
+  }
+
+  .welcome-page a {
+    font-size: 16px;
+    padding: 14px 40px;
+  }
+}
+
+@media (max-width: 480px) {
   .welcome-page h1 {
     font-size: 28px;
   }
 
   .welcome-page a {
     font-size: 14px;
-    padding: 10px 30px;
+    padding: 12px 30px;
   }
 }
