@@ -9,6 +9,7 @@ import "../style/dashboard.css";
 import "../style/transaction.css";
 import { FaBell, FaUserCircle, FaEdit, FaTrash } from 'react-icons/fa';
 import NotificationDropdown from "../components/NotificationDropdown";
+import ProfileDropdown from "../components/ProfileDropdown";
 
 function TransactionPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -78,9 +79,7 @@ function TransactionPage() {
 
                     <div className="header-actions">
                         <NotificationDropdown />
-                        <div className="profile-avatar">
-                            <FaUserCircle />
-                        </div>
+                        <ProfileDropdown />
                     </div>
                 </header>
 

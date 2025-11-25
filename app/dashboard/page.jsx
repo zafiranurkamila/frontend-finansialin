@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Sidebar from "../components/sidebar";
 import DashboardContent from "../components/dashboardContent";
 import AddTransactionModal from "../components/AddTransactionModal";
+import ProfileDropdown from "../components/ProfileDropdown";
 import NotificationDropdown from "../components/NotificationDropdown";
 import { useTransactions } from "../context/TransactionContext";
 import "../style/dashboard.css";
@@ -26,9 +27,7 @@ function DashboardPage() {
 
           <div className="header-actions">
             <NotificationDropdown />
-            <div className="profile-avatar">
-              <FaUserCircle />
-            </div>
+            <ProfileDropdown />
           </div>
         </header>
 

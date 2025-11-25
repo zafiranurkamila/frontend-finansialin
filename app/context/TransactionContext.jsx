@@ -49,26 +49,9 @@ export function TransactionProvider({ children }) {
         setNotifications(prev => [notification, ...prev]);
     };
 
-    const updateTransaction = (id, updatedData) => {
-        setTransactions(prev =>
-            prev.map(t => (t.id === id ? { ...t, ...updatedData, updatedAt: new Date().toISOString() } : t))
-        );
-
-        // Create notification
-        const notification = {
-            id: Date.now(),
-            type: 'edit',
-            message: `Transaction updated: ${updatedData.category} - $${updatedData.amount}`,
-            date: new Date().toISOString(),
-            read: false
-        };
-        setNotifications(prev => [notification, ...prev]);
-    };
-
     const deleteTransaction = (id) => {
         setTransactions(prev => prev.filter(t => t.id !== id));
 
-        // Create notification
         const notification = {
             id: Date.now(),
             type: 'delete',
@@ -77,6 +60,12 @@ export function TransactionProvider({ children }) {
             read: false
         };
         setNotifications(prev => [notification, ...prev]);
+    };
+
+    const updateTransaction = (id, updatedData) => {
+        setTransactions(prev =>
+            prev.map(t => (t.id === id ? { ...t, ...updatedData } : t))
+        );
     };
 
     const markNotificationAsRead = (id) => {
@@ -110,6 +99,57 @@ export function TransactionProvider({ children }) {
 
     const unreadNotifications = notifications.filter(n => !n.read).length;
 
+    // Report Functions
+    const generateMonthlyReport = (month, year) => {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0);
+
+        const monthlyTransactions = transactions.filter(t => {
+            const date = new Date(t.date);
+            return date >= startDate && date <= endDate;
+        });
+
+        const income = monthlyTransactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        const expenses = monthlyTransactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        // Group by category
+        const categoryBreakdown = monthlyTransactions.reduce((acc, t) => {
+            if (!acc[t.category]) {
+                acc[t.category] = { income: 0, expense: 0 };
+            }
+            if (t.type === 'income') {
+                acc[t.category].income += t.amount;
+            } else {
+                acc[t.category].expense += t.amount;
+            }
+            return acc;
+        }, {});
+
+        return {
+            month,
+            year,
+            totalIncome: income,
+            totalExpenses: expenses,
+            balance: income - expenses,
+            transactionCount: monthlyTransactions.length,
+            categoryBreakdown,
+            transactions: monthlyTransactions
+        };
+    };
+
+    const getReportSummary = () => {
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth() + 1;
+        const currentYear = currentDate.getFullYear();
+
+        return generateMonthlyReport(currentMonth, currentYear);
+    };
+
     const value = {
         transactions,
         notifications,
@@ -123,7 +163,9 @@ export function TransactionProvider({ children }) {
         clearAllNotifications,
         totalIncome,
         totalExpenses,
-        currentBalance
+        currentBalance,
+        generateMonthlyReport,
+        getReportSummary
     };
 
     return (

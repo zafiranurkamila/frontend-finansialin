@@ -274,3 +274,96 @@
         padding: 20px;
     }
 }
+
+/* --- Custom Alert/Confirm Dialog Styles --- */
+
+/* Overlay untuk menutupi seluruh layar */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Gunakan latar belakang gelap dengan transparansi */
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Pastikan di atas elemen lain */
+}
+
+/* Kotak dialog utama */
+.dialog-box {
+    background-color: #2D3748; /* Warna latar belakang gelap (sesuai screenshot) */
+    color: white;
+    padding: 30px;
+    border-radius: 12px; /* Sudut melengkung */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    width: 90%;
+    /* Efek animasi saat muncul */
+    transform: scale(0.95);
+    opacity: 0;
+    animation: fadeInScale 0.2s forwards;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes fadeInScale {
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Judul (jika ada) dan Pesan */
+.dialog-header {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.dialog-message {
+    font-size: 1em;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+/* Container tombol */
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end; /* Posisikan tombol ke kanan */
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Gaya tombol */
+.dialog-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+/* Tombol Primary (misalnya, OK/Confirm) */
+.dialog-actions .btn-confirm {
+    background-color: #344d33; /* Gunakan warna hijau utama aplikasi Anda */
+    color: white;
+}
+
+.dialog-actions .btn-confirm:hover {
+    background-color: #243A1F;
+}
+
+/* Tombol Secondary (misalnya, Cancel) */
+.dialog-actions .btn-cancel {
+    background-color: transparent;
+    color: #9CA3AF; /* Warna abu-abu terang */
+    border: 1px solid #4B5563;
+}
+
+.dialog-actions .btn-cancel:hover {
+    background-color: #374151;
+}

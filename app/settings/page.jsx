@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Sidebar from "../components/sidebar";
 import NotificationDropdown from "../components/NotificationDropdown";
 import ProfileDropdown from "../components/ProfileDropdown";
+import ConfirmDialog from "../components/ConfirmDialog"; // <--- IMPORT CONFIRM DIALOG
 import { useUser } from "../context/UserContext";
 import "../style/dashboard.css";
 import "../style/settings.css";
@@ -11,6 +12,8 @@ import { FaUser, FaBell, FaLock, FaPalette, FaSave } from 'react-icons/fa';
 function SettingsPage() {
     const { user, updateUser } = useUser();
     const [activeTab, setActiveTab] = useState('profile');
+    
+    // --- State untuk Form Data ---
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
@@ -18,12 +21,26 @@ function SettingsPage() {
         avatar: user?.avatar || ''
     });
 
+    // --- State untuk Notifikasi ---
     const [notifSettings, setNotifSettings] = useState({
         emailNotifications: true,
         pushNotifications: true,
         transactionAlerts: true,
         budgetAlerts: true
     });
+
+    // --- State untuk Custom Alert/Notification Dialog ---
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationTitle, setNotificationTitle] = useState('');
+
+    // --- Handlers ---
+    
+    const handleCloseNotification = () => {
+        setIsNotificationOpen(false);
+        setNotificationTitle('');
+        setNotificationMessage('');
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,12 +60,20 @@ function SettingsPage() {
     const handleSaveProfile = (e) => {
         e.preventDefault();
         updateUser(formData);
-        alert('Profile updated successfully!');
+        
+        // Tampilkan notifikasi kustom
+        setNotificationTitle('Update Successful');
+        setNotificationMessage('Profile updated successfully!');
+        setIsNotificationOpen(true);
     };
 
     const handleSaveNotifications = () => {
         localStorage.setItem('notificationSettings', JSON.stringify(notifSettings));
-        alert('Notification settings saved!');
+        
+        // Tampilkan notifikasi kustom
+        setNotificationTitle('Settings Saved');
+        setNotificationMessage('Notification settings saved successfully!');
+        setIsNotificationOpen(true);
     };
 
     return (
@@ -272,6 +297,19 @@ function SettingsPage() {
                     </div>
                 </main>
             </div>
+
+            {/* --- CONFIRM DIALOG UNTUK NOTIFIKASI --- */}
+            <ConfirmDialog
+                isOpen={isNotificationOpen}
+                title={notificationTitle}
+                message={notificationMessage}
+                // Karena ini hanya notifikasi sukses, kita hanya menggunakan onConfirm
+                // sebagai tombol 'OK' atau 'Tutup'.
+                onConfirm={handleCloseNotification}
+                onCancel={handleCloseNotification}
+                // Anda mungkin perlu menambahkan prop 'isAlert' ke ConfirmDialog 
+                // Anda jika Anda ingin hanya menampilkan tombol 'OK' tanpa tombol 'Cancel'
+            />
         </div>
     );
 }
