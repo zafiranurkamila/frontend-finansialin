@@ -242,3 +242,283 @@
     -webkit-appearance: none;
     margin: 0;
 }
+
+/* Category Header with Manage Button */
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.manage-categories-btn {
+    background: transparent;
+    color: #344d33;
+    border: 1.5px solid #344d33;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.manage-categories-btn:hover {
+    background: #344d33;
+    color: white;
+}
+
+/* Category List for Management */
+.category-list {
+    background: #F9FAFB;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.category-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-list::-webkit-scrollbar-track {
+    background: #F3F4F6;
+    border-radius: 3px;
+}
+
+.category-list::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 3px;
+}
+
+.category-list::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: white;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.category-item:last-child {
+    margin-bottom: 0;
+}
+
+.category-item:hover {
+    border-color: #344d33;
+    box-shadow: 0 2px 8px rgba(52, 77, 51, 0.08);
+}
+
+.category-name {
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+}
+
+.delete-category-btn {
+    background: transparent;
+    color: #EF4444;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-category-btn:hover {
+    background: #FEE2E2;
+}
+
+.delete-category-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Category Input Wrapper */
+.category-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.category-input-wrapper select {
+    flex: 1;
+}
+
+.add-category-btn {
+    background: #344d33;
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-width: 48px;
+    height: 48px;
+}
+
+.add-category-btn:hover:not(:disabled) {
+    background: #243A1F;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 77, 51, 0.2);
+}
+
+.add-category-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.add-category-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* New Category Input */
+.new-category-input {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.new-category-input input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 16px;
+    border: 2px solid #344d33;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.new-category-input input:focus {
+    outline: none;
+    border-color: #243A1F;
+    box-shadow: 0 0 0 3px rgba(52, 77, 51, 0.1);
+}
+
+.btn-save-category,
+.btn-cancel-category {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-save-category {
+    background: #344d33;
+    color: white;
+}
+
+.btn-save-category:hover:not(:disabled) {
+    background: #243A1F;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 77, 51, 0.2);
+}
+
+.btn-save-category:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-cancel-category {
+    background: #F3F4F6;
+    color: #374151;
+    border: 1px solid #E5E7EB;
+}
+
+.btn-cancel-category:hover:not(:disabled) {
+    background: #E5E7EB;
+}
+
+/* Error Alert Styling */
+.error-alert {
+    background: #FEE2E2;
+    border: 1.5px solid #FCA5A5;
+    color: #991B1B;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .modal-header {
+        padding: 20px 20px 12px;
+    }
+
+    .transaction-form {
+        padding: 20px;
+    }
+
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .manage-categories-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .category-input-wrapper {
+        flex-direction: column;
+    }
+
+    .category-input-wrapper select {
+        width: 100%;
+    }
+
+    .add-category-btn {
+        width: 100%;
+    }
+
+    .new-category-input {
+        flex-direction: column;
+    }
+
+    .new-category-input input {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .btn-save-category,
+    .btn-cancel-category {
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-cancel,
+    .btn-submit {
+        width: 100%;
+    }
+}

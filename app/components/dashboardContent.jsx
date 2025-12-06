@@ -2,9 +2,11 @@
 import React from "react";
 import { FaChartLine, FaChartBar, FaWallet } from 'react-icons/fa';
 import { useTransactions } from "../context/TransactionContext";
+import { useCategories } from "../context/CategoryContext";
 
 function DashboardContent() {
   const { transactions, notifications, totalIncome, totalExpenses, currentBalance } = useTransactions();
+  const { getCategoryById } = useCategories();
 
   return (
     <div className="dashboard-content">
@@ -15,7 +17,7 @@ function DashboardContent() {
             <h4>Total Income</h4>
             <FaChartLine className="card-icon" style={{ color: '#10B981' }} />
           </div>
-          <div className="value">${totalIncome.toLocaleString()}</div>
+          <div className="value">Rp{totalIncome.toLocaleString('id-ID')}</div>
         </div>
 
         <div className="card">
@@ -23,7 +25,7 @@ function DashboardContent() {
             <h4>Total Expenses</h4>
             <FaChartBar className="card-icon" style={{ color: '#EF4444' }} />
           </div>
-          <div className="value">${totalExpenses.toLocaleString()}</div>
+          <div className="value">Rp{totalExpenses.toLocaleString('id-ID')}</div>
         </div>
 
         <div className="card">
@@ -31,7 +33,7 @@ function DashboardContent() {
             <h4>Current Balance</h4>
             <FaWallet className="card-icon" style={{ color: '#F59E0B' }} />
           </div>
-          <div className="value">${currentBalance.toLocaleString()}</div>
+          <div className="value">Rp{currentBalance.toLocaleString('id-ID')}</div>
         </div>
       </div>
 
@@ -45,18 +47,36 @@ function DashboardContent() {
               <p>No transactions yet.</p>
             ) : (
               <div className="transactions-list">
-                {transactions.slice(0, 5).map(transaction => (
-                  <div key={transaction.id} className="transaction-item">
-                    <div className="transaction-info">
-                      <p className="transaction-category">{transaction.category}</p>
-                      <p className="transaction-desc">{transaction.description || 'No description'}</p>
-                      <p className="transaction-date">{new Date(transaction.date).toLocaleDateString()}</p>
+                {transactions.slice(0, 5).map(transaction => {
+                  // Get category name
+                  const categoryName = transaction.category?.name || 
+                                      getCategoryById(transaction.idCategory)?.name || 
+                                      'Uncategorized';
+                  
+                  // Get description with priority: description -> source -> "No description"
+                  const description = transaction.description || 
+                                    transaction.source || 
+                                    'No description';
+                  
+                  return (
+                    <div key={transaction.id || transaction.idTransaction} className="transaction-item">
+                      <div className="transaction-info">
+                        <p className="transaction-category">{categoryName}</p>
+                        <p className="transaction-desc">{description}</p>
+                        <p className="transaction-date">
+                          {new Date(transaction.date).toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                      <div className={`transaction-amount ${transaction.type}`}>
+                        {transaction.type === 'income' ? '+' : '-'}Rp{parseFloat(transaction.amount).toLocaleString('id-ID')}
+                      </div>
                     </div>
-                    <div className={`transaction-amount ${transaction.type}`}>
-                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -78,7 +98,13 @@ function DashboardContent() {
                     <div className="notif-widget-content">
                       <p>{notification.message}</p>
                       <span className="notif-widget-time">
-                        {new Date(notification.date).toLocaleTimeString()}
+                        {new Date(notification.date).toLocaleString('id-ID', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </span>
                     </div>
                   </div>

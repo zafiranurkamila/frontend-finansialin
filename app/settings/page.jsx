@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "../components/sidebar";
 import NotificationDropdown from "../components/NotificationDropdown";
 import ProfileDropdown from "../components/ProfileDropdown";
@@ -7,23 +8,25 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { useUser } from "../context/UserContext";
 import "../style/dashboard.css";
 import "../style/settings.css";
-import { FaUser, FaBell, FaLock, FaPalette, FaSave } from 'react-icons/fa';
+import { FaUser, FaBell, FaSave } from 'react-icons/fa';
 
 function SettingsPage() {
+    const router = useRouter();
     const { user, updateUser } = useUser();
     const [activeTab, setActiveTab] = useState('profile');
+    const [isAuthed, setIsAuthed] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
     
     // --- State untuk Form Data ---
     const [formData, setFormData] = useState({
         name: user?.name || '',
-        email: user?.email || '',
-        phone: user?.phone || '',
-        avatar: user?.avatar || ''
+        email: user?.email || ''
     });
 
-    // --- State untuk Notifikasi (Hanya Transaction dan Budget) ---
+    // --- State untuk Notifikasi ---
     const [notifSettings, setNotifSettings] = useState({
-        // EmailNotifications dan PushNotifications dihapus
         transactionAlerts: true,
         budgetAlerts: true
     });
@@ -32,6 +35,64 @@ function SettingsPage() {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
     const [notificationTitle, setNotificationTitle] = useState('');
+
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+
+    // Check auth saat mount
+    useEffect(() => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            router.push("/login");
+        } else {
+            setIsAuthed(true);
+            fetchUserProfile();
+            loadNotificationSettings();
+        }
+        setLoading(false);
+    }, [router]);
+
+    // Update formData saat user berubah
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                name: user.name || '',
+                email: user.email || ''
+            });
+        }
+    }, [user]);
+
+    const fetchUserProfile = async () => {
+        try {
+            const token = localStorage.getItem("access_token");
+            const response = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem("access_token");
+                    router.push("/login");
+                }
+                throw new Error("Failed to fetch profile");
+            }
+
+            const data = await response.json();
+            updateUser(data);
+        } catch (err) {
+            console.error("Profile fetch error:", err);
+        }
+    };
+
+    const loadNotificationSettings = () => {
+        const saved = localStorage.getItem('notificationSettings');
+        if (saved) {
+            setNotifSettings(JSON.parse(saved));
+        }
+    };
 
     // --- Handlers ---
     
@@ -56,28 +117,92 @@ function SettingsPage() {
         }));
     };
 
-    const handleSaveProfile = (e) => {
+    const handleSaveProfile = async (e) => {
         e.preventDefault();
-        updateUser(formData);
-        
-        // Tampilkan notifikasi kustom
-        setNotificationTitle('Update Successful');
-        setNotificationMessage('Profile updated successfully!');
-        setIsNotificationOpen(true);
+        setIsSaving(true);
+
+        try {
+            const token = localStorage.getItem("access_token");
+            
+            const response = await fetch(`${BACKEND_URL}/api/users/profile`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to update profile");
+            }
+
+            const updatedUser = await response.json();
+            updateUser(updatedUser);
+
+            setNotificationTitle('Update Successful');
+            setNotificationMessage('Profile updated successfully!');
+            setIsNotificationOpen(true);
+        } catch (err) {
+            console.error("Update profile error:", err);
+            setNotificationTitle('Error');
+            setNotificationMessage(err.message || 'Failed to update profile. Please try again.');
+            setIsNotificationOpen(true);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleSaveNotifications = () => {
         localStorage.setItem('notificationSettings', JSON.stringify(notifSettings));
         
-        // Tampilkan notifikasi kustom
         setNotificationTitle('Settings Saved');
         setNotificationMessage('Notification settings saved successfully!');
         setIsNotificationOpen(true);
     };
 
+    const handleLogoutAttempt = () => {
+        setIsLogoutAlertOpen(true);
+    };
+
+    const handleConfirmLogout = () => {
+        setIsLogoutAlertOpen(false);
+        const token = localStorage.getItem('access_token');
+        
+        if (token) {
+            fetch(`${BACKEND_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            }).catch(console.error);
+        }
+        
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        router.push('/login');
+    };
+
+    const handleCancelLogout = () => {
+        setIsLogoutAlertOpen(false);
+    };
+
+    if (loading || !isAuthed) return (
+        <div className="loading">
+            <div className="loading-container">
+                <div className="loading-text">Finansialin</div>
+            </div>
+        </div>
+    );
+
     return (
         <div className="dashboard-container">
-            <Sidebar />
+            <Sidebar onLogoutAttempt={handleLogoutAttempt} />
 
             <div className="main-content-area">
                 <header className="dashboard-header">
@@ -85,7 +210,7 @@ function SettingsPage() {
 
                     <div className="header-actions">
                         <NotificationDropdown />
-                        <ProfileDropdown />
+                        <ProfileDropdown onLogoutAttempt={handleLogoutAttempt} />
                     </div>
                 </header>
 
@@ -106,20 +231,6 @@ function SettingsPage() {
                             >
                                 <FaBell />
                                 <span>Notifications</span>
-                            </button>
-                            <button
-                                className={`settings-tab ${activeTab === 'security' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('security')}
-                            >
-                                <FaLock />
-                                <span>Security</span>
-                            </button>
-                            <button
-                                className={`settings-tab ${activeTab === 'appearance' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('appearance')}
-                            >
-                                <FaPalette />
-                                <span>Appearance</span>
                             </button>
                         </div>
 
@@ -142,6 +253,7 @@ function SettingsPage() {
                                                     value={formData.name}
                                                     onChange={handleChange}
                                                     placeholder="Enter your name"
+                                                    required
                                                 />
                                             </div>
 
@@ -154,38 +266,13 @@ function SettingsPage() {
                                                     value={formData.email}
                                                     onChange={handleChange}
                                                     placeholder="Enter your email"
+                                                    required
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="form-row">
-                                            <div className="form-group">
-                                                <label htmlFor="phone">Phone Number</label>
-                                                <input
-                                                    type="tel"
-                                                    id="phone"
-                                                    name="phone"
-                                                    value={formData.phone}
-                                                    onChange={handleChange}
-                                                    placeholder="Enter your phone"
-                                                />
-                                            </div>
-
-                                            <div className="form-group">
-                                                <label htmlFor="avatar">Avatar URL</label>
-                                                <input
-                                                    type="url"
-                                                    id="avatar"
-                                                    name="avatar"
-                                                    value={formData.avatar}
-                                                    onChange={handleChange}
-                                                    placeholder="Enter avatar URL"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <button type="submit" className="save-btn">
-                                            <FaSave /> Save Changes
+                                        <button type="submit" className="save-btn" disabled={isSaving}>
+                                            <FaSave /> {isSaving ? 'Saving...' : 'Save Changes'}
                                         </button>
                                     </form>
                                 </div>
@@ -198,10 +285,6 @@ function SettingsPage() {
                                     <p className="section-description">Manage how you receive notifications</p>
 
                                     <div className="settings-list">
-                                        
-                                        {/* Email Notifications DIHAPUS */}
-                                        {/* Push Notifications DIHAPUS */}
-
                                         <div className="setting-item">
                                             <div className="setting-info">
                                                 <h4>Transaction Alerts</h4>
@@ -238,40 +321,12 @@ function SettingsPage() {
                                     </button>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </main>
+            </div>
 
-                            {/* Security Tab */}
-                            {activeTab === 'security' && (
-                                <div className="settings-section">
-                                    <h3 className="section-title">Security Settings</h3>
-                                    <p className="section-description">Manage your password and security</p>
-
-                                    <div className="coming-soon">
-                                        <FaLock className="coming-soon-icon" />
-                                        <h4>Coming Soon</h4>
-                                        <p>Password change and two-factor authentication features are under development</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Appearance Tab */}
-                            {activeTab === 'appearance' && (
-                                <div className="settings-section">
-                                    <h3 className="section-title">Appearance</h3>
-                                    <p className="section-description">Customize your app appearance</p>
-
-                                    <div className="coming-soon">
-                                        <FaPalette className="coming-soon-icon" />
-                                        <h4>Coming Soon</h4>
-                                        <p>Theme customization and dark mode features are under development</p>
-                                    </div >
-                                </div >
-                            )}
-                        </div >
-                    </div >
-                </main >
-            </div >
-
-            {/* --- CONFIRM DIALOG UNTUK NOTIFIKASI --- */}
+            {/* CONFIRM DIALOG UNTUK NOTIFIKASI */}
             <ConfirmDialog
                 isOpen={isNotificationOpen}
                 title={notificationTitle}
@@ -279,7 +334,16 @@ function SettingsPage() {
                 onConfirm={handleCloseNotification}
                 onCancel={handleCloseNotification}
             />
-        </div >
+
+            {/* CONFIRM DIALOG UNTUK LOGOUT */}
+            <ConfirmDialog
+                isOpen={isLogoutAlertOpen}
+                title="Confirm Logout"
+                message="Are you sure you want to log out?"
+                onConfirm={handleConfirmLogout}
+                onCancel={handleCancelLogout}
+            />
+        </div>
     );
 }
 

@@ -1,26 +1,97 @@
+// AnalyticsPage.jsx
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "../components/sidebar";
 import NotificationDropdown from "../components/NotificationDropdown";
 import ProfileDropdown from "../components/ProfileDropdown";
 import ReportView from "../components/ReportView";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useTransactions } from "../context/TransactionContext";
+import { fetchWithAuth } from "../utils/authHelper";
 import {
     BarChart, Bar, PieChart, Pie, LineChart, Line,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend,
     ResponsiveContainer, Cell
 } from 'recharts';
-import { FaChartLine, FaFileAlt } from 'react-icons/fa';
+import { FaChartLine, FaFileAlt, FaDownload } from 'react-icons/fa';
 import "../style/dashboard.css";
 import "../style/analytics.css";
 
 export default function AnalyticsPage() {
-    const { transactions, totalIncome, totalExpenses, currentBalance } = useTransactions();
+    const router = useRouter();
+    const { transactions, totalIncome, totalExpenses, currentBalance, setTransactionsFromBackend } = useTransactions();
     const [activeTab, setActiveTab] = useState('charts');
+    const [isAuthed, setIsAuthed] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [dataLoading, setDataLoading] = useState(false);
+    const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
+
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+
+    // Check auth saat mount
+    useEffect(() => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            router.push("/login");
+        } else {
+            setIsAuthed(true);
+        }
+        setLoading(false);
+    }, [router]);
+
+    // Fetch transactions saat mounted atau jika transactions kosong
+    useEffect(() => {
+        if (isAuthed) {
+            fetchAnalyticsData();
+        }
+    }, [isAuthed]);
+
+    // Fetch data dari backend
+    const fetchAnalyticsData = async () => {
+        try {
+            setDataLoading(true);
+            console.log("📥 Fetching analytics data...");
+            
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/transactions`, {
+                method: "GET",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch transactions");
+            }
+
+            const result = await response.json();
+            console.log("✅ Analytics data loaded:", result);
+            
+            const transactionsData = result.data || result;
+            
+            const transformed = transactionsData.map(t => ({
+                id: t.idTransaction,
+                idTransaction: t.idTransaction,
+                type: t.type,
+                amount: parseFloat(t.amount),
+                description: t.description,
+                date: t.date,
+                source: t.source,
+                idCategory: t.idCategory,
+                category: t.category,
+                userId: t.idUser
+            }));
+            
+            setTransactionsFromBackend(transformed);
+            setDataLoading(false);
+            
+        } catch (err) {
+            console.error("❌ Fetch analytics error:", err);
+            setDataLoading(false);
+        }
+    };
 
     // Category Data
     const categoryData = transactions.reduce((acc, transaction) => {
         const category = transaction.category;
+        if (!category) return acc;
         if (!acc[category]) {
             acc[category] = { income: 0, expense: 0 };
         }
@@ -85,16 +156,60 @@ export default function AnalyticsPage() {
         ? Math.max(...expenseTransactions.map(t => t.amount))
         : 0;
 
+    const handleLogoutAttempt = () => {
+        setIsLogoutAlertOpen(true);
+    };
+
+    const handleConfirmLogout = () => {
+        setIsLogoutAlertOpen(false);
+        const token = localStorage.getItem('access_token');
+        
+        if (token) {
+            fetch(`${BACKEND_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            }).catch(console.error);
+        }
+        
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        router.push('/login');
+    };
+
+    const handleCancelLogout = () => {
+        setIsLogoutAlertOpen(false);
+    };
+
+    // Show loading saat initial load atau data sedang dimuat
+    if (loading || dataLoading) return (
+        <div className="loading">
+            <div className="loading-container">
+                <div className="loading-text">Finansialin</div>
+            </div>
+        </div>
+    );
+
+    if (!isAuthed) return (
+        <div className="loading">
+            <div className="loading-container">
+                <div className="loading-text">Finansialin</div>
+            </div>
+        </div>
+    );
+
     return (
         <div className="dashboard-container">
-            <Sidebar />
+            <Sidebar onLogoutAttempt={handleLogoutAttempt} />
 
             <div className="main-content-area">
                 <header className="dashboard-header">
                     <h2 className="page-title">Analytics & Reports</h2>
                     <div className="header-actions">
                         <NotificationDropdown />
-                        <ProfileDropdown />
+                        <ProfileDropdown onLogoutAttempt={handleLogoutAttempt} />
                     </div>
                 </header>
 
@@ -122,29 +237,36 @@ export default function AnalyticsPage() {
                                 <p>No data to analyze yet. Start adding transactions!</p>
                             </div>
                         ) : (
-                            <>
+                            <div className="analytics-main-content">
                                 {/* Summary Cards */}
                                 <div className="analytics-summary">
                                     <div className="summary-card income">
                                         <h4>Total Income</h4>
-                                        <p className="summary-amount">${totalIncome.toLocaleString()}</p>
+                                        <p className="summary-amount">
+                                            Rp {totalIncome.toLocaleString('id-ID')}
+                                        </p>
                                     </div>
                                     <div className="summary-card expense">
                                         <h4>Total Expenses</h4>
-                                        <p className="summary-amount">${totalExpenses.toLocaleString()}</p>
+                                        <p className="summary-amount">
+                                            Rp {totalExpenses.toLocaleString('id-ID')}
+                                        </p>
                                     </div>
                                     <div className="summary-card balance">
                                         <h4>Net Balance</h4>
-                                        <p className="summary-amount">${currentBalance.toLocaleString()}</p>
+                                        <p className="summary-amount">
+                                            Rp {currentBalance.toLocaleString('id-ID')}
+                                        </p>
                                     </div>
                                 </div>
 
                                 {/* Charts Grid */}
                                 <div className="charts-grid">
+                                    
                                     {/* Income vs Expenses Pie Chart */}
-                                    <div className="chart-card">
+                                    <div className="chart-card wide">
                                         <h3>Income vs Expenses</h3>
-                                        <ResponsiveContainer width="100%" height={300}>
+                                        <ResponsiveContainer width="100%" height={400}>
                                             <PieChart>
                                                 <Pie
                                                     data={pieData}
@@ -152,7 +274,7 @@ export default function AnalyticsPage() {
                                                     cy="50%"
                                                     labelLine={false}
                                                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                                    outerRadius={80}
+                                                    outerRadius={140}
                                                     fill="#8884d8"
                                                     dataKey="value"
                                                 >
@@ -160,12 +282,12 @@ export default function AnalyticsPage() {
                                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                                     ))}
                                                 </Pie>
-                                                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                                                <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
                                             </PieChart>
                                         </ResponsiveContainer>
                                     </div>
 
-                                    {/* Category Breakdown */}
+                                    {/* Category Breakdown Bar Chart */}
                                     <div className="chart-card wide">
                                         <h3>Category Breakdown</h3>
                                         <ResponsiveContainer width="100%" height={300}>
@@ -173,7 +295,7 @@ export default function AnalyticsPage() {
                                                 <CartesianGrid strokeDasharray="3 3" />
                                                 <XAxis dataKey="name" />
                                                 <YAxis />
-                                                <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                                                <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
                                                 <Legend />
                                                 <Bar dataKey="income" fill="#10B981" name="Income" />
                                                 <Bar dataKey="expense" fill="#EF4444" name="Expense" />
@@ -181,7 +303,7 @@ export default function AnalyticsPage() {
                                         </ResponsiveContainer>
                                     </div>
 
-                                    {/* Monthly Trend */}
+                                    {/* Monthly Trend Line Chart */}
                                     {monthlyChartData.length > 0 && (
                                         <div className="chart-card wide">
                                             <h3>Monthly Trend</h3>
@@ -190,7 +312,7 @@ export default function AnalyticsPage() {
                                                     <CartesianGrid strokeDasharray="3 3" />
                                                     <XAxis dataKey="month" />
                                                     <YAxis />
-                                                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                                                    <Tooltip formatter={(value) => `Rp ${value.toLocaleString('id-ID')}`} />
                                                     <Legend />
                                                     <Line type="monotone" dataKey="income" stroke="#10B981" strokeWidth={2} name="Income" />
                                                     <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name="Expense" />
@@ -211,25 +333,25 @@ export default function AnalyticsPage() {
                                         <div className="stat-item">
                                             <span className="stat-label">Average Income</span>
                                             <span className="stat-value income">
-                                                ${avgIncome.toFixed(2)}
+                                                Rp {avgIncome.toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                         <div className="stat-item">
                                             <span className="stat-label">Average Expense</span>
                                             <span className="stat-value expense">
-                                                ${avgExpense.toFixed(2)}
+                                                Rp {avgExpense.toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                         <div className="stat-item">
                                             <span className="stat-label">Highest Income</span>
                                             <span className="stat-value income">
-                                                ${highestIncome.toLocaleString()}
+                                                Rp {highestIncome.toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                         <div className="stat-item">
                                             <span className="stat-label">Highest Expense</span>
                                             <span className="stat-value expense">
-                                                ${highestExpense.toLocaleString()}
+                                                Rp {highestExpense.toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                         <div className="stat-item">
@@ -240,13 +362,21 @@ export default function AnalyticsPage() {
                                         </div>
                                     </div>
                                 </div>
-                            </>
+                            </div>
                         )
                     ) : (
                         <ReportView />
                     )}
                 </main>
             </div>
+
+            <ConfirmDialog
+                isOpen={isLogoutAlertOpen}
+                title="Confirm Logout"
+                message="Are you sure you want to log out?"
+                onConfirm={handleConfirmLogout}
+                onCancel={handleCancelLogout}
+            />
         </div>
     );
 }

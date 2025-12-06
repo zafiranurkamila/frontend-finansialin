@@ -84,6 +84,85 @@
     gap: 24px;
 }
 
+/* Avatar Upload Section */
+.avatar-upload-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 32px 24px;
+    background: #F9FAFB;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F3F4F6;
+    color: #D1D5DB;
+    font-size: 48px;
+}
+
+.avatar-upload-input {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.avatar-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #344d33;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.avatar-upload-btn:hover {
+    background: #243A1F;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 77, 51, 0.2);
+}
+
+.avatar-hint {
+    margin: 0;
+    font-size: 13px;
+    color: #9CA3AF;
+}
+
 .form-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -111,6 +190,8 @@
     font-family: 'Poppins', sans-serif;
     transition: all 0.2s;
     box-sizing: border-box;
+    background: white;
+    color: #111827;
 }
 
 .form-group input:focus {
@@ -139,6 +220,12 @@
     background: #243A1F;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(52, 77, 51, 0.3);
+}
+
+.save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* Settings List */
@@ -218,30 +305,90 @@
     transform: translateX(22px);
 }
 
-/* Coming Soon */
-.coming-soon {
-    text-align: center;
-    padding: 80px 20px;
+/* Dialog Styles */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-.coming-soon-icon {
-    font-size: 64px;
-    color: #D1D5DB;
-    margin-bottom: 20px;
+.dialog-box {
+    background-color: white;
+    color: #111827;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.95);
+    opacity: 0;
+    animation: fadeInScale 0.2s forwards;
+    display: flex;
+    flex-direction: column;
 }
 
-.coming-soon h4 {
-    margin: 0 0 8px 0;
-    font-size: 20px;
+@keyframes fadeInScale {
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.dialog-header {
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-bottom: 12px;
     color: #111827;
 }
 
-.coming-soon p {
-    margin: 0;
+.dialog-message {
+    font-size: 0.95em;
+    margin-bottom: 24px;
+    line-height: 1.5;
     color: #6B7280;
-    font-size: 15px;
-    max-width: 500px;
-    margin: 0 auto;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.dialog-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.dialog-actions .btn-confirm {
+    background-color: #344d33;
+    color: white;
+}
+
+.dialog-actions .btn-confirm:hover {
+    background-color: #243A1F;
+}
+
+.dialog-actions .btn-cancel {
+    background-color: #F3F4F6;
+    color: #6B7280;
+    border: 1px solid #D1D5DB;
+}
+
+.dialog-actions .btn-cancel:hover {
+    background-color: #E5E7EB;
 }
 
 /* Responsive */
@@ -263,6 +410,21 @@
         flex-shrink: 0;
         width: auto;
     }
+
+    .avatar-upload-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .avatar-upload-input {
+        width: 100%;
+    }
+
+    .avatar-upload-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 768px) {
@@ -273,97 +435,22 @@
     .settings-content {
         padding: 20px;
     }
-}
 
-/* --- Custom Alert/Confirm Dialog Styles --- */
-
-/* Overlay untuk menutupi seluruh layar */
-.dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* Gunakan latar belakang gelap dengan transparansi */
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Pastikan di atas elemen lain */
-}
-
-/* Kotak dialog utama */
-.dialog-box {
-    background-color: #2D3748; /* Warna latar belakang gelap (sesuai screenshot) */
-    color: white;
-    padding: 30px;
-    border-radius: 12px; /* Sudut melengkung */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    max-width: 400px;
-    width: 90%;
-    /* Efek animasi saat muncul */
-    transform: scale(0.95);
-    opacity: 0;
-    animation: fadeInScale 0.2s forwards;
-    display: flex;
-    flex-direction: column;
-}
-
-@keyframes fadeInScale {
-    to {
-        transform: scale(1);
-        opacity: 1;
+    .avatar-upload-section {
+        padding: 16px;
+        gap: 16px;
     }
-}
 
-/* Judul (jika ada) dan Pesan */
-.dialog-header {
-    font-size: 1.5em;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
+    .avatar-preview {
+        width: 100px;
+        height: 100px;
+    }
 
-.dialog-message {
-    font-size: 1em;
-    margin-bottom: 25px;
-    line-height: 1.5;
-}
+    .avatar-placeholder {
+        font-size: 40px;
+    }
 
-/* Container tombol */
-.dialog-actions {
-    display: flex;
-    justify-content: flex-end; /* Posisikan tombol ke kanan */
-    gap: 10px;
-    margin-top: 15px;
-}
-
-/* Gaya tombol */
-.dialog-actions button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-
-/* Tombol Primary (misalnya, OK/Confirm) */
-.dialog-actions .btn-confirm {
-    background-color: #344d33; /* Gunakan warna hijau utama aplikasi Anda */
-    color: white;
-}
-
-.dialog-actions .btn-confirm:hover {
-    background-color: #243A1F;
-}
-
-/* Tombol Secondary (misalnya, Cancel) */
-.dialog-actions .btn-cancel {
-    background-color: transparent;
-    color: #9CA3AF; /* Warna abu-abu terang */
-    border: 1px solid #4B5563;
-}
-
-.dialog-actions .btn-cancel:hover {
-    background-color: #374151;
+    .settings-section {
+        width: 100%;
+    }
 }

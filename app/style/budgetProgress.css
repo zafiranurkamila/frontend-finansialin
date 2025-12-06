@@ -1,0 +1,177 @@
+.budget-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.budget-section h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.empty-budget-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: #9CA3AF;
+}
+
+.empty-budget-state p {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+}
+
+.empty-budget-state small {
+    display: block;
+    font-size: 13px;
+    color: #D1D5DB;
+}
+
+.budget-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.budget-progress-item {
+    padding: 16px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.budget-progress-item.normal {
+    background: #F9FAFB;
+    border-color: #E5E7EB;
+}
+
+.budget-progress-item.warning {
+    background: #FFFBEB;
+    border-color: #FCD34D;
+}
+
+.budget-progress-item.over-budget {
+    background: #FEF2F2;
+    border-color: #FECACA;
+}
+
+.budget-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.budget-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.budget-category {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.budget-period {
+    font-size: 12px;
+    color: #9CA3AF;
+    background: #F3F4F6;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.budget-amounts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.spent-amount {
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.limit-amount {
+    color: #9CA3AF;
+}
+
+.divider {
+    color: #D1D5DB;
+}
+
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.progress-bar-background {
+    flex: 1;
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3B82F6 0%, #10B981 100%);
+    transition: width 0.3s ease;
+}
+
+.progress-bar-fill.over {
+    background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);
+}
+
+.progress-percentage {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1F2937;
+    min-width: 40px;
+    text-align: right;
+}
+
+.budget-status {
+    font-size: 12px;
+}
+
+.status-over {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #DC2626;
+}
+
+.status-icon {
+    font-size: 14px;
+}
+
+.status-normal {
+    color: #10B981;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .budget-section {
+        padding: 16px;
+    }
+
+    .budget-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .budget-amounts {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

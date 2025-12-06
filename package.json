@@ -8,6 +8,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^1.30.0",
     "@heroicons/react": "^2.2.0",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",

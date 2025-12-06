@@ -1,20 +1,20 @@
-// app/components/ClientProviders.jsx
-'use client';
+"use client";
 import React from 'react';
-import { TransactionProvider } from '../context/TransactionContext';
 import { UserProvider } from '../context/UserContext';
-import { BudgetProvider } from '../context/BudgetContext'; // <-- TAMBAHKAN INI
+import { TransactionProvider } from '../context/TransactionContext';
+import { CategoryProvider } from '../context/CategoryContext';
+import { BudgetProvider } from '../context/BudgetContext';
 
 export default function ClientProviders({ children }) {
     return (
-        // Susun semua provider di sini.
-        // Pastikan semua provider (User, Transaction, Budget) mengelilingi 'children'.
         <UserProvider>
-            <TransactionProvider>
-                <BudgetProvider> {/* <-- WRAP DENGAN BUDGETPROVIDER */}
-                    {children}
-                </BudgetProvider>
-            </TransactionProvider>
+            <CategoryProvider>
+                <TransactionProvider>
+                    <BudgetProvider>
+                        {children}
+                    </BudgetProvider>
+                </TransactionProvider>
+            </CategoryProvider>
         </UserProvider>
     );
 }

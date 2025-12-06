@@ -1,26 +1,42 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaPlus, FaTrash } from 'react-icons/fa';
+import { useCategories } from '../context/CategoryContext';
 import '../style/modal.css';
 
 function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction }) {
     const [formData, setFormData] = useState({
         type: 'income',
         amount: '',
-        category: '',
+        categoryId: '',
         description: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        source: ''
     });
+
+    const [error, setError] = useState('');
+    const [showCategoryInput, setShowCategoryInput] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [addingCategory, setAddingCategory] = useState(false);
+    const [showCategoryList, setShowCategoryList] = useState(false);
+
+    const { getCategoriesByType, addCategory, getCategoryByName, deleteCategory } = useCategories();
+
+    // Get categories for current type
+    const currentCategories = getCategoriesByType(formData.type);
 
     // Populate form when transaction changes
     useEffect(() => {
         if (transaction) {
+            console.log("📝 Editing transaction:", transaction);
+            
             setFormData({
                 type: transaction.type,
                 amount: transaction.amount.toString(),
-                category: transaction.category,
+                categoryId: transaction.idCategory ? transaction.idCategory.toString() : '',
                 description: transaction.description || '',
-                date: transaction.date
+                date: transaction.date ? transaction.date.split('T')[0] : new Date().toISOString().split('T')[0],
+                source: transaction.source || ''
             });
         }
     }, [transaction]);
@@ -31,21 +47,98 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
             ...prev,
             [name]: value
         }));
+        setError('');
+    };
+
+    const handleTypeChange = (type) => {
+        setFormData(prev => ({
+            ...prev,
+            type,
+            categoryId: ''
+        }));
+        setShowCategoryInput(false);
+        setNewCategoryName('');
+        setError('');
+    };
+
+    const handleAddCategory = async () => {
+        const trimmedName = newCategoryName.trim();
+        
+        if (!trimmedName) {
+            setError('Category name cannot be empty');
+            return;
+        }
+
+        const existingCategory = getCategoryByName(trimmedName, formData.type);
+        
+        if (existingCategory) {
+            setError(`Category "${trimmedName}" already exists in ${formData.type}`);
+            return;
+        }
+
+        setAddingCategory(true);
+        try {
+            const newCategory = await addCategory(trimmedName, formData.type);
+            
+            setFormData(prev => ({
+                ...prev,
+                categoryId: newCategory.id
+            }));
+
+            setNewCategoryName('');
+            setShowCategoryInput(false);
+            setError('');
+        } catch (err) {
+            setError(err.message || 'Failed to add category');
+        } finally {
+            setAddingCategory(false);
+        }
+    };
+
+    const handleDeleteCategory = async (categoryId, categoryName) => {
+        if (!confirm(`Are you sure you want to delete category "${categoryName}"?`)) {
+            return;
+        }
+
+        try {
+            await deleteCategory(categoryId, formData.type);
+            
+            if (parseInt(formData.categoryId) === categoryId) {
+                setFormData(prev => ({
+                    ...prev,
+                    categoryId: ''
+                }));
+            }
+        } catch (err) {
+            setError('Failed to delete category. It may be used in transactions.');
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!formData.amount || !formData.category) {
-            alert('Please fill in all required fields');
+        if (!formData.amount || !formData.categoryId) {
+            setError('Please fill in all required fields');
             return;
         }
 
-        onEditTransaction({
-            ...formData,
-            amount: parseFloat(formData.amount)
-        });
+        if (parseFloat(formData.amount) <= 0) {
+            setError('Amount must be greater than 0');
+            return;
+        }
 
+        // Send updated data to parent
+        const updatedData = {
+            type: formData.type,
+            amount: parseFloat(formData.amount),
+            description: formData.description || undefined,
+            date: new Date(formData.date).toISOString(),
+            source: formData.source || undefined,
+            idCategory: parseInt(formData.categoryId)
+        };
+
+        console.log("📤 Updating transaction with:", updatedData);
+        onEditTransaction(updatedData);
         onClose();
     };
 
@@ -62,6 +155,12 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                 </div>
 
                 <form onSubmit={handleSubmit} className="transaction-form">
+                    {error && (
+                        <div className="error-alert">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Type Selection */}
                     <div className="form-group">
                         <label>Type *</label>
@@ -69,14 +168,14 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                             <button
                                 type="button"
                                 className={`type-btn ${formData.type === 'income' ? 'active income' : ''}`}
-                                onClick={() => setFormData(prev => ({ ...prev, type: 'income' }))}
+                                onClick={() => handleTypeChange('income')}
                             >
                                 Income
                             </button>
                             <button
                                 type="button"
                                 className={`type-btn ${formData.type === 'expense' ? 'active expense' : ''}`}
-                                onClick={() => setFormData(prev => ({ ...prev, type: 'expense' }))}
+                                onClick={() => handleTypeChange('expense')}
                             >
                                 Expense
                             </button>
@@ -85,7 +184,7 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
 
                     {/* Amount */}
                     <div className="form-group">
-                        <label htmlFor="amount">Amount *</label>
+                        <label htmlFor="amount">Amount (Rp) *</label>
                         <input
                             type="number"
                             id="amount"
@@ -94,39 +193,118 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                             onChange={handleChange}
                             placeholder="0.00"
                             step="0.01"
+                            min="0"
                             required
                         />
                     </div>
 
-                    {/* Category */}
+                    {/* Category with Add & Manage */}
                     <div className="form-group">
-                        <label htmlFor="category">Category *</label>
-                        <select
-                            id="category"
-                            name="category"
-                            value={formData.category}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value="">Select category</option>
-                            {formData.type === 'income' ? (
-                                <>
-                                    <option value="salary">Salary</option>
-                                    <option value="freelance">Freelance</option>
-                                    <option value="investment">Investment</option>
-                                    <option value="other">Other</option>
-                                </>
-                            ) : (
-                                <>
-                                    <option value="food">Food</option>
-                                    <option value="transport">Transport</option>
-                                    <option value="shopping">Shopping</option>
-                                    <option value="bills">Bills</option>
-                                    <option value="entertainment">Entertainment</option>
-                                    <option value="other">Other</option>
-                                </>
+                        <div className="category-header">
+                            <label htmlFor="categoryId">Category * ({formData.type})</label>
+                            {currentCategories.length > 0 && (
+                                <button
+                                    type="button"
+                                    className="manage-categories-btn"
+                                    onClick={() => setShowCategoryList(!showCategoryList)}
+                                >
+                                    {showCategoryList ? 'Hide' : 'Manage'} Categories
+                                </button>
                             )}
-                        </select>
+                        </div>
+                        
+                        {/* Category List */}
+                        {showCategoryList && currentCategories.length > 0 && (
+                            <div className="category-list">
+                                {currentCategories.map(cat => (
+                                    <div key={cat.id} className="category-item">
+                                        <span className="category-name">{cat.name}</span>
+                                        <button
+                                            type="button"
+                                            className="delete-category-btn"
+                                            onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                                            title="Delete category"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {!showCategoryInput ? (
+                            <div className="category-input-wrapper">
+                                <select
+                                    id="categoryId"
+                                    name="categoryId"
+                                    value={formData.categoryId}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Select or add category</option>
+                                    {currentCategories.map(cat => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    className="add-category-btn"
+                                    onClick={() => setShowCategoryInput(true)}
+                                    title="Add new category"
+                                >
+                                    <FaPlus />
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="new-category-input">
+                                <input
+                                    type="text"
+                                    value={newCategoryName}
+                                    onChange={(e) => {
+                                        setNewCategoryName(e.target.value);
+                                        setError('');
+                                    }}
+                                    placeholder={`Enter ${formData.type} category name`}
+                                    disabled={addingCategory}
+                                    autoFocus
+                                />
+                                <button
+                                    type="button"
+                                    className="btn-save-category"
+                                    onClick={handleAddCategory}
+                                    disabled={addingCategory || !newCategoryName.trim()}
+                                >
+                                    {addingCategory ? 'Adding...' : 'Add'}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-cancel-category"
+                                    onClick={() => {
+                                        setShowCategoryInput(false);
+                                        setNewCategoryName('');
+                                        setError('');
+                                    }}
+                                    disabled={addingCategory}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Source */}
+                    <div className="form-group">
+                        <label htmlFor="source">Source</label>
+                        <input
+                            type="text"
+                            id="source"
+                            name="source"
+                            value={formData.source}
+                            onChange={handleChange}
+                            placeholder="e.g., Cash, Bank, Wallet"
+                        />
                     </div>
 
                     {/* Date */}
