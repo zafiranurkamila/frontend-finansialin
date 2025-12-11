@@ -1,10 +1,53 @@
+/* ===== KEYFRAME ANIMATIONS ===== */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* ===== Layout Utama ===== */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* kunci supaya gak bisa scroll ke atas/bawah */
-  background-color: #ffffff; /* biar warna putih nggak muncul di luar layout */
+  overflow: hidden;
+  background-color: #ffffff;
 }
 
 .login-page {
@@ -27,12 +70,14 @@ html, body {
   text-align: center;
   padding: 0 60px;
   position: relative;
+  animation: slideInRight 0.7s ease-out;
 }
 
 .login-left h2 {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 16px;
+  animation: fadeInUp 0.6s ease-out 0.35s both;
 }
 
 .login-left p {
@@ -40,16 +85,16 @@ html, body {
   line-height: 1.6;
   margin-bottom: 28px;
   color: #e9e9e9;
+  animation: fadeInUp 0.6s ease-out 0.5s both;
 }
 
-/* Hilangkan underline pada link Sign Up di panel kiri */
-.login-left .btn-signup {
+.login-left .btn-signup-login {
   text-decoration: none;
-  display: inline-block; /* agar padding bekerja dengan baik */
-  /* Buat tombol lebih panjang */
+  display: inline-block;
   min-width: 200px;
   padding: 12px 60px;
   text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.65s both;
 }
 
 /* ===== Bagian Kanan (Form) ===== */
@@ -62,6 +107,7 @@ html, body {
   align-items: center;
   padding: 40px 80px;
   box-sizing: border-box;
+  animation: slideInLeft 0.7s ease-out;
 }
 
 .brand {
@@ -70,6 +116,7 @@ html, body {
   font-size: 36px;
   margin-bottom: 4px;
   text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.35s both;
 }
 
 .subtitle {
@@ -77,6 +124,7 @@ html, body {
   font-size: 15px;
   margin-bottom: 16px;
   text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.5s both;
 }
 
 /* ===== Form Login ===== */
@@ -85,6 +133,7 @@ html, body {
   flex-direction: column;
   width: 100%;
   max-width: 360px;
+  animation: fadeInUp 0.6s ease-out 0.65s both;
 }
 
 .login-form label {
@@ -109,6 +158,7 @@ html, body {
 
 .login-form input:focus {
   border-color: #344d33;
+  box-shadow: 0 0 0 3px rgba(52, 77, 51, 0.1);
 }
 
 /* ===== Password Visibility ===== */
@@ -121,25 +171,25 @@ html, body {
 
 .password-wrapper input {
   width: 100%;
-  padding-right: 40px; /* Pastikan ada ruang untuk ikon */
+  padding-right: 40px;
   box-sizing: border-box;
-  /* ... (gaya input lainnya) ... */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .toggle-password {
   position: absolute;
   right: 14px;
   top: 50%;
-  /* GANTI -95% menjadi -50% untuk pemusatan vertikal yang sempurna */
-  transform: translateY(-100%); 
-  
+  transform: translateY(-100%);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #344d33;
   transition: opacity 0.2s ease, color 0.2s ease;
-  z-index: 10; /* Tambahkan z-index untuk memastikan di atas ikon browser */
+  z-index: 20;
 }
 
 .toggle-password:hover {
@@ -174,18 +224,252 @@ html, body {
   transform: scale(1.02);
 }
 
+.btn-loginsignin:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* ===== Forgot Password ===== */
 .forgot-password {
-  text-align: center;
-  display: block;
-  margin-top: 12px;
+  background: none;
+  border: none;
+  padding: 0;
   font-size: 12px;
   color: #344d33;
+  cursor: pointer;
   text-decoration: none;
+  transition: all 0.2s ease;
+  margin-top: 12px;
 }
 
 .forgot-password:hover {
   text-decoration: underline;
+  color: #2b3d28;
+}
+
+/* ===== Tombol Sign Up di halaman login ===== */
+.btn-signup-login {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 12px 60px;
+  border-radius: 40px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-signup-login:hover {
+  background-color: #fff;
+  color: #344d33;
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+/* Hide browser password reveal icons */
+.password-wrapper input::-ms-reveal,
+.password-wrapper input::-ms-clear {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.password-wrapper input[type="password"]::-webkit-contacts-auto-fill-button,
+.password-wrapper input[type="text"]::-webkit-contacts-auto-fill-button,
+.password-wrapper input[type="password"]::-webkit-credentials-auto-fill-button,
+.password-wrapper input[type="text"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* ===== Error Message ===== */
+.error-message {
+  background-color: #fee;
+  color: #c00;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* ===== Loading ===== */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-container {
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 36px;
+  font-weight: 700;
+  color: #344d33;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ===== FORGOT PASSWORD MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-forgot {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  animation: slideIn 0.4s ease-out;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-forgot h2 {
+  color: #344d33;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.modal-forgot p {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.modal-error {
+  background-color: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  border-left: 4px solid #c33;
+  animation: slideInUp 0.3s ease-out;
+}
+
+.modal-success {
+  background-color: #efe;
+  color: #3c3;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  border-left: 4px solid #3c3;
+  animation: slideInUp 0.3s ease-out;
+}
+
+.forgot-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.forgot-form label {
+  color: #344d33;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.forgot-form input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  color: #333;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.forgot-form input:focus {
+  border-color: #344d33;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(52, 77, 51, 0.1);
+}
+
+.forgot-form input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.modal-btn {
+  background-color: #344d33;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(52, 77, 51, 0.2);
+}
+
+.modal-btn:hover {
+  background-color: #2b3d28;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(52, 77, 51, 0.3);
+}
+
+.modal-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ===== Responsive Layout (Mobile) ===== */
@@ -201,6 +485,14 @@ html, body {
     padding: 20px;
   }
 
+  .login-right {
+    animation: slideInLeft 0.7s ease-out;
+  }
+
+  .login-left {
+    animation: slideInRight 0.7s ease-out;
+  }
+
   .brand {
     font-size: 28px;
   }
@@ -208,69 +500,4 @@ html, body {
   .login-left h2 {
     font-size: 26px;
   }
-}
-
-/* ===== Tombol Sign Up di halaman login ===== */
-.btn-signup-login {
-  background: transparent;
-  border: 2px solid #fff;
-  color: #fff;
-  padding: 12px 60px;
-  border-radius: 40px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-block;
-}
-
-.btn-signup-login:hover {
-  background-color: #fff;
-  color: #344d33;
-  transform: scale(1.05);
-}
-
-/* Untuk tombol link di halaman login & register */
-.btn-login-register,
-.btn-signup-login {
-  text-decoration: none !important;
-}
-
-.btn-login-register:hover,
-.btn-signup-login:hover {
-  text-decoration: none !important;
-}
-
-/* --- CSS BRUTAL FORCE UNTUK MENGHILANGKAN IKON MATA BROSWER --- */
-
-.password-wrapper input {
-    /* Mencegah browser menunjukkan tombol built-in yang muncul saat diketik */
-    /* Ini adalah cara untuk menyembunyikan elemen shadow DOM di Chrome/Safari */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-}
-
-/* Menyembunyikan ikon reveal (mata) bawaan browser */
-.password-wrapper input::-ms-reveal,
-.password-wrapper input::-ms-clear {
-    display: none !important;
-    visibility: hidden !important;
-}
-
-/* Menyembunyikan ikon yang disuntikkan oleh autofill/password manager (yang muncul saat aktif) */
-.password-wrapper input[type="password"]::-webkit-contacts-auto-fill-button,
-.password-wrapper input[type="text"]::-webkit-contacts-auto-fill-button,
-.password-wrapper input[type="password"]::-webkit-credentials-auto-fill-button,
-.password-wrapper input[type="text"]::-webkit-credentials-auto-fill-button {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
-/* Pastikan elemen kustom Anda tetap memiliki z-index yang tinggi */
-.toggle-password {
-    z-index: 20; /* Naikkan ini lebih tinggi dari sebelumnya */
 }

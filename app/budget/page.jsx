@@ -335,12 +335,6 @@ function BudgetGoalsPage() {
                                 <FaChartLine className="empty-icon" />
                                 <h3>No Budget Goals Yet</h3>
                                 <p>Start by creating your first budget goal to track your spending</p>
-                                <button 
-                                    className="add-budget-btn"
-                                    onClick={() => setIsModalOpen(true)}
-                                >
-                                    <FaPlus /> Create Budget Goal
-                                </button>
                             </div>
                         ) : (
                             budgets.map(budget => {

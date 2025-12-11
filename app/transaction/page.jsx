@@ -5,6 +5,7 @@ import Sidebar from "../components/sidebar";
 import AddTransactionModal from "../components/AddTransactionModal";
 import EditTransactionModal from "../components/EditTransactionModal";
 import ConfirmDialog from "../components/ConfirmDialog";
+import TransactionDetailModal from "../components/TransactionDetailModal";
 import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
 import { fetchWithAuth, setupTokenRefresh } from "../utils/authHelper";
@@ -18,13 +19,16 @@ function TransactionPage() {
     const router = useRouter();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
     const [transactionToEdit, setTransactionToEdit] = useState(null);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
+    const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [filter, setFilter] = useState('all');
     const [isAuthed, setIsAuthed] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const {
         transactions,
@@ -199,20 +203,26 @@ function TransactionPage() {
         }
     };
 
-    const handleDeleteClick = (id) => {
-        setTransactionToDelete(id);
+    const handleDeleteClick = (txId) => {
+        const normalizedId = txId; // ensure callers pass idTransaction; see usage fix below
+        setTransactionToDelete(normalizedId);
         setIsAlertOpen(true);
     };
 
+    const handleTransactionClick = (transaction) => {
+        setSelectedTransaction(transaction);
+        setIsDetailModalOpen(true);
+    };
+
     const handleConfirmDelete = async () => {
+        if (!transactionToDelete || isDeleting) return;
+        setIsDeleting(true);
+
         try {
-            if (!transactionToDelete) return;
-
-            console.log("🗑️ Deleting transaction ID:", transactionToDelete);
-
             const token = localStorage.getItem('access_token');
+            const url = `${BACKEND_URL}/api/transactions/${encodeURIComponent(transactionToDelete)}`;
 
-            const response = await fetch(`${BACKEND_URL}/api/transactions/${transactionToDelete}`, {
+            const response = await fetch(url, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -220,30 +230,29 @@ function TransactionPage() {
                 },
             });
 
-            console.log("Delete response status:", response.status);
-            console.log("Delete response ok?:", response.ok);
-
-            // Backend returns 200 with { message: "Transaction deleted" }
-            if (response.ok) {
-                console.log("✅ Transaction deleted successfully from backend");
-
-                // Remove from context
+            // Accept 200/204 as success; treat 404 as idempotent success
+            if (response.ok || response.status === 204 || response.status === 404) {
                 deleteTransaction(transactionToDelete);
-
                 setIsAlertOpen(false);
                 setTransactionToDelete(null);
-
-                console.log("✅ UI updated");
             } else {
-                const errorData = await response.json();
-                console.error("❌ Delete error response:", errorData);
-                throw new Error(errorData.message || "Failed to delete transaction");
+                let errMsg = "Failed to delete transaction";
+                try {
+                    const errData = await response.json();
+                    errMsg = errData?.message || errMsg;
+                    console.error("❌ Delete error response:", errData);
+                } catch {}
+                alert(errMsg);
+                setIsAlertOpen(false);
+                setTransactionToDelete(null);
             }
         } catch (err) {
             console.error("❌ Delete transaction error:", err);
-            alert("Gagal menghapus transaksi: " + err.message);
+            alert("Gagal menghapus transaksi: " + (err?.message || "Unknown error"));
             setIsAlertOpen(false);
             setTransactionToDelete(null);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -347,7 +356,7 @@ function TransactionPage() {
                         </div>
 
                         <button
-                            className="add-transaction-btn"
+                            className="transaction-add-btn"
                             onClick={() => setIsAddModalOpen(true)}
                         >
                             + Add Transaction
@@ -359,12 +368,6 @@ function TransactionPage() {
                         {filteredTransactions.length === 0 ? (
                             <div className="empty-state-large">
                                 <p>No transactions yet</p>
-                                <button
-                                    className="add-transaction-btn"
-                                    onClick={() => setIsAddModalOpen(true)}
-                                >
-                                    + Add Your First Transaction
-                                </button>
                             </div>
                         ) : (
                             <table className="transactions-table">
@@ -380,13 +383,17 @@ function TransactionPage() {
                                 </thead>
                                 <tbody>
                                     {filteredTransactions.map(transaction => {
-                                        // Get category name from transaction
                                         const categoryName = transaction.category?.name ||
                                             getCategoryById(transaction.idCategory)?.name ||
                                             'Unknown';
 
                                         return (
-                                            <tr key={transaction.id || transaction.idTransaction}>
+                                            <tr 
+                                                key={transaction.id || transaction.idTransaction}
+                                                onClick={() => handleTransactionClick(transaction)}
+                                                style={{ cursor: 'pointer' }}
+                                                className="transaction-row-clickable"
+                                            >
                                                 <td>{new Date(transaction.date).toLocaleDateString('id-ID')}</td>
                                                 <td>
                                                     <span className="category-badge">
@@ -405,7 +412,7 @@ function TransactionPage() {
                                                         Rp {parseFloat(transaction.amount).toLocaleString('id-ID')}
                                                     </span>
                                                 </td>
-                                                <td>
+                                                <td onClick={(e) => e.stopPropagation()}>
                                                     <div className="action-buttons">
                                                         <button
                                                             className="action-btn edit"
@@ -416,7 +423,7 @@ function TransactionPage() {
                                                         </button>
                                                         <button
                                                             className="action-btn delete"
-                                                            onClick={() => handleDeleteClick(transaction.id || transaction.idTransaction)}
+                                                            onClick={() => handleDeleteClick(transaction.idTransaction)}
                                                             title="Delete"
                                                         >
                                                             <FaTrash />
@@ -447,6 +454,20 @@ function TransactionPage() {
                 }}
                 onEditTransaction={handleEditTransaction}
                 transaction={transactionToEdit}
+            />
+
+            <TransactionDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => {
+                    setIsDetailModalOpen(false);
+                    setSelectedTransaction(null);
+                }}
+                transaction={selectedTransaction}
+                categoryName={selectedTransaction ? (
+                    selectedTransaction.category?.name ||
+                    getCategoryById(selectedTransaction.idCategory)?.name ||
+                    'Uncategorized'
+                ) : ''}
             />
 
             <ConfirmDialog

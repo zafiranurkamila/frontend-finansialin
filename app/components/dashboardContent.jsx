@@ -1,12 +1,32 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaChartLine, FaChartBar, FaWallet } from 'react-icons/fa';
 import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
+import TransactionDetailModal from "./TransactionDetailModal";
 
 function DashboardContent() {
   const { transactions, notifications, totalIncome, totalExpenses, currentBalance } = useTransactions();
   const { getCategoryById } = useCategories();
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+  // Reset state saat component mount
+  useEffect(() => {
+    setIsDetailModalOpen(false);
+    setSelectedTransaction(null);
+    
+    // Reset scroll position
+    const mainContent = document.querySelector('.main-content-area');
+    if (mainContent) {
+      mainContent.scrollTop = 0;
+    }
+  }, []);
+
+  const handleTransactionClick = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsDetailModalOpen(true);
+  };
 
   return (
     <div className="dashboard-content">
@@ -47,19 +67,21 @@ function DashboardContent() {
               <p>No transactions yet.</p>
             ) : (
               <div className="transactions-list">
-                {transactions.slice(0, 5).map(transaction => {
-                  // Get category name
+                {transactions.slice(0, 5).map((transaction) => {
                   const categoryName = transaction.category?.name || 
                                       getCategoryById(transaction.idCategory)?.name || 
                                       'Uncategorized';
                   
-                  // Get description with priority: description -> source -> "No description"
                   const description = transaction.description || 
                                     transaction.source || 
                                     'No description';
                   
                   return (
-                    <div key={transaction.id || transaction.idTransaction} className="transaction-item">
+                    <div 
+                      key={transaction.id || transaction.idTransaction} 
+                      className="transaction-item"
+                      onClick={() => handleTransactionClick(transaction)}
+                    >
                       <div className="transaction-info">
                         <p className="transaction-category">{categoryName}</p>
                         <p className="transaction-desc">{description}</p>
@@ -130,6 +152,20 @@ function DashboardContent() {
           </div>
         </div>
       </div>
+
+      <TransactionDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedTransaction(null);
+        }}
+        transaction={selectedTransaction}
+        categoryName={selectedTransaction ? (
+            selectedTransaction.category?.name ||
+            getCategoryById(selectedTransaction.idCategory)?.name ||
+            'Uncategorized'
+        ) : ''}
+      />
     </div>
   );
 }

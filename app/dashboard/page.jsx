@@ -11,9 +11,10 @@ import { useCategories } from "../context/CategoryContext";
 import { fetchWithAuth } from "../utils/authHelper";
 import ConfirmDialog from '../components/ConfirmDialog';
 import "../style/dashboard.css";
+import DashboardBanner from "../components/DashboardBanner";
 
 function DashboardPage() {
-    const router = useRouter(); 
+    const router = useRouter();
     const { addTransaction, setTransactionsFromBackend } = useTransactions();
     const { fetchCategories } = useCategories();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +29,7 @@ function DashboardPage() {
         const token = localStorage.getItem("access_token");
         console.log("=== DASHBOARD AUTH CHECK ===");
         console.log("Token:", token);
-        
+
         if (!token || token === "undefined" || token === "null") {
             console.log("❌ No valid token, redirect to login");
             router.push("/login");
@@ -51,7 +52,7 @@ function DashboardPage() {
     const fetchTransactions = async () => {
         try {
             console.log("🔍 Fetching transactions for dashboard...");
-            
+
             const response = await fetchWithAuth(`${BACKEND_URL}/api/transactions`, {
                 method: "GET",
             });
@@ -62,9 +63,9 @@ function DashboardPage() {
 
             const result = await response.json();
             console.log("✅ Transactions loaded:", result);
-            
+
             const transactionsData = result.data || result;
-            
+
             const transformed = transactionsData.map(t => ({
                 id: t.idTransaction,
                 idTransaction: t.idTransaction,
@@ -77,9 +78,9 @@ function DashboardPage() {
                 category: t.category,
                 userId: t.idUser
             }));
-            
+
             setTransactionsFromBackend(transformed);
-            
+
         } catch (err) {
             console.error("❌ Fetch transactions error:", err);
         }
@@ -88,7 +89,7 @@ function DashboardPage() {
     const handleAddTransaction = async (transaction) => {
         try {
             console.log("📤 Adding transaction from dashboard:", transaction);
-            
+
             const response = await fetchWithAuth(`${BACKEND_URL}/api/transactions`, {
                 method: "POST",
                 body: JSON.stringify(transaction),
@@ -102,7 +103,7 @@ function DashboardPage() {
 
             const newTransaction = await response.json();
             console.log("✅ Transaction added from backend:", newTransaction);
-            
+
             // Transform backend response
             const transformed = {
                 id: newTransaction.idTransaction,
@@ -116,9 +117,9 @@ function DashboardPage() {
                 category: newTransaction.category,
                 userId: newTransaction.idUser
             };
-            
+
             console.log("✅ Transformed transaction:", transformed);
-            
+
             // Only add once to context
             addTransaction(transformed);
             setIsModalOpen(false);
@@ -128,14 +129,14 @@ function DashboardPage() {
         }
     };
 
-    const handleLogoutAttempt = () => { 
+    const handleLogoutAttempt = () => {
         setIsLogoutAlertOpen(true);
     };
 
-    const handleConfirmLogout = () => { 
+    const handleConfirmLogout = () => {
         setIsLogoutAlertOpen(false);
         const token = localStorage.getItem('access_token');
-        
+
         if (token) {
             fetch(`${BACKEND_URL}/api/auth/logout`, {
                 method: 'POST',
@@ -145,7 +146,7 @@ function DashboardPage() {
                 },
             }).catch(console.error);
         }
-        
+
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         router.push('/login');
@@ -165,7 +166,7 @@ function DashboardPage() {
 
     return (
         <div className="dashboard-container">
-            <Sidebar onLogoutAttempt={handleLogoutAttempt} /> 
+            <Sidebar onLogoutAttempt={handleLogoutAttempt} />
 
             <div className="main-content-area">
                 <header className="dashboard-header">
@@ -173,21 +174,17 @@ function DashboardPage() {
 
                     <div className="header-actions">
                         <NotificationDropdown />
-                        <ProfileDropdown onLogoutAttempt={handleLogoutAttempt} /> 
+                        <ProfileDropdown onLogoutAttempt={handleLogoutAttempt} />
                     </div>
                 </header>
 
                 <main className="main-content-wrapper">
-                    <div className="add-transaction-wrapper">
-                        <button 
-                            className="add-transaction-btn"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            + Add Transaction
-                        </button>
-                    </div>
+                    <DashboardBanner />
+                    <button className="add-transaction-btn" onClick={() => setIsModalOpen(true)}>
+                        + Add Transaction
+                    </button>
 
-                    <DashboardContent /> 
+                    <DashboardContent />
                 </main>
             </div>
 

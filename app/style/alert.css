@@ -18,6 +18,7 @@
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -40,6 +41,7 @@
         transform: scale(0.9);
         opacity: 0;
     }
+
     to {
         transform: scale(1);
         opacity: 1;
@@ -114,6 +116,97 @@
     background: #2563EB;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Forest-themed Confirm Dialog mapped to current alert-* classes */
+.alert-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(31, 46, 29, 0.35);
+    backdrop-filter: blur(2px);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+}
+
+.alert-dialog {
+    width: 92%;
+    max-width: 420px;
+    background: #ffffff;
+    border: 1px solid rgba(19, 91, 68, 0.16);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(52, 77, 51, 0.18);
+    overflow: hidden;
+}
+
+/* Optional: hide the triangle icon for a cleaner look */
+.alert-icon {
+    display: none;
+    color: #b00020;
+    font-size: 20px;
+    margin-right: 8px;
+}
+
+.alert-content {
+    padding: 16px;
+    border-bottom: 1px solid rgba(19, 91, 68, 0.10);
+    background: linear-gradient(135deg, #e6f7f1, #f4fbf8 70%);
+}
+
+.alert-content h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #135b44;
+}
+
+.alert-content p {
+    margin: 0;
+    font-size: 14px;
+    color: #3a4a42;
+}
+
+.alert-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 16px 16px;
+    background: #fff;
+}
+
+.alert-btn {
+    min-width: 110px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(19, 91, 68, 0.16);
+    background: #fff;
+    color: #344d33;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.alert-btn:hover {
+    transform: translateY(-1px);
+    background: #e6f7f1;
+    box-shadow: 0 6px 16px rgba(52, 77, 51, 0.10);
+}
+
+.alert-btn.cancel {
+    color: #344d33;
+}
+
+.alert-btn.confirm {
+    background: linear-gradient(135deg, #27a07a, #187054);
+    color: #fff;
+    border: none;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.28);
+}
+
+.alert-btn.confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(16, 185, 129, 0.35);
 }
 
 /* Responsive */

@@ -8,6 +8,7 @@ import ProfileDropdown from "../components/ProfileDropdown";
 import ReportView from "../components/ReportView";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTransactions } from "../context/TransactionContext";
+import { useCategories } from "../context/CategoryContext";
 import { fetchWithAuth } from "../utils/authHelper";
 import {
     BarChart, Bar, PieChart, Pie, LineChart, Line,
@@ -21,6 +22,7 @@ import "../style/analytics.css";
 export default function AnalyticsPage() {
     const router = useRouter();
     const { transactions, totalIncome, totalExpenses, currentBalance, setTransactionsFromBackend } = useTransactions();
+    const { getCategoryById } = useCategories();
     const [activeTab, setActiveTab] = useState('charts');
     const [isAuthed, setIsAuthed] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -90,24 +92,30 @@ export default function AnalyticsPage() {
 
     // Category Data
     const categoryData = transactions.reduce((acc, transaction) => {
-        const category = transaction.category;
-        if (!category) return acc;
-        if (!acc[category]) {
-            acc[category] = { income: 0, expense: 0 };
+        // Get normalized category name
+        const categoryName = transaction.category?.name || 
+                            getCategoryById(transaction.idCategory)?.name || 
+                            'Uncategorized';
+        
+        if (!acc[categoryName]) {
+            acc[categoryName] = { income: 0, expense: 0 };
         }
+        
         if (transaction.type === 'income') {
-            acc[category].income += transaction.amount;
+            acc[categoryName].income += parseFloat(transaction.amount) || 0;
         } else {
-            acc[category].expense += transaction.amount;
+            acc[categoryName].expense += parseFloat(transaction.amount) || 0;
         }
         return acc;
     }, {});
 
-    const categoryChartData = Object.entries(categoryData).map(([name, data]) => ({
-        name,
-        income: data.income,
-        expense: data.expense
-    }));
+    const categoryChartData = Object.keys(categoryData).length > 0
+        ? Object.entries(categoryData).map(([name, data]) => ({
+            name,
+            income: data.income,
+            expense: data.expense
+        }))
+        : [];
 
     // Pie Data
     const pieData = [

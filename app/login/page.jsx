@@ -12,6 +12,11 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState("");
+  const [forgotError, setForgotError] = useState("");
   const router = useRouter();
 
   const togglePassword = () => {
@@ -44,7 +49,6 @@ function Login() {
         return;
       }
 
-      // Backend return: accessToken & refreshToken (camelCase)
       const accessToken = data.accessToken;
       const refreshToken = data.refreshToken;
 
@@ -58,25 +62,22 @@ function Login() {
       }
 
       console.log("✅ Menyimpan token...");
-      
-      // Simpan dengan key access_token (untuk konsistensi di frontend)
+
       localStorage.setItem("access_token", accessToken);
-      
+
       if (refreshToken) {
         localStorage.setItem("refresh_token", refreshToken);
       }
 
-      // Simpan user info juga
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
-      // Verifikasi tersimpan
       const saved = localStorage.getItem("access_token");
       console.log("✅ Token tersimpan:", saved);
 
       console.log("🚀 Redirect ke dashboard...");
-      
+
       setTimeout(() => {
         router.push("/dashboard");
       }, 100);
@@ -89,8 +90,91 @@ function Login() {
     }
   };
 
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    setForgotError("");
+    setForgotMessage("");
+    setForgotLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setForgotError(data.message || "Failed to send reset email");
+        return;
+      }
+
+      setForgotMessage("Password reset link has been sent to your email!");
+      setForgotEmail("");
+      setTimeout(() => {
+        setShowForgotModal(false);
+        setForgotMessage("");
+      }, 2000);
+    } catch (err) {
+      setForgotError("Connection error: " + err.message);
+      console.error("❌ Forgot password error:", err);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const closeForgotModal = () => {
+    setShowForgotModal(false);
+    setForgotEmail("");
+    setForgotMessage("");
+    setForgotError("");
+  };
+
   return (
     <div className="login-page">
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="modal-overlay" onClick={closeForgotModal}>
+          <div className="modal-forgot" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeForgotModal}>×</button>
+
+            <h2>Reset Password</h2>
+            <p>Enter your email address and we'll send you a link to reset your password.</p>
+
+            {forgotError && (
+              <div className="modal-error">
+                {forgotError}
+              </div>
+            )}
+
+            {forgotMessage && (
+              <div className="modal-success">
+                {forgotMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleForgotSubmit} className="forgot-form">
+              <label>Email</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                required
+                disabled={forgotLoading}
+              />
+
+              <button type="submit" className="modal-btn" disabled={forgotLoading}>
+                {forgotLoading ? "Sending..." : "Send Reset Link"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="login-left">
         <h2>Hello, Friend!</h2>
         <p>Enter your personal details <br /> and start journey with us</p>
@@ -154,7 +238,13 @@ function Login() {
           <button type="submit" className="btn-loginsignin" disabled={loading}>
             {loading ? "Logging In..." : "Log In"}
           </button>
-          <a href="#" className="forgot-password">Forgot your password?</a>
+          <button
+            type="button"
+            className="forgot-password"
+            onClick={() => setShowForgotModal(true)}
+          >
+            Forgot your password?
+          </button>
         </form>
       </div>
     </div>

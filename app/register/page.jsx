@@ -70,7 +70,7 @@ function Register() {
         </div>
       )}
 
-      {loading || !isAuthed ? (
+      {loading ? (
         <div className="loading">
           <div className="loading-container">
             <div className="loading-text">Finansialin</div>

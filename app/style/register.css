@@ -1,3 +1,66 @@
+/* ===== KEYFRAME ANIMATIONS ===== */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: scale(0.95) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* ===== Layout Utama ===== */
 html, body {
   height: 100%;
@@ -16,7 +79,7 @@ html, body {
   position: relative;
 }
 
-/* ===== Bagian Kiri (Form Putih) - slide in dari kiri ===== */
+/* ===== Bagian Kiri (Form Putih) ===== */
 .register-left {
   flex: 1;
   background-color: #ffffff;
@@ -28,10 +91,10 @@ html, body {
   box-sizing: border-box;
   position: relative;
   z-index: 2;
-  animation: slideInLeft 0.6s ease-out;
+  animation: slideInRight 0.7s ease-out;
 }
 
-/* ===== Bagian Kanan (Panel Hijau) - slide in dari kanan ===== */
+/* ===== Bagian Kanan (Panel Hijau) ===== */
 .register-right {
   flex: 1;
   background-color: #344d33;
@@ -42,31 +105,17 @@ html, body {
   align-items: center;
   text-align: center;
   padding: 0 60px;
-  animation: slideInRight 0.6s ease-out;
+  animation: slideInLeft 0.7s ease-out;
 }
 
-/* ...rest of code... */
-
-/* ===== Bagian Kiri (Form) ===== */
-.register-left {
-  flex: 1;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 80px;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2;
-}
-
+/* ===== Brand & Subtitle ===== */
 .brand {
   color: #344d33;
   font-weight: 700;
   font-size: 36px;
   margin-bottom: 4px;
   text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.35s both;
 }
 
 .subtitle {
@@ -74,13 +123,16 @@ html, body {
   font-size: 15px;
   margin-bottom: 16px;
   text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.5s both;
 }
 
+/* ===== Form ===== */
 .register-form {
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 360px;
+  animation: fadeInUp 0.6s ease-out 0.65s both;
 }
 
 /* ===== Label & Input ===== */
@@ -106,6 +158,7 @@ html, body {
 
 .register-form input:focus {
   border-color: #344d33;
+  box-shadow: 0 0 0 3px rgba(52, 77, 51, 0.1);
 }
 
 /* ===== Password Visibility ===== */
@@ -142,6 +195,11 @@ html, body {
   opacity: 0.7;
 }
 
+.icon-eye {
+  width: 20px;
+  height: 20px;
+}
+
 /* ===== Tombol Sign Up ===== */
 .register-left .btn-signup {
   background-color: #344d33;
@@ -160,28 +218,20 @@ html, body {
 
 .register-left .btn-signup:hover {
   background-color: #2b3d28;
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
-/* ...existing code... */
+.register-left .btn-signup:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 
 /* ===== Bagian Kanan (Panel Hijau) ===== */
-.register-right {
-  flex: 1;
-  background-color: #344d33;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 0 60px;
-}
-
 .register-right h2 {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 16px;
+  animation: fadeInUp 0.6s ease-out 0.35s both;
 }
 
 .register-right p {
@@ -189,9 +239,10 @@ html, body {
   line-height: 1.6;
   margin-bottom: 28px;
   color: #e9e9e9;
+  animation: fadeInUp 0.6s ease-out 0.5s both;
 }
 
-/* Button Login di panel hijau - sama styling seperti Sign Up */
+/* Button Login di panel hijau */
 .register-right .btn-login {
   background-color: transparent;
   border: 2px solid #ffffff;
@@ -204,6 +255,7 @@ html, body {
   cursor: pointer;
   transition: all 0.3s ease;
   display: inline-block;
+  animation: fadeInUp 0.6s ease-out 0.65s both;
 }
 
 .register-right .btn-login:hover {
@@ -211,8 +263,6 @@ html, body {
   color: #344d33;
   transform: scale(1.05);
 }
-
-/* ...existing code... */
 
 /* ===== Error Message ===== */
 .error-message {
@@ -222,6 +272,7 @@ html, body {
   border-radius: 4px;
   margin-bottom: 1rem;
   text-align: center;
+  animation: fadeInUp 0.3s ease-out;
 }
 
 /* ===== Modal Success ===== */
@@ -236,6 +287,7 @@ html, body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .modal-content {
@@ -245,7 +297,7 @@ html, body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   text-align: center;
   max-width: 400px;
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.4s ease-out;
 }
 
 .modal-icon {
@@ -286,6 +338,31 @@ html, body {
   background-color: #2b3d28;
 }
 
+/* ===== Loading ===== */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-container {
+  text-align: center;
+}
+
+.loading-text {
+  font-size: 36px;
+  font-weight: 700;
+  color: #344d33;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
   .register-page {
@@ -297,6 +374,14 @@ html, body {
     width: 100%;
     height: 50%;
     padding: 20px;
+  }
+
+  .register-left {
+    animation: slideInRight 0.7s ease-out;
+  }
+
+  .register-right {
+    animation: slideInLeft 0.7s ease-out;
   }
 
   .brand {
