@@ -191,6 +191,28 @@ export default function AnalyticsPage() {
         setIsLogoutAlertOpen(false);
     };
 
+    // After adding transaction, check budgets
+    useEffect(() => {
+        if (transactions.length > 0) {
+            // Check each budget
+            budgets.forEach(budget => {
+                const spent = transactions
+                    .filter(t => 
+                        t.type === 'expense' && 
+                        t.category?.name === budget.category
+                    )
+                    .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+                
+                if (spent > budget.limit) {
+                    addNotification({
+                        type: 'warning',
+                        message: `⚠️ Budget exceeded for ${budget.category}: Rp${spent.toLocaleString('id-ID')} / Rp${budget.limit.toLocaleString('id-ID')}`
+                    });
+                }
+            });
+        }
+    }, [transactions]);
+
     // Show loading saat initial load atau data sedang dimuat
     if (loading || dataLoading) return (
         <div className="loading">

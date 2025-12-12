@@ -256,6 +256,50 @@ export function BudgetProvider({ children }) {
         });
     };
 
+    // Add new function untuk check dan notify over budget
+    const checkBudgetStatus = () => {
+        budgets.forEach(budget => {
+            const progress = getBudgetProgress(budget.id);
+            
+            // If over budget, send notification
+            if (progress.spent > budget.limit && !budget.notifiedOverBudget) {
+                addNotification({
+                    type: 'warning',
+                    message: `⚠️ Over budget! ${budget.category} has exceeded by Rp${(progress.spent - budget.limit).toLocaleString('id-ID')}`
+                });
+                
+                // Mark as notified (optional - prevent duplicate notifications)
+                setBudgets(prev => prev.map(b => 
+                    b.id === budget.id 
+                        ? { ...b, notifiedOverBudget: true }
+                        : b
+                ));
+            }
+        });
+    };
+
+    // Export function untuk check budget status (akan dipanggil dari page)
+    const checkBudgetOverStatus = (budgets, addNotification) => {
+        budgets.forEach(budget => {
+            // Calculate spent for this budget
+            const relevantTransactions = transactions.filter(t => 
+                t.category?.name?.toLowerCase() === budget.category?.toLowerCase()
+            );
+            
+            const spent = relevantTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+            
+            // If over budget, send notification
+            if (spent > budget.limit && !budget.notifiedOverBudget) {
+                addNotification({
+                    type: 'warning',
+                    message: `⚠️ Over budget! ${budget.category}: Rp${spent.toLocaleString('id-ID')} / Rp${budget.limit.toLocaleString('id-ID')}`
+                });
+            }
+        });
+    };
+
     const value = {
         budgets,
         addBudget,

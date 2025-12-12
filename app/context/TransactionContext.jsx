@@ -33,67 +33,29 @@ export function TransactionProvider({ children }) {
     };
 
     // Generic add notification function - CHECK SETTINGS BEFORE SAVING
-    const addNotification = async (notificationData) => {
-        // Check notification settings
-        const saved = localStorage.getItem('notificationSettings');
-        let settings = {
-            transactionAlerts: true,
-            budgetAlerts: true
-        };
-        
-        if (saved) {
-            try {
-                settings = JSON.parse(saved);
-            } catch (e) {
-                console.error('Failed to load notification settings', e);
-            }
-        }
-
-        // Check if notification should be shown
-        if (notificationData.type === 'income' || notificationData.type === 'expense') {
-            if (!settings.transactionAlerts) {
-                console.log('⚠️ Transaction alerts disabled, skipping notification');
-                return;
-            }
-        }
-
-        if (notificationData.type === 'budget') {
-            if (!settings.budgetAlerts) {
-                console.log('⚠️ Budget alerts disabled, skipping notification');
-                return;
-            }
-        }
-
+    const addNotification = async (type, message) => {
         const notification = {
             id: Date.now(),
+            type,
+            message,
             date: new Date().toISOString(),
             read: false,
-            ...notificationData
         };
-        
-        // Add to local state
-        setNotifications(prev => [notification, ...prev]);
 
-        // Save to backend database
+        setNotifications(prev => [...prev, notification]);
+        
+        // COMMENT OUT UNTUK SEMENTARA:
+        /*
         try {
-            const token = localStorage.getItem('access_token');
-            if (token) {
-                await fetch(`${BACKEND_URL}/api/notifications`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        type: notificationData.type,
-                        message: notificationData.message
-                    })
-                });
-                console.log('✅ Notification saved to database');
-            }
+            await fetchWithAuth(`${BACKEND_URL}/api/notifications`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, message }),
+            });
         } catch (err) {
-            console.error('❌ Failed to save notification to backend:', err);
+            console.error('Error saving notification:', err);
         }
+        */
     };
 
     const addTransaction = (transaction) => {
@@ -141,6 +103,12 @@ export function TransactionProvider({ children }) {
 
     const deleteTransaction = (id) => {
         console.log("🗑️ DELETE REQUEST - ID:", id);
+        
+        // Get transaction details sebelum delete
+        const txToDelete = transactions.find(t => 
+            t.id === id || t.idTransaction === id
+        );
+        
         setTransactions(prev => {
             const filtered = prev.filter(t => 
                 t.id !== id && 
@@ -152,14 +120,21 @@ export function TransactionProvider({ children }) {
             return filtered;
         });
 
-        addNotification({
-            type: 'delete',
-            message: 'Transaction deleted'
-        });
+        // Create notification with details
+        if (txToDelete) {
+            addNotification({
+                type: 'delete',
+                message: `${txToDelete.type === 'income' ? 'Income' : 'Expense'} of Rp${parseFloat(txToDelete.amount).toLocaleString('id-ID')} deleted`
+            });
+        }
     };
 
     const updateTransaction = (id, updatedData) => {
         console.log("✏️ UPDATE REQUEST - ID:", id, "Data:", updatedData);
+        
+        // Get old transaction
+        const oldTx = transactions.find(t => t.id === id || t.idTransaction === id);
+        
         setTransactions(prev =>
             prev.map(t => {
                 if (t.id === id || t.idTransaction === id) {
@@ -175,10 +150,14 @@ export function TransactionProvider({ children }) {
             })
         );
 
-        addNotification({
-            type: 'update',
-            message: 'Transaction updated'
-        });
+        // Create notification with details
+        if (oldTx) {
+            const newAmount = parseFloat(updatedData.amount || oldTx.amount);
+            addNotification({
+                type: 'update',
+                message: `${oldTx.type === 'income' ? 'Income' : 'Expense'} updated to Rp${newAmount.toLocaleString('id-ID')}`
+            });
+        }
     };
 
     const markNotificationAsRead = (id) => {
