@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaBell, FaCheck, FaTrash, FaTimes } from 'react-icons/fa';
+import { FaBell, FaCheck } from 'react-icons/fa';
 import { useTransactions } from '../context/TransactionContext';
 import { fetchWithAuth } from '../utils/authHelper';
 import '../style/notification.css';
@@ -45,13 +45,21 @@ function NotificationDropdown() {
     }, [isOpen]);
 
     // Combine local and backend notifications
-    const allNotifications = [...localNotifications, ...backendNotifications.map(n => ({
-        id: n.idNotification,
-        type: n.type,
-        message: n.message,
-        date: n.createdAt,
-        read: n.read
-    }))];
+    const allNotifications = [
+        ...backendNotifications.map(n => ({
+            id: n.idNotification,
+            type: n.type,
+            message: n.message,
+            date: n.createdAt,
+            read: n.read,
+            fromBackend: true,
+            backendId: n.idNotification
+        })),
+        ...localNotifications.map(n => ({
+            ...n,
+            fromBackend: false
+        }))
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Calculate dropdown position
     useEffect(() => {
@@ -68,7 +76,7 @@ function NotificationDropdown() {
     useEffect(() => {
         function handleClickOutside(event) {
             if (
-                dropdownRef.current && 
+                dropdownRef.current &&
                 !dropdownRef.current.contains(event.target) &&
                 buttonRef.current &&
                 !buttonRef.current.contains(event.target)
@@ -83,87 +91,80 @@ function NotificationDropdown() {
         }
     }, [isOpen]);
 
+    // Mark all as read
     const handleMarkAllRead = async () => {
         try {
-            await fetchWithAuth(`${BACKEND_URL}/api/notifications/read-all`, {
-                method: 'POST'
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/notifications/read-all`, {
+                method: 'PATCH'
             });
-            markAllNotificationsAsRead();
-            fetchNotifications();
+
+            if (response.ok) {
+                console.log('✅ All notifications marked as read');
+                markAllNotificationsAsRead();
+                fetchNotifications();
+            }
         } catch (err) {
             console.error('Failed to mark all as read:', err);
         }
     };
 
-    const handleClearAll = async () => {
-        try {
-            await fetchWithAuth(`${BACKEND_URL}/api/notifications`, {
-                method: 'DELETE'
-            });
-            clearAllNotifications();
-            setBackendNotifications([]);
-        } catch (err) {
-            console.error('Failed to clear all:', err);
-        }
-    };
-
+    // Mark as read
     const handleMarkRead = async (notif) => {
-        if (notif.idNotification) {
-            // Backend notification
-            try {
-                await fetchWithAuth(`${BACKEND_URL}/api/notifications/${notif.idNotification}/read`, {
-                    method: 'POST'
-                });
-                fetchNotifications();
-            } catch (err) {
-                console.error('Failed to mark as read:', err);
-            }
-        } else {
+        if (!notif.fromBackend) {
             // Local notification
             markNotificationAsRead(notif.id);
+            return;
         }
-    };
 
-    const handleDelete = async (notif) => {
-        if (notif.idNotification) {
-            // Backend notification
-            try {
-                await fetchWithAuth(`${BACKEND_URL}/api/notifications/${notif.idNotification}`, {
-                    method: 'DELETE'
-                });
+        // Backend notification
+        try {
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/notifications/${notif.backendId}/read`, {
+                method: 'PATCH'
+            });
+
+            if (response.ok) {
+                console.log('✅ Notification marked as read');
                 fetchNotifications();
-            } catch (err) {
-                console.error('Failed to delete:', err);
+            } else {
+                const errorText = await response.text();
+                console.error('Failed to mark as read:', response.status, errorText);
             }
-        } else {
-            // Local notification
-            deleteNotification(notif.id);
+        } catch (err) {
+            console.error('Failed to mark as read:', err);
         }
     };
 
     const getNotificationIcon = (type) => {
         switch (type) {
             case 'income':
+            case 'TRANSACTION_CREATED':
                 return '💰';
             case 'expense':
                 return '💸';
+            case 'TRANSACTION_DELETED':
+                return '🗑️';
+            case 'TRANSACTION_UPDATED':
+                return '✏️';
+            case 'BUDGET_CREATED':
             case 'budget':
                 return '🎯';
+            case 'BUDGET_WARNING':
             case 'warning':
                 return '⚠️';
+            case 'BUDGET_EXCEEDED':
             case 'danger':
                 return '🚨';
-            case 'edit':
-                return '✏️';
-            case 'delete':
+            case 'BUDGET_DELETED':
                 return '🗑️';
+            case 'PASSWORD_RESET':
+                return '🔒';
             default:
                 return '📌';
         }
     };
 
     const NotificationDropdownContent = () => (
-        <div 
+        <div
             className="notification-dropdown-portal"
             ref={dropdownRef}
             style={{
@@ -188,13 +189,6 @@ function NotificationDropdown() {
                                 ✓
                             </button>
                         )}
-                        <button
-                            onClick={handleClearAll}
-                            className="clear-btn"
-                            title="Clear all"
-                        >
-                            ×
-                        </button>
                     </div>
                 )}
             </div>
@@ -205,9 +199,9 @@ function NotificationDropdown() {
                         <p>No notifications</p>
                     </div>
                 ) : (
-                    allNotifications.map(notification => (
+                    allNotifications.filter(n => n.message).map(notification => (
                         <div
-                            key={notification.id || notification.idNotification}
+                            key={`${notification.fromBackend ? 'backend' : 'local'}-${notification.id || notification.backendId}`}
                             className={`notification-item ${notification.type} ${notification.read ? 'read' : 'unread'}`}
                         >
                             <div className="notification-icon">
@@ -215,16 +209,30 @@ function NotificationDropdown() {
                             </div>
 
                             <div className="notification-content">
-                                <p className="notification-message">{notification.message}</p>
-                                <span className="notification-time">
-                                    {new Date(notification.date).toLocaleString('id-ID', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </span>
+                                {notification.message ? (
+                                    <>
+                                        <p className="notification-message">{notification.message}</p>
+                                        <span className="notification-time">
+                                            {new Date(notification.date).toLocaleString('id-ID', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <span className="notification-time">
+                                        {new Date(notification.date).toLocaleString('id-ID', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </span>
+                                )}
                             </div>
 
                             <div className="notification-item-actions">
@@ -237,13 +245,6 @@ function NotificationDropdown() {
                                         <FaCheck />
                                     </button>
                                 )}
-                                <button
-                                    onClick={() => handleDelete(notification)}
-                                    className="delete-btn"
-                                    title="Delete"
-                                >
-                                    <FaTimes />
-                                </button>
                             </div>
                         </div>
                     ))

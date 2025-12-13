@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState } from 'react';
 import { useTransactions } from './TransactionContext';
-import { useCategories } from './CategoryContext';
+import { useCategories } from '../context/CategoryContext';
 
 const BudgetContext = createContext();
 
@@ -21,7 +21,7 @@ export function BudgetProvider({ children }) {
         return [];
     });
     const { transactions, addNotification } = useTransactions();
-    const { allCategories } = useCategories();
+    const { allCategories, getCategoryById } = useCategories();
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
     // Load budgets from backend
@@ -34,7 +34,7 @@ export function BudgetProvider({ children }) {
             }
 
             console.log("🔍 Loading budgets from backend...");
-            
+
             const response = await fetch(`${BACKEND_URL}/api/budgets`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -47,27 +47,27 @@ export function BudgetProvider({ children }) {
                 const data = await response.json();
                 console.log("✅ RAW Budgets from backend:", data);
                 console.log("✅ First budget structure:", data[0]);
-                
+
                 const mapped = data.map(b => {
                     console.log("Mapping budget:", b);
-                    
+
                     // Get category name from allCategories
                     const categoryObj = allCategories.find(c => c.id === b.idCategory || c.idCategory === b.idCategory);
                     const categoryName = categoryObj?.name || b.category || b.categoryName || 'Unknown';
-                    
+
                     // Calculate period from dates
                     let period = 'monthly';
                     if (b.periodStart && b.periodEnd) {
                         const start = new Date(b.periodStart);
                         const end = new Date(b.periodEnd);
                         const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-                        
+
                         if (diffDays <= 1) period = 'daily';
                         else if (diffDays <= 7) period = 'weekly';
                         else if (diffDays <= 31) period = 'monthly';
                         else period = 'yearly';
                     }
-                    
+
                     return {
                         ...b,
                         id: b.idBudget,
@@ -79,10 +79,10 @@ export function BudgetProvider({ children }) {
                         idCategory: b.idCategory
                     };
                 });
-                
+
                 console.log("✅ Mapped budgets:", mapped);
                 setBudgets(mapped);
-                
+
                 // Cache to localStorage
                 if (typeof window !== 'undefined') {
                     localStorage.setItem('budgets_cache', JSON.stringify(mapped));
@@ -105,45 +105,39 @@ export function BudgetProvider({ children }) {
         };
         const updated = [...budgets, newBudget];
         setBudgets(updated);
-        
+
         // Update cache
         if (typeof window !== 'undefined') {
             localStorage.setItem('budgets_cache', JSON.stringify(updated));
         }
-        
+
         // Add notification
         if (addNotification) {
-            addNotification({
-                type: 'budget',
-                message: `Budget goal created for ${newBudget.category} - Rp${newBudget.limit.toLocaleString('id-ID')} (${newBudget.period})`
-            });
+            addNotification('BUDGET_CREATED', `Budget goal created for ${newBudget.category} - Rp${newBudget.limit.toLocaleString('id-ID')} (${newBudget.period})`);
         }
     };
 
     const updateBudget = (id, updatedData) => {
         const oldBudget = budgets.find(b => b.id === id);
-        const updated = budgets.map(b => 
-            b.id === id 
-                ? { 
-                    ...b, 
-                    ...updatedData, 
-                    limit: parseFloat(updatedData.limit || updatedData.amount) || b.limit 
-                  }
+        const updated = budgets.map(b =>
+            b.id === id
+                ? {
+                    ...b,
+                    ...updatedData,
+                    limit: parseFloat(updatedData.limit || updatedData.amount) || b.limit
+                }
                 : b
         );
         setBudgets(updated);
-        
+
         // Update cache
         if (typeof window !== 'undefined') {
             localStorage.setItem('budgets_cache', JSON.stringify(updated));
         }
-        
+
         // Add notification
         if (addNotification && oldBudget) {
-            addNotification({
-                type: 'budget',
-                message: `Budget goal updated for ${oldBudget.category}`
-            });
+            addNotification('BUDGET_UPDATED', `Budget goal updated for ${oldBudget.category}`);
         }
     };
 
@@ -151,18 +145,15 @@ export function BudgetProvider({ children }) {
         const budgetToDelete = budgets.find(b => b.id === id || b.idBudget === id);
         const updated = budgets.filter(b => b.id !== id && b.idBudget !== id);
         setBudgets(updated);
-        
+
         // Update cache
         if (typeof window !== 'undefined') {
             localStorage.setItem('budgets_cache', JSON.stringify(updated));
         }
-        
+
         // Add notification
         if (addNotification && budgetToDelete) {
-            addNotification({
-                type: 'delete',
-                message: `Budget goal deleted for ${budgetToDelete.category}`
-            });
+            addNotification('BUDGET_DELETED', `Budget goal deleted for ${budgetToDelete.category}`);
         }
     };
 
@@ -173,17 +164,17 @@ export function BudgetProvider({ children }) {
 
         // Get category name from budget.category
         const categoryName = budget.category?.toLowerCase();
-        
-        // Filter transactions by category name and period
+
+        // Filter transactions to only those that are expenses and match the budget category
         const relevantTransactions = transactions.filter(t => {
             // Match by category name (case-insensitive)
-            const transactionCategory = t.category?.name?.toLowerCase() || 
-                                       allCategories.find(c => c.id === t.idCategory)?.name?.toLowerCase();
-            
+            const transactionCategory = t.category?.name?.toLowerCase() ||
+                allCategories.find(c => c.id === t.idCategory)?.name?.toLowerCase();
+
             const matchesCategory = transactionCategory === categoryName;
             const isExpense = t.type === 'expense';
             const matchesPeriod = isInPeriod(t.date, budget.period);
-            
+
             return matchesCategory && isExpense && matchesPeriod;
         });
 
@@ -212,8 +203,8 @@ export function BudgetProvider({ children }) {
                 const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                 return date >= weekAgo && date <= now;
             case 'monthly':
-                return date.getMonth() === now.getMonth() && 
-                       date.getFullYear() === now.getFullYear();
+                return date.getMonth() === now.getMonth() &&
+                    date.getFullYear() === now.getFullYear();
             case 'yearly':
                 return date.getFullYear() === now.getFullYear();
             default:
@@ -225,77 +216,27 @@ export function BudgetProvider({ children }) {
     const checkBudgetWarnings = () => {
         budgets.forEach(budget => {
             const progress = getBudgetProgress(budget.id || budget.idBudget);
-            
+
             // Warning at 90%
             if (progress.percentage >= 90 && progress.percentage < 100 && !progress.isOver) {
                 const warningKey = `budget_warning_90_${budget.id}_${new Date().toDateString()}`;
                 const alreadyWarned = localStorage.getItem(warningKey);
-                
+
                 if (!alreadyWarned && addNotification) {
-                    addNotification({
-                        type: 'warning',
-                        message: `⚠️ Budget Warning: ${budget.category} is ${progress.percentage.toFixed(0)}% used (Rp${progress.spent.toLocaleString('id-ID')} / Rp${budget.limit.toLocaleString('id-ID')})`
-                    });
+                    addNotification('BUDGET_WARNING', `⚠️ Budget Warning: ${budget.category} is ${progress.percentage.toFixed(0)}% used (Rp${progress.spent.toLocaleString('id-ID')} / Rp${budget.limit.toLocaleString('id-ID')})`);
                     localStorage.setItem(warningKey, 'true');
                 }
             }
-            
+
             // Over budget alert
             if (progress.isOver) {
                 const overKey = `budget_over_${budget.id}_${new Date().toDateString()}`;
                 const alreadyAlerted = localStorage.getItem(overKey);
-                
+
                 if (!alreadyAlerted && addNotification) {
-                    addNotification({
-                        type: 'danger',
-                        message: `🚨 Budget Exceeded: ${budget.category} is over budget! Spent Rp${progress.spent.toLocaleString('id-ID')} (Limit: Rp${budget.limit.toLocaleString('id-ID')})`
-                    });
+                    addNotification('BUDGET_EXCEEDED', `🚨 Budget Exceeded: ${budget.category} is over budget! Spent Rp${progress.spent.toLocaleString('id-ID')} (Limit: Rp${budget.limit.toLocaleString('id-ID')})`);
                     localStorage.setItem(overKey, 'true');
                 }
-            }
-        });
-    };
-
-    // Add new function untuk check dan notify over budget
-    const checkBudgetStatus = () => {
-        budgets.forEach(budget => {
-            const progress = getBudgetProgress(budget.id);
-            
-            // If over budget, send notification
-            if (progress.spent > budget.limit && !budget.notifiedOverBudget) {
-                addNotification({
-                    type: 'warning',
-                    message: `⚠️ Over budget! ${budget.category} has exceeded by Rp${(progress.spent - budget.limit).toLocaleString('id-ID')}`
-                });
-                
-                // Mark as notified (optional - prevent duplicate notifications)
-                setBudgets(prev => prev.map(b => 
-                    b.id === budget.id 
-                        ? { ...b, notifiedOverBudget: true }
-                        : b
-                ));
-            }
-        });
-    };
-
-    // Export function untuk check budget status (akan dipanggil dari page)
-    const checkBudgetOverStatus = (budgets, addNotification) => {
-        budgets.forEach(budget => {
-            // Calculate spent for this budget
-            const relevantTransactions = transactions.filter(t => 
-                t.category?.name?.toLowerCase() === budget.category?.toLowerCase()
-            );
-            
-            const spent = relevantTransactions
-                .filter(t => t.type === 'expense')
-                .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-            
-            // If over budget, send notification
-            if (spent > budget.limit && !budget.notifiedOverBudget) {
-                addNotification({
-                    type: 'warning',
-                    message: `⚠️ Over budget! ${budget.category}: Rp${spent.toLocaleString('id-ID')} / Rp${budget.limit.toLocaleString('id-ID')}`
-                });
             }
         });
     };
@@ -306,7 +247,8 @@ export function BudgetProvider({ children }) {
         updateBudget,
         deleteBudget,
         getBudgetProgress,
-        loadBudgets
+        loadBudgets,
+        checkBudgetWarnings
     };
 
     return (

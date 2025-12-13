@@ -1,11 +1,13 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { fetchWithAuth } from '../utils/authHelper';
 
 const TransactionContext = createContext();
 
 export function TransactionProvider({ children }) {
     const [transactions, setTransactions] = useState([]);
     const [notifications, setNotifications] = useState([]);
+    // ✅ FIX: Backend pakai /notifications bukan /api/notifications
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
     // Load notifications from localStorage on mount
@@ -32,8 +34,9 @@ export function TransactionProvider({ children }) {
         setTransactions(backendTransactions);
     };
 
-    // Generic add notification function - CHECK SETTINGS BEFORE SAVING
-    const addNotification = async (type, message) => {
+    // ✅ FIXED: Add notification - TIDAK KIRIM KE BACKEND dari sini
+    // Backend akan otomatis create notification via NotificationService
+    const addNotification = (type, message) => {
         const notification = {
             id: Date.now(),
             type,
@@ -43,19 +46,7 @@ export function TransactionProvider({ children }) {
         };
 
         setNotifications(prev => [...prev, notification]);
-        
-        // COMMENT OUT UNTUK SEMENTARA:
-        /*
-        try {
-            await fetchWithAuth(`${BACKEND_URL}/api/notifications`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type, message }),
-            });
-        } catch (err) {
-            console.error('Error saving notification:', err);
-        }
-        */
+        console.log('✅ Notification added to local state:', notification);
     };
 
     const addTransaction = (transaction) => {
@@ -94,11 +85,9 @@ export function TransactionProvider({ children }) {
             return updated;
         });
 
-        // Create notification (will save to backend)
-        addNotification({
-            type: transaction.type,
-            message: `${transaction.type === 'income' ? 'Income' : 'Expense'} of Rp${parseFloat(transaction.amount).toLocaleString('id-ID')} added`
-        });
+        // ✅ HANYA simpan ke local state, backend sudah handle notificationnya
+        const notifMessage = `${transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} sebesar Rp${parseFloat(transaction.amount).toLocaleString('id-ID')} telah ditambahkan.`;
+        addNotification('TRANSACTION_CREATED', notifMessage);
     };
 
     const deleteTransaction = (id) => {
@@ -120,12 +109,10 @@ export function TransactionProvider({ children }) {
             return filtered;
         });
 
-        // Create notification with details
+        // Create notification locally
         if (txToDelete) {
-            addNotification({
-                type: 'delete',
-                message: `${txToDelete.type === 'income' ? 'Income' : 'Expense'} of Rp${parseFloat(txToDelete.amount).toLocaleString('id-ID')} deleted`
-            });
+            const notifMessage = `${txToDelete.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} sebesar Rp${parseFloat(txToDelete.amount).toLocaleString('id-ID')} telah dihapus.`;
+            addNotification('TRANSACTION_DELETED', notifMessage);
         }
     };
 
@@ -150,13 +137,11 @@ export function TransactionProvider({ children }) {
             })
         );
 
-        // Create notification with details
+        // Create notification locally
         if (oldTx) {
             const newAmount = parseFloat(updatedData.amount || oldTx.amount);
-            addNotification({
-                type: 'update',
-                message: `${oldTx.type === 'income' ? 'Income' : 'Expense'} updated to Rp${newAmount.toLocaleString('id-ID')}`
-            });
+            const notifMessage = `${oldTx.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} diperbarui menjadi Rp${newAmount.toLocaleString('id-ID')}.`;
+            addNotification('TRANSACTION_UPDATED', notifMessage);
         }
     };
 

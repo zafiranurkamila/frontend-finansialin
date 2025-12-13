@@ -8,6 +8,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import TransactionDetailModal from "../components/TransactionDetailModal";
 import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
+import { useBudget } from "../context/BudgetContext";
 import { fetchWithAuth, setupTokenRefresh } from "../utils/authHelper";
 import "../style/dashboard.css";
 import "../style/transaction.css";
@@ -42,6 +43,7 @@ function TransactionPage() {
     } = useTransactions();
 
     const { getCategoryById } = useCategories();
+    const { checkBudgetWarnings } = useBudget();
 
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
@@ -164,6 +166,9 @@ function TransactionPage() {
             
             // Add to context
             addTransaction(transformed);
+            
+            // Check budget warnings after adding transaction
+            checkBudgetWarnings();
             
             console.log("7️⃣ Context updated, closing modal");
             setIsAddModalOpen(false);

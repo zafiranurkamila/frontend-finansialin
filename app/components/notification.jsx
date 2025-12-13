@@ -1,12 +1,12 @@
+// ============================================
+// NOTIFICATIONS.JSX - READ ONLY VERSION
+// ============================================
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useTransactions } from '../context/TransactionContext';
 import { fetchWithAuth } from '../utils/authHelper';
-import { FaBell, FaTrash } from 'react-icons/fa';
 import '../style/notification.css';
 
 function Notifications() {
-  const { notifications: localNotifications } = useTransactions();
   const [backendNotifications, setBackendNotifications] = useState([]);
   const [displayNotifications, setDisplayNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,86 +32,70 @@ function Notifications() {
     }
   };
 
-  // Load notifications on mount
   useEffect(() => {
     fetchNotifications();
-    
-    // Poll for new notifications every 10 seconds
     const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  // Combine and display notifications - prioritize backend
+  // Only display backend notifications - no deduplication needed
   useEffect(() => {
-    const combined = [
-      ...backendNotifications.map(n => ({
-        id: n.idNotification,
-        type: n.type || 'info',
-        message: n.message,
-        date: n.createdAt,
-        read: n.read,
-        fromBackend: true,
-        backendId: n.idNotification
-      })),
-      ...localNotifications.map(n => ({
-        ...n,
-        fromBackend: false
-      }))
-    ];
+    const sorted = [...backendNotifications]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 10);
+    setDisplayNotifications(sorted);
+  }, [backendNotifications]);
 
-    // Remove duplicates and get recent 5
-    const unique = [];
-    const seen = new Set();
-    for (const notif of combined) {
-      const key = notif.fromBackend ? `backend-${notif.backendId}` : `local-${notif.id}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(notif);
-      }
-    }
-
-    setDisplayNotifications(unique.slice(0, 5));
-  }, [backendNotifications, localNotifications]);
-
-  // Delete notification from backend
-  const handleDelete = async (notif) => {
+  const handleMarkAsRead = async (notif) => {
     try {
-      if (notif.fromBackend) {
-        const response = await fetchWithAuth(`${BACKEND_URL}/api/notifications/${notif.backendId}`, {
-          method: 'DELETE'
-        });
-        if (response.ok) {
-          console.log('✅ Notification deleted from backend');
-          fetchNotifications();
-        }
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/notifications/${notif.idNotification}/read`, {
+        method: 'PATCH'
+      });
+
+      if (response.ok) {
+        console.log('✅ Notification marked as read');
+        fetchNotifications();
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to mark as read:', response.status, errorText);
       }
     } catch (err) {
-      console.error('❌ Error deleting notification:', err);
+      console.error('❌ Error marking notification as read:', err);
     }
   };
 
-  // Clear all notifications
-  const handleClearAll = async () => {
-    try {
-      // Delete all from backend
-      const response = await fetchWithAuth(`${BACKEND_URL}/api/notifications`, {
-        method: 'DELETE'
-      });
-      if (response.ok) {
-        console.log('✅ All notifications cleared from backend');
-        fetchNotifications();
-      }
-    } catch (err) {
-      console.error('❌ Error clearing notifications:', err);
+  const getNotificationIcon = (type) => {
+    switch(type) {
+      case 'income':
+      case 'TRANSACTION_CREATED':
+        return '💰';
+      case 'expense':
+        return '💸';
+      case 'TRANSACTION_DELETED':
+      case 'delete':
+        return '🗑️';
+      case 'TRANSACTION_UPDATED':
+      case 'update':
+        return '✏️';
+      case 'budget':
+      case 'BUDGET_CREATED':
+        return '📊';
+      case 'BUDGET_WARNING':
+      case 'budget_warning':
+        return '⚠️';
+      case 'BUDGET_EXCEEDED':
+      case 'over_budget':
+        return '🚨';
+      default:
+        return '📝';
     }
   };
 
   if (displayNotifications.length === 0) {
     return (
       <div className="widget-box">
-        <h3>
-          <FaBell style={{ marginRight: '8px' }} />
-          Recent Notifications
+        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          🔔 Recent Notifications
         </h3>
         <p className="empty-state">
           {loading ? 'Loading notifications...' : 'You have no notifications yet.'}
@@ -123,42 +107,40 @@ function Notifications() {
   return (
     <div className="widget-box">
       <div className="notification-header">
-        <h3>
-          <FaBell style={{ marginRight: '8px' }} />
-          Recent Notifications
+        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          🔔 Recent Notifications
         </h3>
-        {displayNotifications.length > 0 && (
-          <button 
-            className="clear-btn"
-            onClick={handleClearAll}
-            title="Clear all notifications"
-            disabled={loading}
-          >
-            Clear All
-          </button>
-        )}
       </div>
       
       <div className="notifications-list">
         {displayNotifications.map((notif) => (
           <div 
-            key={`${notif.fromBackend ? 'backend' : 'local'}-${notif.id || notif.backendId}`}
+            key={`notification-${notif.idNotification}`}
             className={`notification-item ${notif.read ? 'read' : 'unread'} ${notif.type}`}
           >
-            <div className="notif-content">
-              <p className="notif-message">{notif.message}</p>
-              <p className="notif-time">
-                {new Date(notif.date).toLocaleString('id-ID')}
+            <span className="notification-icon">
+              {getNotificationIcon(notif.type)}
+            </span>
+            <div className="notification-content">
+              <p className="notification-message">
+                {notif.message || `[${notif.type || 'Notification'}]`}
+              </p>
+              <p className="notification-time">
+                {new Date(notif.createdAt).toLocaleString('id-ID')}
               </p>
             </div>
-            <button
-              className="delete-btn"
-              onClick={() => handleDelete(notif)}
-              title="Delete notification"
-              disabled={loading}
-            >
-              <FaTrash />
-            </button>
+            <div className="notification-item-actions">
+              {!notif.read && (
+                <button
+                  className="mark-read-btn"
+                  onClick={() => handleMarkAsRead(notif)}
+                  title="Mark as read"
+                  disabled={loading}
+                >
+                  ✓
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>

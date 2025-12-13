@@ -43,14 +43,20 @@ export const refreshAccessToken = async () => {
 export const fetchWithAuth = async (url, options = {}) => {
     const token = localStorage.getItem('access_token');
     
+    // Build headers - only add Content-Type if there's a body
+    const headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`,
+    };
+    
+    if (options.body) {
+        headers['Content-Type'] = 'application/json';
+    }
+    
     // First attempt
     let response = await fetch(url, {
         ...options,
-        headers: {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
+        headers,
     });
 
     // If 401, try to refresh token and retry
@@ -60,14 +66,20 @@ export const fetchWithAuth = async (url, options = {}) => {
         try {
             const newToken = await refreshAccessToken();
             
+            // Rebuild headers for retry
+            const retryHeaders = {
+                ...options.headers,
+                'Authorization': `Bearer ${newToken}`,
+            };
+            
+            if (options.body) {
+                retryHeaders['Content-Type'] = 'application/json';
+            }
+            
             // Retry with new token
             response = await fetch(url, {
                 ...options,
-                headers: {
-                    ...options.headers,
-                    'Authorization': `Bearer ${newToken}`,
-                    'Content-Type': 'application/json',
-                },
+                headers: retryHeaders,
             });
         } catch (error) {
             // Refresh failed, user will be redirected to login

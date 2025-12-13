@@ -351,6 +351,12 @@
     transform: scale(1.15);
 }
 
+.mark-read-btn.read {
+    color: #10B981;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Delete Button */
 .delete-btn {
     background: none;
@@ -436,4 +442,8 @@
     .notification-time {
         font-size: 11px;
     }
+}
+
+.read-btn.active {
+    color: #4caf50;
 }

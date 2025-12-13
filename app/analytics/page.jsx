@@ -9,6 +9,7 @@ import ReportView from "../components/ReportView";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
+import { useBudget } from "../context/BudgetContext";
 import { fetchWithAuth } from "../utils/authHelper";
 import {
     BarChart, Bar, PieChart, Pie, LineChart, Line,
@@ -23,6 +24,7 @@ export default function AnalyticsPage() {
     const router = useRouter();
     const { transactions, totalIncome, totalExpenses, currentBalance, setTransactionsFromBackend } = useTransactions();
     const { getCategoryById } = useCategories();
+    const { budgets, getBudgetProgress, loadBudgets } = useBudget();
     const [activeTab, setActiveTab] = useState('charts');
     const [isAuthed, setIsAuthed] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -48,6 +50,30 @@ export default function AnalyticsPage() {
             fetchAnalyticsData();
         }
     }, [isAuthed]);
+
+    // Load budgets from backend (only once when authenticated)
+    useEffect(() => {
+        if (isAuthed) {
+            console.log("📥 Loading budgets...");
+            loadBudgets();
+        }
+    }, [isAuthed]); // Remove loadBudgets dari dependency
+
+    // Reload budgets when page becomes visible (user comes back from budget page)
+    useEffect(() => {
+        const handleVisibilityChange = async () => {
+            if (!document.hidden && isAuthed) {
+                console.log("👁️ Analytics page visible, reloading budgets...");
+                await loadBudgets();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [isAuthed, loadBudgets]);
 
     // Fetch data dari backend
     const fetchAnalyticsData = async () => {
@@ -108,7 +134,16 @@ export default function AnalyticsPage() {
         }
         return acc;
     }, {});
-
+// Check budget warnings only when transactions change, not on page load
+useEffect(() => {
+    if (budgets && budgets.length > 0 && transactions.length > 0) {
+        // Only check if there are new transactions since last check
+        const timer = setTimeout(() => {
+            checkBudgetWarnings();
+        }, 1000); // Debounce 1s untuk avoid frequent calls
+        return () => clearTimeout(timer);
+    }
+}, [transactions]); // Remove budgets dan checkBudgetWarnings dari dependency
     const categoryChartData = Object.keys(categoryData).length > 0
         ? Object.entries(categoryData).map(([name, data]) => ({
             name,
@@ -190,28 +225,6 @@ export default function AnalyticsPage() {
     const handleCancelLogout = () => {
         setIsLogoutAlertOpen(false);
     };
-
-    // After adding transaction, check budgets
-    useEffect(() => {
-        if (transactions.length > 0) {
-            // Check each budget
-            budgets.forEach(budget => {
-                const spent = transactions
-                    .filter(t => 
-                        t.type === 'expense' && 
-                        t.category?.name === budget.category
-                    )
-                    .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-                
-                if (spent > budget.limit) {
-                    addNotification({
-                        type: 'warning',
-                        message: `⚠️ Budget exceeded for ${budget.category}: Rp${spent.toLocaleString('id-ID')} / Rp${budget.limit.toLocaleString('id-ID')}`
-                    });
-                }
-            });
-        }
-    }, [transactions]);
 
     // Show loading saat initial load atau data sedang dimuat
     if (loading || dataLoading) return (
@@ -392,6 +405,68 @@ export default function AnalyticsPage() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Budget Alerts Section */}
+                                {budgets && budgets.length > 0 && (
+                                    <div className="budget-alerts-section">
+                                        <h3 className="budget-alerts-title">Budget Alerts</h3>
+                                        <div className="budget-alerts-list">
+                                            {budgets
+                                                .map(budget => {
+                                                    const progress = getBudgetProgress(budget.id || budget.idBudget);
+                                                    return progress.isOver ? { ...budget, progress } : null;
+                                                })
+                                                .filter(Boolean)
+                                                .length > 0 ? (
+                                                budgets
+                                                    .map(budget => {
+                                                        const progress = getBudgetProgress(budget.id || budget.idBudget);
+                                                        if (!progress.isOver) return null;
+                                                        
+                                                        return (
+                                                            <div key={budget.id || budget.idBudget} className="budget-alert-item">
+                                                                <div className="budget-alert-content">
+                                                                    <p className="budget-alert-category">
+                                                                        {budget.category} - Over Budget
+                                                                    </p>
+                                                                    <p className="budget-alert-details">
+                                                                        Spent: Rp{progress.spent.toLocaleString('id-ID')} / 
+                                                                        Limit: Rp{budget.limit.toLocaleString('id-ID')}
+                                                                        {' '}
+                                                                        <span style={{ color: '#EF4444', fontWeight: 700 }}>
+                                                                            (Over by Rp{progress.remaining.toLocaleString('id-ID')})
+                                                                        </span>
+                                                                    </p>
+                                                                </div>
+                                                                <div className="budget-alert-progress">
+                                                                    <div className="budget-progress-bar">
+                                                                        <div 
+                                                                            className="budget-progress-fill" 
+                                                                            style={{ width: `${Math.min(progress.percentage, 100)}%` }}
+                                                                        ></div>
+                                                                    </div>
+                                                                    <p className="budget-percent">{progress.percentage.toFixed(0)}%</p>
+                                                                </div>
+                                                                <div className="budget-alert-action">
+                                                                    <button className="budget-alert-btn"
+                                                                        onClick={() => router.push(`/budget?highlighted=${budget.id || budget.idBudget}`)}
+                                                                    >
+                                                                        View Budget
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })
+                                                    .filter(Boolean)
+                                            ) : (
+                                                <div className="budget-alerts-empty">
+                                                    <span className="icon">✅</span>
+                                                    <p>All budgets are within limits. Great job!</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )
                     ) : (
