@@ -157,14 +157,6 @@
   letter-spacing: 0.5px;
 }
 
-.amount-label.income {
-  color: #10b981;
-}
-
-.amount-label.expense {
-  color: #ef4444;
-}
-
 .amount-value {
   margin: 0;
   font-size: 36px;
