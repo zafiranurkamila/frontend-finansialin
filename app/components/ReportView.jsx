@@ -100,9 +100,120 @@ function ReportView() {
     return date.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
   };
 
-  // Handle print
+  // Handle print - Generate proper PDF template
   const handlePrint = () => {
-    window.print();
+    const html2pdf = require("html2pdf.js");
+
+    // Create PDF template
+    const pdfTemplate = `
+      <div style="font-family: 'Poppins', Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; background: white;">
+        <div style="text-align: center; border-bottom: 3px solid #2563EB; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="color: #2563EB; margin: 0; font-size: 28px; font-weight: 700;">Laporan Keuangan Finansialin</h1>
+          <p style="color: #6B7280; margin: 10px 0 0 0; font-size: 16px;">Periode: ${formatMonthName(selectedMonth)}</p>
+          <p style="color: #6B7280; margin: 5px 0 0 0; font-size: 14px;">Tanggal Export: ${new Date().toLocaleDateString("id-ID")}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px;">
+          <div style="background: #ECFDF5; border: 1px solid #10B981; border-radius: 8px; padding: 20px; text-align: center;">
+            <h3 style="color: #065F46; margin: 0 0 10px 0; font-size: 14px;">Total Income</h3>
+            <p style="color: #065F46; margin: 0; font-size: 20px; font-weight: 700;">Rp ${monthlyIncome.toLocaleString("id-ID")}</p>
+          </div>
+          <div style="background: #FEF2F2; border: 1px solid #EF4444; border-radius: 8px; padding: 20px; text-align: center;">
+            <h3 style="color: #991B1B; margin: 0 0 10px 0; font-size: 14px;">Total Expenses</h3>
+            <p style="color: #991B1B; margin: 0; font-size: 20px; font-weight: 700;">Rp ${monthlyExpenses.toLocaleString("id-ID")}</p>
+          </div>
+          <div style="background: ${monthlyBalance >= 0 ? "#ECFDF5" : "#FEF2F2"}; border: 1px solid ${monthlyBalance >= 0 ? "#10B981" : "#EF4444"}; border-radius: 8px; padding: 20px; text-align: center;">
+            <h3 style="color: ${monthlyBalance >= 0 ? "#065F46" : "#991B1B"}; margin: 0 0 10px 0; font-size: 14px;">Net Balance</h3>
+            <p style="color: ${monthlyBalance >= 0 ? "#065F46" : "#991B1B"}; margin: 0; font-size: 20px; font-weight: 700;">Rp ${monthlyBalance.toLocaleString("id-ID")}</p>
+          </div>
+        </div>
+
+        ${
+          topCategories.length > 0
+            ? `
+        <div style="margin-bottom: 40px;">
+          <h2 style="color: #111827; margin: 0 0 20px 0; font-size: 20px; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px;">Top Spending Categories</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+              <tr style="background: #F9FAFB;">
+                <th style="border: 1px solid #E5E7EB; padding: 12px; text-align: left; font-weight: 600; color: #374151;">Category</th>
+                <th style="border: 1px solid #E5E7EB; padding: 12px; text-align: center; font-weight: 600; color: #374151;">Transactions</th>
+                <th style="border: 1px solid #E5E7EB; padding: 12px; text-align: right; font-weight: 600; color: #374151;">Amount</th>
+                <th style="border: 1px solid #E5E7EB; padding: 12px; text-align: center; font-weight: 600; color: #374151;">Percentage</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${topCategories
+                .map(([category, data]) => {
+                  const percentage = monthlyExpenses > 0 ? ((data.amount / monthlyExpenses) * 100).toFixed(1) : 0;
+                  return `
+                  <tr>
+                    <td style="border: 1px solid #E5E7EB; padding: 12px; color: #111827;">${category}</td>
+                    <td style="border: 1px solid #E5E7EB; padding: 12px; text-align: center; color: #111827;">${data.count}</td>
+                    <td style="border: 1px solid #E5E7EB; padding: 12px; text-align: right; color: #111827; font-weight: 600;">Rp ${data.amount.toLocaleString("id-ID")}</td>
+                    <td style="border: 1px solid #E5E7EB; padding: 12px; text-align: center; color: #111827;">${percentage}%</td>
+                  </tr>
+                `;
+                })
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+        `
+            : ""
+        }
+
+        <div style="margin-bottom: 40px;">
+          <h2 style="color: #111827; margin: 0 0 20px 0; font-size: 20px; border-bottom: 2px solid #E5E7EB; padding-bottom: 10px;">Transaction Details</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #F9FAFB;">
+                <th style="border: 1px solid #E5E7EB; padding: 8px; text-align: left; font-weight: 600; color: #374151; font-size: 12px;">Date</th>
+                <th style="border: 1px solid #E5E7EB; padding: 8px; text-align: left; font-weight: 600; color: #374151; font-size: 12px;">Category</th>
+                <th style="border: 1px solid #E5E7EB; padding: 8px; text-align: left; font-weight: 600; color: #374151; font-size: 12px;">Description</th>
+                <th style="border: 1px solid #E5E7EB; padding: 8px; text-align: right; font-weight: 600; color: #374151; font-size: 12px;">Income</th>
+                <th style="border: 1px solid #E5E7EB; padding: 8px; text-align: right; font-weight: 600; color: #374151; font-size: 12px;">Expense</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredTransactions
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .map((t) => {
+                  const categoryName = getCategoryName(t);
+                  const date = new Date(t.date).toLocaleDateString("id-ID");
+                  return `
+                    <tr>
+                      <td style="border: 1px solid #E5E7EB; padding: 8px; color: #111827; font-size: 11px;">${date}</td>
+                      <td style="border: 1px solid #E5E7EB; padding: 8px; color: #111827; font-size: 11px;">${categoryName}</td>
+                      <td style="border: 1px solid #E5E7EB; padding: 8px; color: #111827; font-size: 11px;">${t.description || "-"}</td>
+                      <td style="border: 1px solid #E5E7EB; padding: 8px; text-align: right; color: #065F46; font-weight: 600; font-size: 11px;">${t.type === "income" ? "Rp " + t.amount.toLocaleString("id-ID") : "-"}</td>
+                      <td style="border: 1px solid #E5E7EB; padding: 8px; text-align: right; color: #991B1B; font-weight: 600; font-size: 11px;">${t.type === "expense" ? "Rp " + t.amount.toLocaleString("id-ID") : "-"}</td>
+                    </tr>
+                  `;
+                })
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="text-align: center; color: #6B7280; font-size: 12px; border-top: 1px solid #E5E7EB; padding-top: 20px; margin-top: 40px;">
+          <p>Generated by Finansialin - Personal Finance Management</p>
+          <p>Report generated on ${new Date().toLocaleString("id-ID")}</p>
+        </div>
+      </div>
+    `;
+
+    // PDF options
+    const options = {
+      margin: 0.5,
+      filename: `Laporan_Keuangan_${selectedMonth}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+    };
+
+    // Create and download PDF
+    html2pdf().set(options).from(pdfTemplate).save();
   };
 
   // Escape CSV value
@@ -268,7 +379,7 @@ function ReportView() {
 
         <div className="report-actions">
           <button className="report-btn" onClick={handlePrint}>
-            <FaPrint /> Print
+            <FaDownload /> Download PDF
           </button>
           <button className="report-btn" onClick={handleDownload}>
             <FaDownload /> Download XLS

@@ -40,7 +40,7 @@ function TransactionDetailModal({ isOpen, onClose, transaction, categoryName }) 
             <div className="amount-info">
               <p className="amount-label">Transaction Amount</p>
               <p className={`amount-value ${transaction.type}`}>
-                {transaction.type === "income"}
+                {transaction.type === "income" ? "+" : "-"}
                 {formatCurrency(transaction.amount)}
               </p>
             </div>
