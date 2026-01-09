@@ -281,13 +281,6 @@ function SettingsPage() {
                                 <FaBell />
                                 <span>{t('notifications')}</span>
                             </button>
-                            <button
-                                className={`settings-tab ${activeTab === 'language' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('language')}
-                            >
-                                <FaLanguage />
-                                <span>{t('language')}</span>
-                            </button>
                         </div>
 
                         {/* Settings Content */}
@@ -372,31 +365,6 @@ function SettingsPage() {
                                 <button className="save-btn" onClick={handleSaveNotifications}>
                                     <FaSave /> {t('savePreferences')}
                                 </button>
-                            </div>
-
-                            {/* Language Tab */}
-                            <div className="settings-section" style={{ display: activeTab === 'language' ? 'block' : 'none' }}>
-                                <h3 className="section-title">{t('languageSettings')}</h3>
-                                <p className="section-description">{t('selectLanguage')}</p>
-
-                                <div className="settings-form">
-                                    <div className="form-group">
-                                        <label htmlFor="language" style={{ textTransform: 'uppercase' }}>{t('language')}</label>
-                                        <select
-                                            id="language"
-                                            value={selectedLanguage}
-                                            onChange={handleLanguageChange}
-                                            className="form-select"
-                                        >
-                                            <option value="id">Bahasa Indonesia</option>
-                                            <option value="en">English</option>
-                                        </select>
-                                    </div>
-
-                                    <button className="save-btn" onClick={handleSaveLanguage}>
-                                        <FaSave /> {t('saveChanges')}
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>

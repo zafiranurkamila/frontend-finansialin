@@ -130,7 +130,7 @@ const translations = {
 
         // Analytics
         analyticsTitle: 'Analytics',
-        categoryBreakdown: 'Category Breakdown',
+        categoryBreakdown: 'Category Distribution',
         expenseWithIncome: 'Expense (with income)',
         expenseNoIncome: 'Expense (no income)',
         incomeWithExpense: 'Income (with expense)',
@@ -270,7 +270,7 @@ const translations = {
 
         // Analytics
         analyticsTitle: 'Analitik',
-        categoryBreakdown: 'Rincian Kategori',
+        categoryBreakdown: 'Distribusi Kategori',
         expenseWithIncome: 'Pengeluaran (dengan pemasukan)',
         expenseNoIncome: 'Pengeluaran (tanpa pemasukan)',
         incomeWithExpense: 'Pemasukan (dengan pengeluaran)',

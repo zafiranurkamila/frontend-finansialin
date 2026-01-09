@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { useCategories } from '../context/CategoryContext';
 import '../style/modal.css';
+import '../style/alert.css';
 
 function EditBudgetModal({ isOpen, onClose, onEditBudget, budget }) {
     const [formData, setFormData] = useState({

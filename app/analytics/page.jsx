@@ -138,6 +138,15 @@ export default function AnalyticsPage() {
       }))
       : [];
 
+  // Transaction volume - total count only
+  const incomeCount = transactions.filter(t => t.type === "income").length;
+  const expenseCount = transactions.filter(t => t.type === "expense").length;
+  
+  const transactionVolumeData = [
+    { name: "Income", count: incomeCount, fill: "#10B981" },
+    { name: "Expense", count: expenseCount, fill: "#EF4444" },
+  ];
+
   // Pie Data
   const pieData = [
     { name: "Income", value: totalIncome, color: "#10B981" },
@@ -289,53 +298,18 @@ export default function AnalyticsPage() {
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Category Breakdown Bar Chart */}
+                  {/* Transaction Volume Bar Chart */}
                   <div className="chart-card wide">
-                    <h3>{t('categoryBreakdown')}</h3>
+                    <h3>Transaction Volume</h3>
                     <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={categoryChartData}>
+                      <BarChart data={transactionVolumeData} barSize={80} margin={{ left: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
-                        <Tooltip formatter={(value) => `Rp ${value.toLocaleString("id-ID")}`} />
-                        <Legend 
-                          content={({ payload }) => (
-                            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                <div style={{ width: '12px', height: '12px', backgroundColor: '#EF4444' }}></div>
-                                <span>{t('expenseWithIncome')}</span>
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                <div style={{ width: '12px', height: '12px', backgroundColor: '#FCA5A5' }}></div>
-                                <span>{t('expenseNoIncome')}</span>
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                <div style={{ width: '12px', height: '12px', backgroundColor: '#10B981' }}></div>
-                                <span>{t('incomeWithExpense')}</span>
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                <div style={{ width: '12px', height: '12px', backgroundColor: '#6B7280' }}></div>
-                                <span>{t('incomeNoExpense')}</span>
-                              </div>
-                            </div>
-                          )}
-                        />
-                        {/* Income bar: abu-abu jika no expense di kategori itu, hijau jika ada */}
-                        <Bar dataKey="income" name={t('income')}>
-                          {categoryChartData.map((entry, index) => (
-                            <Cell
-                              key={`income-${index}`}
-                              fill={entry.expense > 0 ? "#10B981" : "#6B7280"}
-                            />
-                          ))}
-                        </Bar>
-                        {/* Expense bar: merah gelap jika ada income, merah muda jika tidak */}
-                        <Bar dataKey="expense" name={t('expense')}>
-                          {categoryChartData.map((entry, index) => (
-                            <Cell
-                              key={`expense-${index}`}
-                              fill={entry.income > 0 ? "#EF4444" : "#FCA5A5"}
-                            />
+                        <Tooltip formatter={(value) => `${value} transactions`} />
+                        <Bar dataKey="count" name="Transactions">
+                          {transactionVolumeData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
                           ))}
                         </Bar>
                       </BarChart>

@@ -32,6 +32,7 @@ function BudgetGoalsPage() {
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
   const [filterCategory, setFilterCategory] = useState("");
   const [filteredBudgets, setFilteredBudgets] = useState([]);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [budgetGoals, setBudgetGoals] = useState(null);
 
@@ -101,10 +102,10 @@ function BudgetGoalsPage() {
     setLoadingBudgets(true);
     const categoryId = filterCategory ? parseInt(filterCategory) : null;
     
-    // Map UI period to backend period format
+    // Map UI period to backend period format (yearly -> year)
     const periodMapping = {
-      'daily': 'day',
-      'weekly': 'week',
+      'daily': 'daily',
+      'weekly': 'weekly',
       'monthly': 'monthly',
       'yearly': 'year',
       'year': 'year'
@@ -116,7 +117,8 @@ function BudgetGoalsPage() {
     
     const filtered = await filterBudgets(backendPeriod, filterDate, categoryId);
     console.log("📊 Filtered results:", filtered);
-    setFilteredBudgets(filtered);
+    setFilteredBudgets(Array.isArray(filtered) ? filtered : []);
+    setIsFilterApplied(true);
 
     // Get budget type (expense or income) based on category if specified
     let budgetType = 'expense'; // default
@@ -144,6 +146,7 @@ function BudgetGoalsPage() {
     setFilterDate(new Date().toISOString().split('T')[0]);
     setFilterCategory("");
     setFilteredBudgets([]);
+    setIsFilterApplied(false);
     
     // Clear budget goals summary when clearing filter
     setBudgetGoals(null);
@@ -370,6 +373,8 @@ function BudgetGoalsPage() {
     return { periodStart, periodEnd };
   };
 
+  const displayedBudgets = isFilterApplied ? filteredBudgets : budgets;
+
   if (loading || !isAuthed)
     return (
       <div className="loading">
@@ -574,7 +579,7 @@ function BudgetGoalsPage() {
                 )
               )}
 
-              {filteredBudgets.length === 0 && filterPeriod && (
+              {isFilterApplied && filteredBudgets.length === 0 && (
                 <div style={{
                   marginTop: '15px',
                   padding: '12px',
@@ -595,14 +600,14 @@ function BudgetGoalsPage() {
               <div className="empty-state-budget">
                 <p>Loading budgets...</p>
               </div>
-            ) : (filteredBudgets.length > 0 ? filteredBudgets : budgets).length === 0 ? (
+            ) : displayedBudgets.length === 0 ? (
               <div className="empty-state-budget">
       <FaChartLine className="empty-icon" />
       <h3>No Budget Goals Yet</h3>
       <p>Start by creating your first budget goal to track your spending</p>
     </div>
   ) : (
-    (filteredBudgets.length > 0 ? filteredBudgets : budgets).map((budget) => {
+    displayedBudgets.map((budget) => {
       const progress = getBudgetProgress(budget.id || budget.idBudget);
       const isOverBudget = progress.percentage > 100;
       const limit = parseFloat(budget.limit || budget.amount) || 0;
@@ -651,38 +656,22 @@ function BudgetGoalsPage() {
   )}
 </div>
 
-{/* Budget Summary - use budgetGoals if available, otherwise use budgets */}
+{/* Budget Summary - always use displayedBudgets for consistency */}
 {
-  budgetGoals ? (
+  displayedBudgets.length > 0 && (
     <div className="budget-summary">
       <h3>{t('budgetSummary')}</h3>
       <div className="summary-stats">
         <div className="stat-item">
           <span className="stat-label">{t('totalBudget')}</span>
-          <span className="stat-value">Rp {(budgetGoals.totals?.totalBudget || 0).toLocaleString("id-ID")}</span>
+          <span className="stat-value">Rp {displayedBudgets.reduce((sum, b) => sum + parseFloat(b.limit || b.amount || 0), 0).toLocaleString("id-ID")}</span>
         </div>
         <div className="stat-item">
           <span className="stat-label">{t('activeGoals')}</span>
-          <span className="stat-value">{budgetGoals.data?.length || 0}</span>
+          <span className="stat-value">{displayedBudgets.length}</span>
         </div>
       </div>
     </div>
-  ) : (
-    (filteredBudgets.length > 0 ? filteredBudgets : budgets).length > 0 && (
-      <div className="budget-summary">
-        <h3>{t('budgetSummary')}</h3>
-        <div className="summary-stats">
-          <div className="stat-item">
-            <span className="stat-label">{t('totalBudget')}</span>
-            <span className="stat-value">Rp {(filteredBudgets.length > 0 ? filteredBudgets : budgets).reduce((sum, b) => sum + parseFloat(b.limit || b.amount || 0), 0).toLocaleString("id-ID")}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">{t('activeGoals')}</span>
-            <span className="stat-value">{(filteredBudgets.length > 0 ? filteredBudgets : budgets).length}</span>
-          </div>
-        </div>
-      </div>
-    )
   )
 }
         </main >

@@ -273,6 +273,7 @@ export function BudgetProvider({ children }) {
   const filterBudgets = async (period, date, idCategory = null) => {
     try {
       const token = localStorage.getItem("access_token");
+      console.log("🔑 Token check - Token exists:", !!token, "Token length:", token?.length);
       if (!token) {
         console.log("⚠️ No token, cannot filter budgets");
         return [];
@@ -298,13 +299,12 @@ export function BudgetProvider({ children }) {
         const data = await response.json();
         console.log("✅ Filtered budgets response:", data);
         console.log("📊 Total found from backend:", data.length);
-        
-        // If backend returns empty, try client-side filtering as fallback
-        if (data.length === 0 && budgets.length > 0) {
-          console.log("⚠️ Backend returned empty, trying client-side filter...");
-          return filterBudgetsClientSide(budgets, period, date, idCategory);
+
+        // Respect empty backend result to avoid showing unrelated periods
+        if (!data || data.length === 0) {
+          return [];
         }
-        
+
         // Map the data
         const mapped = data.map((b) => {
           const categoryObj = allCategories.find((c) => c.id === b.idCategory || c.idCategory === b.idCategory);
@@ -322,15 +322,18 @@ export function BudgetProvider({ children }) {
         });
 
         return mapped;
-      } else {
-        console.error("❌ Failed to filter budgets:", response.status);
-        // Try client-side as fallback
-        return filterBudgetsClientSide(budgets, period, date, idCategory);
       }
-    } catch (err) {
+
+      const errorText = await response.text();
+      console.error("❌ Failed to filter budgets:", response.status, errorText);
+      
+      if (response.status === 401) {
+        console.error("❌ Token expired or invalid, please login again");
+      }
+      
+      return [];    } catch (err) {
       console.error("❌ Filter budgets error:", err);
-      // Try client-side as fallback
-      return filterBudgetsClientSide(budgets, period, date, idCategory);
+      return [];
     }
   };
 
