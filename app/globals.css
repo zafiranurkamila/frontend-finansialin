@@ -10,6 +10,8 @@ html {
   width: 100%;
   margin: 0;
   padding: 0;
+  touch-action: pan-x pan-y;
+  -ms-touch-action: pan-x pan-y;
 }
 
 body {
@@ -25,6 +27,14 @@ body {
   overflow-x: hidden;
   font-size: 16px; /* Consistent base font size */
   line-height: 1.5;
+  touch-action: pan-x pan-y;
+  -ms-touch-action: pan-x pan-y;
+}
+
+/* Prevent zoom on mobile */
+input, select, textarea {
+  font-size: 16px !important;
+  touch-action: manipulation;
 }
 
 /* ===== Next.js Root ===== */
@@ -176,7 +186,7 @@ select:focus-visible {
 
 /* Loading Text - Large Animated */
 .loading-text {
-  color: #ffffff;
+  color: #344d33;
   font-size: 48px;
   font-weight: 700;
   letter-spacing: 2px;

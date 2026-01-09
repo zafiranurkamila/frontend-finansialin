@@ -34,7 +34,6 @@ function TransactionPage() {
   const { transactions, addTransaction, updateTransaction, deleteTransaction, setTransactionsFromBackend, totalIncome, totalExpenses, currentBalance } = useTransactions();
 
   const { getCategoryById } = useCategories();
-  const { checkBudgetWarnings } = useBudget();
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
@@ -157,8 +156,8 @@ function TransactionPage() {
       // Add to context
       addTransaction(transformed);
 
-      // Check budget warnings after adding transaction
-      checkBudgetWarnings();
+      // Backend sudah otomatis check budget dan create notification
+      // checkBudgetWarnings();
 
       console.log("7️⃣ Context updated, closing modal");
       setIsAddModalOpen(false);
@@ -269,8 +268,7 @@ function TransactionPage() {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-        },
-      }).catch(console.error);
+        },        body: JSON.stringify({}),      }).catch(console.error);
     }
 
     localStorage.removeItem("access_token");

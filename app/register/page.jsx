@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../style/register.css";
@@ -14,6 +14,20 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const pwdOkLen = password.length >= 6;
+  const pwdOkNum = /\d/.test(password);
+
+  // Trigger animations on mount to ensure consistency on logout redirect
+  useEffect(() => {
+    // Force reflow to restart animations
+    const registerPage = document.querySelector('.register-page');
+    if (registerPage) {
+      registerPage.offsetHeight;
+    }
+  }, []);
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
@@ -46,6 +60,11 @@ function Register() {
 
       // Registrasi berhasil
       setSuccess(true);
+      
+      // Auto redirect setelah 1 detik
+      setTimeout(() => {
+        router.push("/login");
+      }, 1000);
     } catch (err) {
       setError("Connection error. Please try again.");
       console.error(err);
@@ -70,14 +89,7 @@ function Register() {
         </div>
       )}
 
-      {loading ? (
-        <div className="loading">
-          <div className="loading-container">
-            <div className="loading-text">Finansialin</div>
-          </div>
-        </div>
-      ) : (
-        <div className="register-left">
+      <div className="register-left">
           <h1 className="brand">Finansialin</h1>
           <p className="subtitle">Sign up to continue</p>
 
@@ -87,7 +99,7 @@ function Register() {
             </div>
           )}
 
-          <form className="register-form" onSubmit={handleSubmit}>
+          <form className="register-form" onSubmit={handleSubmit} autoComplete="off">
             <label>Name</label>
             <input
               type="text"
@@ -95,6 +107,8 @@ function Register() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              autoComplete="off"
+              name="register-name"
             />
 
             <label htmlFor="email">Email</label>
@@ -105,7 +119,20 @@ function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
+              autoComplete="off"
+              inputMode="email"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              name="register-email"
             />
+            {emailFocused && (
+              <small className={`input-hint ${emailValid ? 'ok' : (email.length > 0 ? 'warn' : '')}`}>
+                Use a valid email like name@example.com
+              </small>
+            )}
 
             <label>Password</label>
             <div className="password-wrapper">
@@ -115,6 +142,10 @@ function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                autoComplete="new-password"
+                name="register-password"
               />
               <span className="toggle-password" onClick={togglePassword}>
                 {showPassword ? (
@@ -133,13 +164,18 @@ function Register() {
                 )}
               </span>
             </div>
+            {passwordFocused && (
+              <div className="hint-list">
+                <div className={pwdOkLen ? 'ok' : 'warn'}>• Minimum 6 characters</div>
+                <div className={pwdOkNum ? 'ok' : 'warn'}>• Include at least 1 number</div>
+              </div>
+            )}
 
             <button type="submit" className="btn-signup" disabled={loading}>
               {loading ? "Signing Up..." : "Sign Up"}
             </button>
           </form>
         </div>
-      )}
 
       <div className="register-right">
         <h2>Welcome Back!</h2>

@@ -3,6 +3,7 @@
 // ============================================
 "use client";
 import React, { useState, useEffect } from 'react';
+import { FaMoneyBillWave, FaShoppingCart, FaTrash, FaEdit, FaChartPie, FaExclamationTriangle, FaBell } from 'react-icons/fa';
 import { fetchWithAuth } from '../utils/authHelper';
 import '../style/notification.css';
 
@@ -10,13 +11,46 @@ function Notifications() {
   const [backendNotifications, setBackendNotifications] = useState([]);
   const [displayNotifications, setDisplayNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState({ transactionAlerts: true, budgetAlerts: true });
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+
+  const readNotifPrefs = () => {
+    const saved = localStorage.getItem('notificationSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          transactionAlerts: parsed.transactionAlerts ?? true,
+          budgetAlerts: parsed.budgetAlerts ?? true,
+        };
+      } catch (e) {
+        console.warn('Failed to parse notification settings, using defaults');
+      }
+    }
+    return { transactionAlerts: true, budgetAlerts: true };
+  };
+
+  useEffect(() => {
+    setNotifPrefs(readNotifPrefs());
+
+    const handleVisibility = () => setNotifPrefs(readNotifPrefs());
+    const handleStorage = () => setNotifPrefs(readNotifPrefs());
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
 
   // Fetch notifications from backend
   const fetchNotifications = async () => {
     try {
       setLoading(true);
+      setNotifPrefs(readNotifPrefs());
       const response = await fetchWithAuth(`${BACKEND_URL}/api/notifications`);
       if (response.ok) {
         const data = await response.json();
@@ -39,12 +73,43 @@ function Notifications() {
   }, []);
 
   // Only display backend notifications - no deduplication needed
+  const isTransactionType = (type) => {
+    const t = (type || '').toUpperCase();
+    return [
+      'INCOME',
+      'EXPENSE',
+      'TRANSACTION_CREATED',
+      'TRANSACTION_UPDATED',
+      'TRANSACTION_DELETED',
+      'TRANSACTION',
+      'DELETE',
+      'UPDATE',
+    ].includes(t);
+  };
+
+  const isBudgetType = (type) => {
+    const t = (type || '').toUpperCase();
+    return [
+      'BUDGET',
+      'BUDGET_CREATED',
+      'BUDGET_WARNING',
+      'BUDGET_EXCEEDED',
+      'OVER_BUDGET',
+      'BUDGET_WARNING',
+    ].includes(t);
+  };
+
   useEffect(() => {
     const sorted = [...backendNotifications]
+      .filter((notif) => {
+        if (!notifPrefs.transactionAlerts && isTransactionType(notif.type)) return false;
+        if (!notifPrefs.budgetAlerts && isBudgetType(notif.type)) return false;
+        return true;
+      })
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 10);
     setDisplayNotifications(sorted);
-  }, [backendNotifications]);
+  }, [backendNotifications, notifPrefs]);
 
   const handleMarkAsRead = async (notif) => {
     try {
@@ -65,29 +130,30 @@ function Notifications() {
   };
 
   const getNotificationIcon = (type) => {
+    const iconProps = { size: 20 };
     switch(type) {
       case 'income':
       case 'TRANSACTION_CREATED':
-        return '💰';
+        return <FaMoneyBillWave {...iconProps} style={{ color: '#10B981' }} />;
       case 'expense':
-        return '💸';
+        return <FaShoppingCart {...iconProps} style={{ color: '#EF4444' }} />;
       case 'TRANSACTION_DELETED':
       case 'delete':
-        return '🗑️';
+        return <FaTrash {...iconProps} style={{ color: '#6B7280' }} />;
       case 'TRANSACTION_UPDATED':
       case 'update':
-        return '✏️';
+        return <FaEdit {...iconProps} style={{ color: '#3B82F6' }} />;
       case 'budget':
       case 'BUDGET_CREATED':
-        return '📊';
+        return <FaChartPie {...iconProps} style={{ color: '#8B5CF6' }} />;
       case 'BUDGET_WARNING':
       case 'budget_warning':
-        return '⚠️';
+        return <FaExclamationTriangle {...iconProps} style={{ color: '#F59E0B' }} />;
       case 'BUDGET_EXCEEDED':
       case 'over_budget':
-        return '🚨';
+        return <FaExclamationTriangle {...iconProps} style={{ color: '#EF4444' }} />;
       default:
-        return '📝';
+        return <FaBell {...iconProps} style={{ color: '#6B7280' }} />;
     }
   };
 

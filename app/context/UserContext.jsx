@@ -5,9 +5,9 @@ const UserContext = createContext();
 
 export function UserProvider({ children }) {
     const [user, setUser] = useState({
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '+1234567890',
+        name: '',
+        email: '',
+        phone: '',
         avatar: ''
     });
     const [isLoaded, setIsLoaded] = useState(false);
@@ -16,7 +16,11 @@ export function UserProvider({ children }) {
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
-            setUser(JSON.parse(savedUser));
+            try {
+                setUser(JSON.parse(savedUser));
+            } catch (err) {
+                console.error('Error parsing saved user:', err);
+            }
         }
         setIsLoaded(true);
     }, []);

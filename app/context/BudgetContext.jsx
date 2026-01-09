@@ -24,6 +24,27 @@ export function BudgetProvider({ children }) {
   const { allCategories, getCategoryById } = useCategories();
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
+  // Remap budgets once categories sudah tersedia supaya nama kategori tidak "Unknown"
+  React.useEffect(() => {
+    if (!allCategories.length || !budgets.length) return;
+
+    const remapped = budgets.map((b) => {
+      const cat = allCategories.find((c) => c.id === b.idCategory || c.idCategory === b.idCategory);
+      if (!cat) return b;
+      // Jika sebelumnya Unknown, perbarui nama kategori
+      return {
+        ...b,
+        category: cat.name,
+      };
+    });
+
+    setBudgets(remapped);
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("budgets_cache", JSON.stringify(remapped));
+    }
+  }, [allCategories]);
+
   // Load budgets from backend
   const loadBudgets = async () => {
     try {
@@ -248,6 +269,186 @@ export function BudgetProvider({ children }) {
     }
   };
 
+  // Filter budgets by period and category
+  const filterBudgets = async (period, date, idCategory = null) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.log("⚠️ No token, cannot filter budgets");
+        return [];
+      }
+
+      console.log("🔍 Filtering budgets:", { period, date, idCategory });
+      console.log("📋 Budgets available in context:", budgets);
+
+      let url = `${BACKEND_URL}/api/budgets/filter?period=${period}&date=${date}`;
+      if (idCategory) {
+        url += `&idCategory=${idCategory}`;
+      }
+
+      console.log("📤 Fetch URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ Filtered budgets response:", data);
+        console.log("📊 Total found from backend:", data.length);
+        
+        // If backend returns empty, try client-side filtering as fallback
+        if (data.length === 0 && budgets.length > 0) {
+          console.log("⚠️ Backend returned empty, trying client-side filter...");
+          return filterBudgetsClientSide(budgets, period, date, idCategory);
+        }
+        
+        // Map the data
+        const mapped = data.map((b) => {
+          const categoryObj = allCategories.find((c) => c.id === b.idCategory || c.idCategory === b.idCategory);
+          const categoryName = categoryObj?.name || b.category || "Unknown";
+
+          return {
+            ...b,
+            id: b.idBudget,
+            idBudget: b.idBudget,
+            limit: parseFloat(b.amount) || 0,
+            amount: parseFloat(b.amount) || 0,
+            category: categoryName,
+            idCategory: b.idCategory,
+          };
+        });
+
+        return mapped;
+      } else {
+        console.error("❌ Failed to filter budgets:", response.status);
+        // Try client-side as fallback
+        return filterBudgetsClientSide(budgets, period, date, idCategory);
+      }
+    } catch (err) {
+      console.error("❌ Filter budgets error:", err);
+      // Try client-side as fallback
+      return filterBudgetsClientSide(budgets, period, date, idCategory);
+    }
+  };
+
+  // Client-side filtering fallback - takes budgets as parameter to avoid closure issues
+  const filterBudgetsClientSide = (budgetsToFilter, period, date, idCategory) => {
+    console.log("🔍 Client-side filter - Period:", period, "Date:", date, "Category:", idCategory);
+    console.log("📋 Budgets to filter:", budgetsToFilter);
+    console.log("📋 Total budgets available:", budgetsToFilter.length);
+    
+    if (budgetsToFilter.length === 0) {
+      console.warn("⚠️ No budgets available to filter!");
+      return [];
+    }
+    
+    const filterDate = new Date(date);
+    console.log("📅 Filter date:", filterDate.toISOString());
+    
+    const filtered = budgetsToFilter.filter(b => {
+      console.log(`\n🔎 Checking budget: ${b.category}`);
+      console.log(`   Period Start: ${b.periodStart}`);
+      console.log(`   Period End: ${b.periodEnd}`);
+      console.log(`   Category ID: ${b.idCategory}, Looking for: ${idCategory}`);
+      
+      // Filter by category if specified
+      if (idCategory && b.idCategory != idCategory) {
+        console.log(`   ❌ Category doesn't match`);
+        return false;
+      }
+
+      // Check if budget period overlaps with requested period
+      const budgetStart = new Date(b.periodStart);
+      const budgetEnd = new Date(b.periodEnd);
+      
+      console.log(`   Budget range: ${budgetStart.toISOString()} to ${budgetEnd.toISOString()}`);
+
+      let periodStart, periodEnd;
+      
+      switch (period) {
+        case 'daily':
+          periodStart = new Date(filterDate.getFullYear(), filterDate.getMonth(), filterDate.getDate());
+          periodEnd = new Date(filterDate.getFullYear(), filterDate.getMonth(), filterDate.getDate() + 1);
+          break;
+        case 'weekly': {
+          const day = filterDate.getDay();
+          const diff = filterDate.getDate() - day;
+          periodStart = new Date(filterDate.getFullYear(), filterDate.getMonth(), diff);
+          periodEnd = new Date(filterDate.getFullYear(), filterDate.getMonth(), diff + 7);
+          break;
+        }
+        case 'monthly':
+          periodStart = new Date(filterDate.getFullYear(), filterDate.getMonth(), 1);
+          periodEnd = new Date(filterDate.getFullYear(), filterDate.getMonth() + 1, 1);
+          break;
+        case 'year':
+          periodStart = new Date(filterDate.getFullYear(), 0, 1);
+          periodEnd = new Date(filterDate.getFullYear() + 1, 0, 1);
+          break;
+        default:
+          console.log(`   ❌ Invalid period: ${period}`);
+          return false;
+      }
+
+      console.log(`   Period range: ${periodStart.toISOString()} to ${periodEnd.toISOString()}`);
+
+      // Check overlap
+      const overlaps = budgetStart < periodEnd && budgetEnd > periodStart;
+      console.log(`   Overlap check: budgetStart(${budgetStart.getTime()}) < periodEnd(${periodEnd.getTime()}) = ${budgetStart < periodEnd} && budgetEnd(${budgetEnd.getTime()}) > periodStart(${periodStart.getTime()}) = ${budgetEnd > periodStart} => ${overlaps}`);
+      
+      return overlaps;
+    });
+
+    console.log("✅ Client-side filtered result:", filtered);
+    console.log("📊 Filtered count:", filtered.length);
+    return filtered;
+  };
+
+  // Get budget goals by period, type, and category
+  const getBudgetGoals = async (period, date, type = 'expense', idCategory = null) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.log("⚠️ No token, cannot get budget goals");
+        return null;
+      }
+
+      console.log("🎯 Getting budget goals:", { period, date, type, idCategory });
+
+      let url = `${BACKEND_URL}/api/budgets/goals?period=${period}&date=${date}&type=${type}`;
+      if (idCategory) {
+        url += `&idCategory=${idCategory}`;
+      }
+
+      console.log("📤 Goals fetch URL:", url);
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ Budget goals response:", data);
+        console.log("📊 Totals:", data.totals);
+        console.log("📊 Data items:", data.data?.length);
+        return data;
+      } else {
+        console.error("❌ Failed to get budget goals:", response.status);
+        const errorData = await response.text();
+        console.error("Error response:", errorData);
+        return null;
+      }
+    } catch (err) {
+      console.error("❌ Get budget goals error:", err);
+      return null;
+    }
+  };
+
   const value = {
     budgets,
     addBudget,
@@ -256,6 +457,8 @@ export function BudgetProvider({ children }) {
     getBudgetProgress,
     loadBudgets,
     checkBudgetWarnings,
+    filterBudgets,
+    getBudgetGoals,
   };
 
   return <BudgetContext.Provider value={value}>{children}</BudgetContext.Provider>;

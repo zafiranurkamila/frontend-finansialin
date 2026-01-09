@@ -1,7 +1,7 @@
 // Login.jsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../style/login.css";
@@ -18,6 +18,20 @@ function Login() {
   const [forgotMessage, setForgotMessage] = useState("");
   const [forgotError, setForgotError] = useState("");
   const router = useRouter();
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const pwdOkLen = password.length >= 6;
+  const pwdOkNum = /\d/.test(password);
+
+  // Trigger animations on mount to ensure consistency on logout redirect
+  useEffect(() => {
+    // Force reflow to restart animations
+    const loginPage = document.querySelector('.login-page');
+    if (loginPage) {
+      loginPage.offsetHeight;
+    }
+  }, []);
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
@@ -45,7 +59,7 @@ function Login() {
       console.log("Full data:", data);
 
       if (!response.ok) {
-        setError(data.message || "Login failed");
+        setError(data.message || "Email atau password salah");
         return;
       }
 
@@ -80,7 +94,7 @@ function Login() {
 
       setTimeout(() => {
         router.push("/dashboard");
-      }, 100);
+      }, 1000);
 
     } catch (err) {
       setError("Connection error: " + err.message);
@@ -156,7 +170,7 @@ function Login() {
               </div>
             )}
 
-            <form onSubmit={handleForgotSubmit} className="forgot-form">
+            <form onSubmit={handleForgotSubmit} className="forgot-form" autoComplete="off">
               <label>Email</label>
               <input
                 type="email"
@@ -165,6 +179,12 @@ function Login() {
                 onChange={(e) => setForgotEmail(e.target.value)}
                 required
                 disabled={forgotLoading}
+                autoComplete="off"
+                inputMode="email"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                name="forgot-email"
               />
 
               <button type="submit" className="modal-btn" disabled={forgotLoading}>
@@ -200,7 +220,7 @@ function Login() {
           </div>
         )}
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
           <label>Email</label>
           <input
             type="email"
@@ -209,7 +229,20 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={loading}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
+            autoComplete="off"
+            inputMode="email"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            name="login-email"
           />
+          {emailFocused && (
+            <small className={`input-hint ${emailValid ? 'ok' : (email.length > 0 ? 'warn' : '')}`}>
+              Use a valid email like name@example.com
+            </small>
+          )}
 
           <label>Password</label>
           <div className="password-wrapper">
@@ -220,6 +253,10 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+              autoComplete="new-password"
+              name="login-password"
             />
             <span className="toggle-password" onClick={togglePassword}>
               {showPassword ? (
@@ -234,6 +271,12 @@ function Login() {
               )}
             </span>
           </div>
+          {passwordFocused && (
+            <div className="hint-list">
+              <div className={pwdOkLen ? 'ok' : 'warn'}>• Minimum 6 characters</div>
+              <div className={pwdOkNum ? 'ok' : 'warn'}>• Include at least 1 number</div>
+            </div>
+          )}
 
           <button type="submit" className="btn-loginsignin" disabled={loading}>
             {loading ? "Logging In..." : "Log In"}

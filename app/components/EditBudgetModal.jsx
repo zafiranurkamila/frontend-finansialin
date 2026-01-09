@@ -49,7 +49,7 @@ function EditBudgetModal({ isOpen, onClose, onEditBudget, budget }) {
             return;
         }
 
-        if (parseFloat(formData.amount) <= 0) {
+        if (parseInt(formData.amount, 10) <= 0) {
             setError('Amount must be greater than 0');
             return;
         }
@@ -58,7 +58,7 @@ function EditBudgetModal({ isOpen, onClose, onEditBudget, budget }) {
 
         try {
             const updatedData = {
-                amount: parseFloat(formData.amount),
+                amount: parseInt(formData.amount, 10),
                 periodStart: new Date(formData.periodStart).toISOString(),
                 periodEnd: new Date(formData.periodEnd).toISOString()
             };
@@ -125,8 +125,8 @@ function EditBudgetModal({ isOpen, onClose, onEditBudget, budget }) {
                             name="amount"
                             value={formData.amount}
                             onChange={handleChange}
-                            placeholder="0.00"
-                            step="0.01"
+                            placeholder="0"
+                            step="1"
                             min="0"
                             disabled={loading}
                             required

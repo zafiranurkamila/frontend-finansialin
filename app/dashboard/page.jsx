@@ -8,6 +8,7 @@ import ProfileDropdown from "../components/ProfileDropdown";
 import NotificationDropdown from "../components/NotificationDropdown";
 import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
+import { useLanguage } from "../context/LanguageContext";
 import { fetchWithAuth } from "../utils/authHelper";
 import ConfirmDialog from '../components/ConfirmDialog';
 import "../style/dashboard.css";
@@ -15,10 +16,12 @@ import DashboardBanner from "../components/DashboardBanner";
 
 function DashboardPage() {
     const router = useRouter();
+    const { t } = useLanguage();
     const { addTransaction, setTransactionsFromBackend } = useTransactions();
     const { fetchCategories } = useCategories();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isAuthed, setIsAuthed] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -135,6 +138,7 @@ function DashboardPage() {
 
     const handleConfirmLogout = () => {
         setIsLogoutAlertOpen(false);
+        setIsLoggingOut(true);
         const token = localStorage.getItem('access_token');
 
         if (token) {
@@ -144,12 +148,17 @@ function DashboardPage() {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({}),
             }).catch(console.error);
         }
 
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        router.push('/login');
+        
+        // Wait for animation to complete before redirecting
+        setTimeout(() => {
+            router.push('/login');
+        }, 500);
     };
 
     const handleCancelLogout = () => {
@@ -165,12 +174,12 @@ function DashboardPage() {
     );
 
     return (
-        <div className="dashboard-container">
+        <div className={`dashboard-container ${isLoggingOut ? 'logout' : ''}`}>
             <Sidebar onLogoutAttempt={handleLogoutAttempt} />
 
             <div className="main-content-area">
                 <header className="dashboard-header">
-                    <h2 className="page-title">Dashboard</h2>
+                    <h2 className="page-title">{t('dashboard')}</h2>
 
                     <div className="header-actions">
                         <NotificationDropdown />
@@ -181,7 +190,7 @@ function DashboardPage() {
                 <main className="main-content-wrapper">
                     <DashboardBanner />
                     <button className="add-transaction-btn" onClick={() => setIsModalOpen(true)}>
-                        + Add Transaction
+                        + {t('addTransaction')}
                     </button>
 
                     <DashboardContent />

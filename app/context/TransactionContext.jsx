@@ -85,9 +85,9 @@ export function TransactionProvider({ children }) {
             return updated;
         });
 
-        // ✅ HANYA simpan ke local state, backend sudah handle notificationnya
-        const notifMessage = `${transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} sebesar Rp${parseFloat(transaction.amount).toLocaleString('id-ID')} telah ditambahkan.`;
-        addNotification('TRANSACTION_CREATED', notifMessage);
+        // Backend sudah handle notification, tidak perlu buat di frontend
+        // const notifMessage = `${transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} sebesar Rp${parseFloat(transaction.amount).toLocaleString('id-ID')} telah ditambahkan.`;
+        // addNotification('TRANSACTION_CREATED', notifMessage);
     };
 
     const deleteTransaction = (id) => {

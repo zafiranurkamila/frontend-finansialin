@@ -1,23 +1,29 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/sidebar";
 import NotificationDropdown from "../components/NotificationDropdown";
 import ProfileDropdown from "../components/ProfileDropdown";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useUser } from "../context/UserContext";
+import { useLanguage } from "../context/LanguageContext";
 import "../style/dashboard.css";
 import "../style/settings.css";
-import { FaUser, FaBell, FaSave } from 'react-icons/fa';
+import { FaUser, FaBell, FaSave, FaLanguage } from 'react-icons/fa';
 
 function SettingsPage() {
     const router = useRouter();
     const { user, updateUser } = useUser();
+    const { language, changeLanguage, t } = useLanguage();
     const [activeTab, setActiveTab] = useState('profile');
     const [isAuthed, setIsAuthed] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
+    const [isNotifConfirmOpen, setIsNotifConfirmOpen] = useState(false);
+    const [pendingNotifSettings, setPendingNotifSettings] = useState(null);
+    const [confirmNotifMessage, setConfirmNotifMessage] = useState('');
+    const [selectedLanguage, setSelectedLanguage] = useState(language);
     
     // --- State untuk Form Data ---
     const [formData, setFormData] = useState({
@@ -81,7 +87,12 @@ function SettingsPage() {
             }
 
             const data = await response.json();
+            console.log("Profile data from backend:", data);
             updateUser(data);
+            setFormData({
+                name: data.name || '',
+                email: data.email || ''
+            });
         } catch (err) {
             console.error("Profile fetch error:", err);
         }
@@ -144,12 +155,12 @@ function SettingsPage() {
             const updatedUser = await response.json();
             updateUser(updatedUser);
 
-            setNotificationTitle('Update Successful');
-            setNotificationMessage('Profile updated successfully!');
+            setNotificationTitle(t('updateSuccessful'));
+            setNotificationMessage(t('profileUpdated'));
             setIsNotificationOpen(true);
         } catch (err) {
             console.error("Update profile error:", err);
-            setNotificationTitle('Error');
+            setNotificationTitle(t('error'));
             setNotificationMessage(err.message || 'Failed to update profile. Please try again.');
             setIsNotificationOpen(true);
         } finally {
@@ -157,17 +168,43 @@ function SettingsPage() {
         }
     };
 
-    const handleSaveNotifications = () => {
-        localStorage.setItem('notificationSettings', JSON.stringify(notifSettings));
-        
-        setNotificationTitle('Settings Saved');
-        setNotificationMessage('Notification settings saved successfully!');
+    const handleSaveNotifications = useCallback(() => {
+        const selections = [];
+        if (notifSettings.transactionAlerts) selections.push('Transaction Alerts');
+        if (notifSettings.budgetAlerts) selections.push('Budget Alerts');
+
+        const summary = selections.length > 0
+            ? `You will receive: ${selections.join(', ')}.`
+            : 'All notifications will be turned off.';
+
+        setPendingNotifSettings(notifSettings);
+        setConfirmNotifMessage(`${summary} Save these notification preferences?`);
+        setIsNotifConfirmOpen(true);
+    }, [notifSettings]);
+
+    const handleConfirmSaveNotifications = () => {
+        if (!pendingNotifSettings) return;
+
+        localStorage.setItem('notificationSettings', JSON.stringify(pendingNotifSettings));
+
+        setNotificationTitle(t('settingsSaved'));
+        setNotificationMessage(t('notificationSettingsSaved'));
         setIsNotificationOpen(true);
+
+        setPendingNotifSettings(null);
+        setIsNotifConfirmOpen(false);
+        setConfirmNotifMessage('');
     };
 
-    const handleLogoutAttempt = () => {
-        setIsLogoutAlertOpen(true);
+    const handleCancelSaveNotifications = () => {
+        setPendingNotifSettings(null);
+        setIsNotifConfirmOpen(false);
+        setConfirmNotifMessage('');
     };
+
+    const handleLogoutAttempt = useCallback(() => {
+        setIsLogoutAlertOpen(true);
+    }, []);
 
     const handleConfirmLogout = () => {
         setIsLogoutAlertOpen(false);
@@ -180,6 +217,7 @@ function SettingsPage() {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({}),
             }).catch(console.error);
         }
         
@@ -190,6 +228,17 @@ function SettingsPage() {
 
     const handleCancelLogout = () => {
         setIsLogoutAlertOpen(false);
+    };
+
+    const handleLanguageChange = (e) => {
+        setSelectedLanguage(e.target.value);
+    };
+
+    const handleSaveLanguage = () => {
+        changeLanguage(selectedLanguage);
+        setNotificationTitle(t('languageChanged'));
+        setNotificationMessage(t('languageChangedMessage'));
+        setIsNotificationOpen(true);
     };
 
     if (loading || !isAuthed) return (
@@ -206,7 +255,7 @@ function SettingsPage() {
 
             <div className="main-content-area">
                 <header className="dashboard-header">
-                    <h2 className="page-title">Settings</h2>
+                    <h2 className="page-title">{t('settingsTitle')}</h2>
 
                     <div className="header-actions">
                         <NotificationDropdown />
@@ -223,104 +272,132 @@ function SettingsPage() {
                                 onClick={() => setActiveTab('profile')}
                             >
                                 <FaUser />
-                                <span>Profile</span>
+                                <span>{t('profile')}</span>
                             </button>
                             <button
                                 className={`settings-tab ${activeTab === 'notifications' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('notifications')}
                             >
                                 <FaBell />
-                                <span>Notifications</span>
+                                <span>{t('notifications')}</span>
+                            </button>
+                            <button
+                                className={`settings-tab ${activeTab === 'language' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('language')}
+                            >
+                                <FaLanguage />
+                                <span>{t('language')}</span>
                             </button>
                         </div>
 
                         {/* Settings Content */}
                         <div className="settings-content">
                             {/* Profile Tab */}
-                            {activeTab === 'profile' && (
-                                <div className="settings-section">
-                                    <h3 className="section-title">Profile Information</h3>
-                                    <p className="section-description">Update your personal information</p>
+                            <div className="settings-section" style={{ display: activeTab === 'profile' ? 'block' : 'none' }}>
+                                <h3 className="section-title">{t('profileInfo')}</h3>
+                                <p className="section-description">{t('updatePersonalInfo')}</p>
 
-                                    <form onSubmit={handleSaveProfile} className="settings-form">
-                                        <div className="form-row">
-                                            <div className="form-group">
-                                                <label htmlFor="name">Full Name</label>
-                                                <input
-                                                    type="text"
-                                                    id="name"
-                                                    name="name"
-                                                    value={formData.name}
-                                                    onChange={handleChange}
-                                                    placeholder="Enter your name"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <div className="form-group">
-                                                <label htmlFor="email">Email Address</label>
-                                                <input
-                                                    type="email"
-                                                    id="email"
-                                                    name="email"
-                                                    value={formData.email}
-                                                    onChange={handleChange}
-                                                    placeholder="Enter your email"
-                                                    required
-                                                />
-                                            </div>
+                                <form onSubmit={handleSaveProfile} className="settings-form">
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label htmlFor="name">{t('fullName')}</label>
+                                            <input
+                                                type="text"
+                                                id="name"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder={t('fullName')}
+                                                required
+                                            />
                                         </div>
 
-                                        <button type="submit" className="save-btn" disabled={isSaving}>
-                                            <FaSave /> {isSaving ? 'Saving...' : 'Save Changes'}
-                                        </button>
-                                    </form>
-                                </div>
-                            )}
-
-                            {/* Notifications Tab */}
-                            {activeTab === 'notifications' && (
-                                <div className="settings-section">
-                                    <h3 className="section-title">Notification Preferences</h3>
-                                    <p className="section-description">Manage how you receive notifications</p>
-
-                                    <div className="settings-list">
-                                        <div className="setting-item">
-                                            <div className="setting-info">
-                                                <h4>Transaction Alerts</h4>
-                                                <p>Notify me when transactions are added</p>
-                                            </div>
-                                            <label className="toggle-switch">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={notifSettings.transactionAlerts}
-                                                    onChange={() => handleNotifChange('transactionAlerts')}
-                                                />
-                                                <span className="toggle-slider"></span>
-                                            </label>
-                                        </div>
-
-                                        <div className="setting-item">
-                                            <div className="setting-info">
-                                                <h4>Budget Alerts</h4>
-                                                <p>Notify me when approaching budget limits</p>
-                                            </div>
-                                            <label className="toggle-switch">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={notifSettings.budgetAlerts}
-                                                    onChange={() => handleNotifChange('budgetAlerts')}
-                                                />
-                                                <span className="toggle-slider"></span>
-                                            </label>
+                                        <div className="form-group">
+                                            <label htmlFor="email">{t('emailAddress')}</label>
+                                            <input
+                                                type="email"
+                                                id="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder={t('emailAddress')}
+                                                required
+                                            />
                                         </div>
                                     </div>
 
-                                    <button className="save-btn" onClick={handleSaveNotifications}>
-                                        <FaSave /> Save Preferences
+                                    <button type="submit" className="save-btn" disabled={isSaving}>
+                                        <FaSave /> {isSaving ? t('saving') : t('saveChanges')}
+                                    </button>
+                                </form>
+                            </div>
+
+                            {/* Notifications Tab */}
+                            <div className="settings-section" style={{ display: activeTab === 'notifications' ? 'block' : 'none' }}>
+                                <h3 className="section-title">{t('notificationPreferences')}</h3>
+                                <p className="section-description">{t('manageNotifications')}</p>
+
+                                <div className="settings-list">
+                                    <div className="setting-item">
+                                        <div className="setting-info">
+                                            <h4>{t('transactionAlerts')}</h4>
+                                            <p>{t('transactionAlertsDesc')}</p>
+                                        </div>
+                                        <label className="toggle-switch">
+                                            <input
+                                                type="checkbox"
+                                                checked={notifSettings.transactionAlerts}
+                                                onChange={() => handleNotifChange('transactionAlerts')}
+                                            />
+                                            <span className="toggle-slider"></span>
+                                        </label>
+                                    </div>
+
+                                    <div className="setting-item">
+                                        <div className="setting-info">
+                                            <h4>{t('budgetAlerts')}</h4>
+                                            <p>{t('budgetAlertsDesc')}</p>
+                                        </div>
+                                        <label className="toggle-switch">
+                                            <input
+                                                type="checkbox"
+                                                checked={notifSettings.budgetAlerts}
+                                                onChange={() => handleNotifChange('budgetAlerts')}
+                                        />
+                                        <span className="toggle-slider"></span>
+                                    </label>
+                                    </div>
+                                </div>
+
+                                <button className="save-btn" onClick={handleSaveNotifications}>
+                                    <FaSave /> {t('savePreferences')}
+                                </button>
+                            </div>
+
+                            {/* Language Tab */}
+                            <div className="settings-section" style={{ display: activeTab === 'language' ? 'block' : 'none' }}>
+                                <h3 className="section-title">{t('languageSettings')}</h3>
+                                <p className="section-description">{t('selectLanguage')}</p>
+
+                                <div className="settings-form">
+                                    <div className="form-group">
+                                        <label htmlFor="language" style={{ textTransform: 'uppercase' }}>{t('language')}</label>
+                                        <select
+                                            id="language"
+                                            value={selectedLanguage}
+                                            onChange={handleLanguageChange}
+                                            className="form-select"
+                                        >
+                                            <option value="id">Bahasa Indonesia</option>
+                                            <option value="en">English</option>
+                                        </select>
+                                    </div>
+
+                                    <button className="save-btn" onClick={handleSaveLanguage}>
+                                        <FaSave /> {t('saveChanges')}
                                     </button>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </main>
@@ -335,11 +412,19 @@ function SettingsPage() {
                 onCancel={handleCloseNotification}
             />
 
+            <ConfirmDialog
+                isOpen={isNotifConfirmOpen}
+                title="Save Notification Preferences?"
+                message={confirmNotifMessage}
+                onConfirm={handleConfirmSaveNotifications}
+                onCancel={handleCancelSaveNotifications}
+            />
+
             {/* CONFIRM DIALOG UNTUK LOGOUT */}
             <ConfirmDialog
                 isOpen={isLogoutAlertOpen}
-                title="Confirm Logout"
-                message="Are you sure you want to log out?"
+                title={t('confirmLogout')}
+                message={t('logoutMessage')}
                 onConfirm={handleConfirmLogout}
                 onCancel={handleCancelLogout}
             />

@@ -29,9 +29,6 @@ function TransactionDetailModal({ isOpen, onClose, transaction, categoryName }) 
       <div className="transaction-detail-modal" onClick={(e) => e.stopPropagation()}>
         <div className="transaction-detail-header">
           <h2>Transaction Details</h2>
-          <button className="close-btn" onClick={onClose}>
-            <FaTimes />
-          </button>
         </div>
 
         <div className="transaction-detail-content">

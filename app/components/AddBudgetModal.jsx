@@ -8,9 +8,10 @@ import ConfirmDialog from "./ConfirmDialog";
 
 function AddBudgetModal({ isOpen, onClose, onAddBudget }) {
     const { budgets } = useBudget();
-    const { expenseCategories } = useCategories();
+    const { expenseCategories, incomeCategories } = useCategories();
     const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
     const [formData, setFormData] = useState({
+        type: "expense",
         category: "",
         limit: "",
         period: "monthly",
@@ -21,8 +22,13 @@ function AddBudgetModal({ isOpen, onClose, onAddBudget }) {
         setFormData((prev) => ({
             ...prev,
             [name]: value,
+            // Reset category when type changes
+            ...(name === "type" ? { category: "" } : {}),
         }));
     };
+
+    // Get categories based on selected type
+    const availableCategories = formData.type === "expense" ? expenseCategories : incomeCategories;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -50,11 +56,12 @@ function AddBudgetModal({ isOpen, onClose, onAddBudget }) {
             return;
         }
 
-        // Find category ID
-        const selectedCategory = expenseCategories.find(cat => cat.name === formData.category);
+        // Find category ID from the correct category list
+        const selectedCategory = availableCategories.find(cat => cat.name === formData.category);
         
         // Call parent handler (will make API call)
         onAddBudget({
+            type: formData.type,
             category: formData.category,
             limit: limitValue,
             period: formData.period,
@@ -63,6 +70,7 @@ function AddBudgetModal({ isOpen, onClose, onAddBudget }) {
 
         // Reset form
         setFormData({
+            type: "expense",
             category: "",
             limit: "",
             period: "monthly",
@@ -84,6 +92,21 @@ function AddBudgetModal({ isOpen, onClose, onAddBudget }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="transaction-form">
+                    {/* Type */}
+                    <div className="form-group">
+                        <label htmlFor="type">Budget Type *</label>
+                        <select 
+                            id="type" 
+                            name="type" 
+                            value={formData.type} 
+                            onChange={handleChange} 
+                            required
+                        >
+                            <option value="expense">Expense</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+
                     {/* Category */}
                     <div className="form-group">
                         <label htmlFor="category">Category *</label>
@@ -95,19 +118,19 @@ function AddBudgetModal({ isOpen, onClose, onAddBudget }) {
                             required
                         >
                             <option value="">Select category</option>
-                            {expenseCategories.length === 0 ? (
-                                <option disabled>No expense categories available</option>
+                            {availableCategories.length === 0 ? (
+                                <option disabled>No {formData.type} categories available</option>
                             ) : (
-                                expenseCategories.map((cat) => (
-                                    <option key={cat.id} value={cat.name}>
+                                availableCategories.map((cat) => (
+                                    <option key={cat.id || cat.idCategory} value={cat.name}>
                                         {cat.name}
                                     </option>
                                 ))
                             )}
                         </select>
-                        {expenseCategories.length === 0 && (
+                        {availableCategories.length === 0 && (
                             <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
-                                💡 Add expense categories in the Transaction page first
+                                💡 Add {formData.type} categories in the Transaction page first
                             </p>
                         )}
                     </div>
@@ -167,7 +190,7 @@ function AddBudgetModal({ isOpen, onClose, onAddBudget }) {
                         <button 
                             type="submit" 
                             className="btn-submit"
-                            disabled={expenseCategories.length === 0}
+                            disabled={availableCategories.length === 0}
                         >
                             Create Budget
                         </button>

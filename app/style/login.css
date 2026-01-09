@@ -145,7 +145,7 @@ html, body {
 .login-form input {
   width: 100%;
   padding: 12px 14px;
-  margin-bottom: 18px;
+  margin-bottom: 6px;
   border-radius: 8px;
   border: 1px solid #ccc;
   background-color: #fff;
@@ -172,6 +172,7 @@ html, body {
 .password-wrapper input {
   width: 100%;
   padding-right: 40px;
+  margin-bottom: 6px;
   box-sizing: border-box;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -182,7 +183,7 @@ html, body {
   position: absolute;
   right: 14px;
   top: 50%;
-  transform: translateY(-100%);
+  transform: translateY(-60%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -378,6 +379,24 @@ html, body {
   margin-bottom: 8px;
   text-align: center;
 }
+
+/* ===== Input Hints ===== */
+.input-hint {
+  display: block;
+  margin-top: 1px;
+  margin-bottom: 2px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.2;
+}
+.input-hint + label { margin-top: 2px; }
+.hint-list + label { margin-top: 2px; }
+.input-hint.ok { color: #059669; }
+.input-hint.warn { color: #b91c1c; }
+.hint-list { margin-top: 2px; font-size: 0.85rem; color: #6b7280; line-height: 1.2; }
+.hint-list > div { margin-top: 2px; }
+.hint-list .ok { color: #059669; }
+.hint-list .warn { color: #b91c1c; }
 
 .modal-forgot p {
   color: #666;

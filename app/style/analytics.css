@@ -178,8 +178,8 @@
 
 .analytics-summary .summary-amount {
     margin: 0;
-    font-size: 40px;
-    font-weight: 900;
+    font-size: 28px;
+    font-weight: 800;
     background: linear-gradient(135deg, #344d33 0%, #2d6a4f 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

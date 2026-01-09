@@ -60,9 +60,18 @@ export function CategoryProvider({ children }) {
                     savedExpense.some(saved => saved.id === cat.id)
                 );
                 
-                // If category not in either list, it's new - don't show yet
-                setIncomeCategories(income);
-                setExpenseCategories(expense);
+                // If no cached type info, fallback: put all categories into both lists so nama tidak "Unknown"
+                if (income.length === 0 && expense.length === 0) {
+                    setIncomeCategories(transformed);
+                    setExpenseCategories(transformed);
+                } else {
+                    // Include uncategorized new categories as expense by default so tetap muncul
+                    const remaining = transformed.filter(cat => 
+                        !income.some(i => i.id === cat.id) && !expense.some(e => e.id === cat.id)
+                    );
+                    setIncomeCategories(income);
+                    setExpenseCategories([...expense, ...remaining]);
+                }
             } else {
                 console.error("❌ Failed to fetch categories:", response.status);
                 const errorData = await response.json();

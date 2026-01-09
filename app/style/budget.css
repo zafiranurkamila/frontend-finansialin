@@ -217,9 +217,15 @@
 }
 
 .amount-value {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--green-900);
+}
+
+/* Override amount value size in budget cards (prevent other global styles from enlarging) */
+.budget-amounts .amount-value {
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .amount-value.over {

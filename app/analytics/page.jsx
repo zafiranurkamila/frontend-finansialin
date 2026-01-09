@@ -1,6 +1,6 @@
 // AnalyticsPage.jsx
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/sidebar";
 import NotificationDropdown from "../components/NotificationDropdown";
@@ -10,6 +10,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
 import { useBudget } from "../context/BudgetContext";
+import { useLanguage } from "../context/LanguageContext";
 import { fetchWithAuth } from "../utils/authHelper";
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { FaChartLine, FaFileAlt, FaDownload } from "react-icons/fa";
@@ -18,6 +19,7 @@ import "../style/analytics.css";
 
 export default function AnalyticsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { transactions, totalIncome, totalExpenses, currentBalance, setTransactionsFromBackend } = useTransactions();
   const { getCategoryById } = useCategories();
   const { budgets, getBudgetProgress, loadBudgets, checkBudgetWarnings } = useBudget();
@@ -127,23 +129,13 @@ export default function AnalyticsPage() {
     }
     return acc;
   }, {});
-  // Check budget warnings only when transactions change, not on page load
-  useEffect(() => {
-    if (budgets && budgets.length > 0 && transactions.length > 0) {
-      // Only check if there are new transactions since last check
-      const timer = setTimeout(() => {
-        checkBudgetWarnings();
-      }, 1000); // Debounce 1s untuk avoid frequent calls
-      return () => clearTimeout(timer);
-    }
-  }, [transactions]); // Remove budgets dan checkBudgetWarnings dari dependency
   const categoryChartData =
     Object.keys(categoryData).length > 0
       ? Object.entries(categoryData).map(([name, data]) => ({
-          name,
-          income: data.income,
-          expense: data.expense,
-        }))
+        name,
+        income: data.income,
+        expense: data.expense,
+      }))
       : [];
 
   // Pie Data
@@ -185,9 +177,9 @@ export default function AnalyticsPage() {
 
   const highestExpense = expenseTransactions.length > 0 ? Math.max(...expenseTransactions.map((t) => t.amount)) : 0;
 
-  const handleLogoutAttempt = () => {
+  const handleLogoutAttempt = useCallback(() => {
     setIsLogoutAlertOpen(true);
-  };
+  }, []);
 
   const handleConfirmLogout = () => {
     setIsLogoutAlertOpen(false);
@@ -199,7 +191,7 @@ export default function AnalyticsPage() {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-        },
+        }, body: JSON.stringify({}),
       }).catch(console.error);
     }
 
@@ -237,7 +229,7 @@ export default function AnalyticsPage() {
 
       <div className="main-content-area">
         <header className="dashboard-header">
-          <h2 className="page-title">Analytics & Reports</h2>
+          <h2 className="page-title">{t('analyticsTitle')}</h2>
           <div className="header-actions">
             <NotificationDropdown />
             <ProfileDropdown onLogoutAttempt={handleLogoutAttempt} />
@@ -248,15 +240,16 @@ export default function AnalyticsPage() {
           {/* Tabs */}
           <div className="analytics-tabs">
             <button className={`tab-btn ${activeTab === "charts" ? "active" : ""}`} onClick={() => setActiveTab("charts")}>
-              <FaChartLine /> Charts & Analytics
+              <FaChartLine /> {t('analytics')}
             </button>
             <button className={`tab-btn ${activeTab === "reports" ? "active" : ""}`} onClick={() => setActiveTab("reports")}>
-              <FaFileAlt /> Monthly Reports
+              <FaFileAlt /> {t('financialReport')}
             </button>
           </div>
 
-          {activeTab === "charts" ? (
-            transactions.length === 0 ? (
+          {/* Charts Tab */}
+          <div style={{ display: activeTab === "charts" ? "block" : "none" }}>
+            {transactions.length === 0 ? (
               <div className="empty-state-large">
                 <FaChartLine className="empty-icon" />
                 <p>No data to analyze yet. Start adding transactions!</p>
@@ -298,16 +291,53 @@ export default function AnalyticsPage() {
 
                   {/* Category Breakdown Bar Chart */}
                   <div className="chart-card wide">
-                    <h3>Category Breakdown</h3>
+                    <h3>{t('categoryBreakdown')}</h3>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={categoryChartData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
                         <Tooltip formatter={(value) => `Rp ${value.toLocaleString("id-ID")}`} />
-                        <Legend />
-                        <Bar dataKey="income" fill="#10B981" name="Income" />
-                        <Bar dataKey="expense" fill="#EF4444" name="Expense" />
+                        <Legend 
+                          content={({ payload }) => (
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '10px', flexWrap: 'wrap' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div style={{ width: '12px', height: '12px', backgroundColor: '#EF4444' }}></div>
+                                <span>{t('expenseWithIncome')}</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div style={{ width: '12px', height: '12px', backgroundColor: '#FCA5A5' }}></div>
+                                <span>{t('expenseNoIncome')}</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div style={{ width: '12px', height: '12px', backgroundColor: '#10B981' }}></div>
+                                <span>{t('incomeWithExpense')}</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div style={{ width: '12px', height: '12px', backgroundColor: '#6B7280' }}></div>
+                                <span>{t('incomeNoExpense')}</span>
+                              </div>
+                            </div>
+                          )}
+                        />
+                        {/* Income bar: abu-abu jika no expense di kategori itu, hijau jika ada */}
+                        <Bar dataKey="income" name={t('income')}>
+                          {categoryChartData.map((entry, index) => (
+                            <Cell
+                              key={`income-${index}`}
+                              fill={entry.expense > 0 ? "#10B981" : "#6B7280"}
+                            />
+                          ))}
+                        </Bar>
+                        {/* Expense bar: merah gelap jika ada income, merah muda jika tidak */}
+                        <Bar dataKey="expense" name={t('expense')}>
+                          {categoryChartData.map((entry, index) => (
+                            <Cell
+                              key={`expense-${index}`}
+                              fill={entry.income > 0 ? "#EF4444" : "#FCA5A5"}
+                            />
+                          ))}
+                        </Bar>
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -315,7 +345,7 @@ export default function AnalyticsPage() {
                   {/* Monthly Trend Line Chart */}
                   {monthlyChartData.length > 0 && (
                     <div className="chart-card wide">
-                      <h3>Monthly Trend</h3>
+                      <h3>{t('monthlyTrend')}</h3>
                       <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={monthlyChartData}>
                           <CartesianGrid strokeDasharray="3 3" />
@@ -323,8 +353,8 @@ export default function AnalyticsPage() {
                           <YAxis />
                           <Tooltip formatter={(value) => `Rp ${value.toLocaleString("id-ID")}`} />
                           <Legend />
-                          <Line type="monotone" dataKey="income" stroke="#10B981" strokeWidth={2} name="Income" />
-                          <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name="Expense" />
+                          <Line type="monotone" dataKey="income" stroke="#10B981" strokeWidth={2} name={t('income')} />
+                          <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name={t('expense')} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
@@ -333,30 +363,30 @@ export default function AnalyticsPage() {
 
                 {/* Statistics */}
                 <div className="statistics-section">
-                  <h3>Statistics</h3>
+                  <h3>{t('statistics')}</h3>
                   <div className="stats-grid">
                     <div className="stat-item">
-                      <span className="stat-label">Total Transactions</span>
+                      <span className="stat-label">{t('totalTransactions')}</span>
                       <span className="stat-value">{transactions.length}</span>
                     </div>
                     <div className="stat-item">
-                      <span className="stat-label">Average Income</span>
+                      <span className="stat-label">{t('averageIncome')}</span>
                       <span className="stat-value income">Rp {avgIncome.toLocaleString("id-ID")}</span>
                     </div>
                     <div className="stat-item">
-                      <span className="stat-label">Average Expense</span>
+                      <span className="stat-label">{t('averageExpense')}</span>
                       <span className="stat-value expense">Rp {avgExpense.toLocaleString("id-ID")}</span>
                     </div>
                     <div className="stat-item">
-                      <span className="stat-label">Highest Income</span>
+                      <span className="stat-label">{t('highestIncome')}</span>
                       <span className="stat-value income">Rp {highestIncome.toLocaleString("id-ID")}</span>
                     </div>
                     <div className="stat-item">
-                      <span className="stat-label">Highest Expense</span>
+                      <span className="stat-label">{t('highestExpense')}</span>
                       <span className="stat-value expense">Rp {highestExpense.toLocaleString("id-ID")}</span>
                     </div>
                     <div className="stat-item">
-                      <span className="stat-label">Savings Rate</span>
+                      <span className="stat-label">{t('savingsRate')}</span>
                       <span className="stat-value balance">{totalIncome > 0 ? ((currentBalance / totalIncome) * 100).toFixed(1) : 0}%</span>
                     </div>
                   </div>
@@ -404,7 +434,6 @@ export default function AnalyticsPage() {
                           .filter(Boolean)
                       ) : (
                         <div className="budget-alerts-empty">
-                          <span className="icon">✅</span>
                           <p>All budgets are within limits. Great job!</p>
                         </div>
                       )}
@@ -412,10 +441,13 @@ export default function AnalyticsPage() {
                   </div>
                 )}
               </div>
-            )
-          ) : (
+            )}
+          </div>
+
+          {/* Reports Tab */}
+          <div style={{ display: activeTab === "reports" ? "block" : "none" }}>
             <ReportView />
-          )}
+          </div>
         </main>
       </div>
 

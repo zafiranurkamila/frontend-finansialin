@@ -1,21 +1,33 @@
 // Sidebar.jsx
 "use client";
-import React from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-
-const menuItems = [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Transaction', path: '/transaction' },
-    { name: 'Budget Goals', path: '/budget' },
-    { name: 'Analytics', path: '/analytics' },
-    { name: 'Settings', path: '/settings' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 // Sidebar menerima prop onLogoutAttempt (opsional)
 function Sidebar({ onLogoutAttempt }) {
     const pathname = usePathname();
-    const router = useRouter(); // Tetap inisialisasi router di sini
+    const router = useRouter();
+    const { t } = useLanguage();
+    const [navigating, setNavigating] = useState(false);
+
+    const menuItems = [
+        { name: t('dashboard'), path: '/dashboard' },
+        { name: t('transaction'), path: '/transaction' },
+        { name: t('budgetGoals'), path: '/budget' },
+        { name: t('analytics'), path: '/analytics' },
+        { name: t('settings'), path: '/settings' },
+    ];
+
+    const handleNavigate = (path) => {
+        if (pathname === path || navigating) return;
+        
+        setNavigating(true);
+        router.push(path);
+        setTimeout(() => {
+            setNavigating(false);
+        }, 300);
+    };
 
     // Fungsi ini sekarang memeriksa apakah onLogoutAttempt diberikan
     const handleClick = () => {
@@ -44,7 +56,22 @@ function Sidebar({ onLogoutAttempt }) {
                                 key={item.name}
                                 className={`nav-item ${pathname === item.path ? 'active' : ''}`}
                             >
-                                <Link href={item.path}>{item.name}</Link>
+                                <button 
+                                    onClick={() => handleNavigate(item.path)}
+                                    disabled={navigating}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        width: '100%',
+                                        textAlign: 'center',
+                                        cursor: navigating ? 'wait' : 'pointer',
+                                        color: 'inherit',
+                                        font: 'inherit',
+                                        padding: 0
+                                    }}
+                                >
+                                    {item.name}
+                                </button>
                             </li>
                         ))}
                     </ul>
@@ -56,7 +83,7 @@ function Sidebar({ onLogoutAttempt }) {
                     className="logout-btn" 
                     onClick={handleClick} // Memanggil handleClick
                 >
-                    Logout
+                    {t('logout')}
                 </button>
             </div>
         </aside>

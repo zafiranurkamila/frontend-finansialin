@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { FaBell, FaCheck } from "react-icons/fa";
+import { FaBell, FaCheck, FaMoneyBillWave, FaShoppingCart, FaTrash, FaEdit, FaChartPie, FaExclamationTriangle, FaLock } from "react-icons/fa";
 import { useTransactions } from "../context/TransactionContext";
 import { fetchWithAuth } from "../utils/authHelper";
 import "../style/notification.css";
@@ -10,6 +10,7 @@ function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [backendNotifications, setBackendNotifications] = useState([]);
+  const [notifPrefs, setNotifPrefs] = useState({ transactionAlerts: true, budgetAlerts: true });
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
 
@@ -17,12 +18,52 @@ function NotificationDropdown() {
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
-  // Calculate total unread notifications (backend + local)
-  const totalUnreadNotifications = backendNotifications.filter((n) => !n.read).length + unreadNotifications;
+  const readNotifPrefs = () => {
+    const saved = localStorage.getItem('notificationSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        return {
+          transactionAlerts: parsed.transactionAlerts ?? true,
+          budgetAlerts: parsed.budgetAlerts ?? true,
+        };
+      } catch (e) {
+        console.warn('Failed to parse notification settings');
+      }
+    }
+    return { transactionAlerts: true, budgetAlerts: true };
+  };
+
+  const isTransactionType = (type) => {
+    const t = (type || '').toUpperCase();
+    return [
+      'INCOME',
+      'EXPENSE',
+      'TRANSACTION_CREATED',
+      'TRANSACTION_UPDATED',
+      'TRANSACTION_DELETED',
+      'TRANSACTION',
+      'DELETE',
+      'UPDATE',
+    ].includes(t);
+  };
+
+  const isBudgetType = (type) => {
+    const t = (type || '').toUpperCase();
+    return [
+      'BUDGET',
+      'BUDGET_CREATED',
+      'BUDGET_WARNING',
+      'BUDGET_EXCEEDED',
+      'OVER_BUDGET',
+      'BUDGET_DELETED',
+    ].includes(t);
+  };
 
   // Fetch notifications from backend
   const fetchNotifications = async () => {
     try {
+      setNotifPrefs(readNotifPrefs());
       const response = await fetchWithAuth(`${BACKEND_URL}/api/notifications`);
       if (response.ok) {
         const data = await response.json();
@@ -32,6 +73,11 @@ function NotificationDropdown() {
       console.error("Failed to fetch notifications:", err);
     }
   };
+
+  // Load preferences on mount
+  useEffect(() => {
+    setNotifPrefs(readNotifPrefs());
+  }, []);
 
   // Fetch on mount and when dropdown opens
   useEffect(() => {
@@ -64,7 +110,16 @@ function NotificationDropdown() {
       ...n,
       fromBackend: false,
     })),
-  ].sort((a, b) => new Date(b.date) - new Date(a.date));
+  ]
+    .filter((notif) => {
+      if (!notifPrefs.transactionAlerts && isTransactionType(notif.type)) return false;
+      if (!notifPrefs.budgetAlerts && isBudgetType(notif.type)) return false;
+      return true;
+    })
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Calculate total unread from filtered notifications
+  const totalUnreadNotifications = allNotifications.filter((n) => !n.read).length;
 
   // Calculate dropdown position
   useEffect(() => {
@@ -135,31 +190,32 @@ function NotificationDropdown() {
   };
 
   const getNotificationIcon = (type) => {
+    const iconProps = { size: 18 };
     switch (type) {
       case "income":
       case "TRANSACTION_CREATED":
-        return "💰";
+        return <FaMoneyBillWave {...iconProps} style={{ color: '#10B981' }} />;
       case "expense":
-        return "💸";
+        return <FaShoppingCart {...iconProps} style={{ color: '#EF4444' }} />;
       case "TRANSACTION_DELETED":
-        return "🗑️";
+        return <FaTrash {...iconProps} style={{ color: '#6B7280' }} />;
       case "TRANSACTION_UPDATED":
-        return "✏️";
+        return <FaEdit {...iconProps} style={{ color: '#3B82F6' }} />;
       case "BUDGET_CREATED":
       case "budget":
-        return "🎯";
+        return <FaChartPie {...iconProps} style={{ color: '#8B5CF6' }} />;
       case "BUDGET_WARNING":
       case "warning":
-        return "⚠️";
+        return <FaExclamationTriangle {...iconProps} style={{ color: '#F59E0B' }} />;
       case "BUDGET_EXCEEDED":
       case "danger":
-        return "🚨";
+        return <FaExclamationTriangle {...iconProps} style={{ color: '#EF4444' }} />;
       case "BUDGET_DELETED":
-        return "🗑️";
+        return <FaTrash {...iconProps} style={{ color: '#6B7280' }} />;
       case "PASSWORD_RESET":
-        return "🔒";
+        return <FaLock {...iconProps} style={{ color: '#6B7280' }} />;
       default:
-        return "📌";
+        return <FaBell {...iconProps} style={{ color: '#6B7280' }} />;
     }
   };
 

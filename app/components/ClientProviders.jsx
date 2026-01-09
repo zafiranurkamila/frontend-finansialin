@@ -4,17 +4,20 @@ import { UserProvider } from '../context/UserContext';
 import { TransactionProvider } from '../context/TransactionContext';
 import { CategoryProvider } from '../context/CategoryContext';
 import { BudgetProvider } from '../context/BudgetContext';
+import { LanguageProvider } from '../context/LanguageContext';
 
 export default function ClientProviders({ children }) {
     return (
-        <UserProvider>
-            <CategoryProvider>
-                <TransactionProvider>
-                    <BudgetProvider>
-                        {children}
-                    </BudgetProvider>
-                </TransactionProvider>
-            </CategoryProvider>
-        </UserProvider>
+        <LanguageProvider>
+            <UserProvider>
+                <CategoryProvider>
+                    <TransactionProvider>
+                        <BudgetProvider>
+                            {children}
+                        </BudgetProvider>
+                    </TransactionProvider>
+                </CategoryProvider>
+            </UserProvider>
+        </LanguageProvider>
     );
 }
