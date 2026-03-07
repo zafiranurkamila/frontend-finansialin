@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../style/login.css";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +19,7 @@ function Login() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMessage, setForgotMessage] = useState("");
   const [forgotError, setForgotError] = useState("");
+  const [resetLink, setResetLink] = useState("");
   const router = useRouter();
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -43,7 +46,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,10 +111,11 @@ function Login() {
     e.preventDefault();
     setForgotError("");
     setForgotMessage("");
+    setResetLink("");
     setForgotLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/forgot-password", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,12 +130,22 @@ function Login() {
         return;
       }
 
-      setForgotMessage("Password reset link has been sent to your email!");
+      const token = data?.reset?.token;
+      if (token) {
+        const link = `/reset-password?email=${encodeURIComponent(forgotEmail)}&token=${encodeURIComponent(token)}`;
+        setResetLink(link);
+        setForgotMessage("Reset token available. You can continue to reset password now.");
+      } else {
+        setForgotMessage("Password reset link has been sent to your email!");
+      }
       setForgotEmail("");
-      setTimeout(() => {
-        setShowForgotModal(false);
-        setForgotMessage("");
-      }, 2000);
+
+      if (!token) {
+        setTimeout(() => {
+          setShowForgotModal(false);
+          setForgotMessage("");
+        }, 2000);
+      }
     } catch (err) {
       setForgotError("Connection error: " + err.message);
       console.error("❌ Forgot password error:", err);
@@ -145,6 +159,7 @@ function Login() {
     setForgotEmail("");
     setForgotMessage("");
     setForgotError("");
+    setResetLink("");
   };
 
   return (
@@ -168,6 +183,17 @@ function Login() {
               <div className="modal-success">
                 {forgotMessage}
               </div>
+            )}
+
+            {resetLink && (
+              <button
+                type="button"
+                className="modal-btn"
+                onClick={() => router.push(resetLink)}
+                style={{ marginBottom: "1rem" }}
+              >
+                Open Reset Password Page
+              </button>
             )}
 
             <form onSubmit={handleForgotSubmit} className="forgot-form" autoComplete="off">

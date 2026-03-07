@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../style/register.css";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,6 +15,7 @@ function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [verificationUrl, setVerificationUrl] = useState("");
   const router = useRouter();
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -39,7 +42,7 @@ function Register() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,11 +63,22 @@ function Register() {
 
       // Registrasi berhasil
       setSuccess(true);
+
+      const token = data?.verification?.token;
+      if (token) {
+        const nextUrl = `/verify-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
+        setVerificationUrl(nextUrl);
+      }
       
-      // Auto redirect setelah 1 detik
+      // Auto redirect setelah 2 detik
       setTimeout(() => {
+        if (token) {
+          router.push(`/verify-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`);
+          return;
+        }
+
         router.push("/login");
-      }, 1000);
+      }, 2000);
     } catch (err) {
       setError("Connection error. Please try again.");
       console.error(err);
@@ -81,9 +95,12 @@ function Register() {
           <div className="modal-content">
             <div className="modal-icon">✓</div>
             <h2>Registration Successful!</h2>
-            <p>Please login to continue.</p>
-            <button onClick={() => router.push("/login")} className="modal-btn">
-              Go to Login
+            <p>Please verify your email before login.</p>
+            <button
+              onClick={() => router.push(verificationUrl || "/login")}
+              className="modal-btn"
+            >
+              {verificationUrl ? "Verify Email Now" : "Go to Login"}
             </button>
           </div>
         </div>

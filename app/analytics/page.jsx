@@ -138,14 +138,21 @@ export default function AnalyticsPage() {
       }))
       : [];
 
-  // Transaction volume - total count only
-  const incomeCount = transactions.filter(t => t.type === "income").length;
-  const expenseCount = transactions.filter(t => t.type === "expense").length;
-  
-  const transactionVolumeData = [
-    { name: "Income", count: incomeCount, fill: "#10B981" },
-    { name: "Expense", count: expenseCount, fill: "#EF4444" },
-  ];
+  // Budget vs Actual per budget category
+  const budgetActualData = budgets
+    .map((b) => {
+      const progress = getBudgetProgress(b.id || b.idBudget);
+      const categoryName = b.category || b.categoryName || getCategoryById(b.idCategory)?.name || "Budget";
+      const budgetAmount = parseFloat(b.limit || b.amount || 0) || 0;
+      const actual = parseFloat(progress?.spent || 0) || 0;
+
+      return {
+        name: categoryName,
+        budget: budgetAmount,
+        actual,
+      };
+    })
+    .filter((entry) => entry.budget > 0 || entry.actual > 0);
 
   // Pie Data
   const pieData = [
@@ -298,20 +305,28 @@ export default function AnalyticsPage() {
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Transaction Volume Bar Chart */}
+                  {/* Budget vs Actual per Budget Category */}
                   <div className="chart-card wide">
-                    <h3>Transaction Volume</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={transactionVolumeData} barSize={80} margin={{ left: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip formatter={(value) => `${value} transactions`} />
-                        <Bar dataKey="count" name="Transactions">
-                          {transactionVolumeData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Bar>
+                    <h3>Budget vs Actual</h3>
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart
+                        data={budgetActualData}
+                        barSize={44}
+                        barCategoryGap="24%"
+                        margin={{ left: 48, right: 24, bottom: 20 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
+                        <XAxis dataKey="name" interval={0} tick={{ fontSize: 12, fill: "#374151" }} tickMargin={10} />
+                        <YAxis
+                          width={80}
+                          tickFormatter={(value) => `Rp\u00A0${value.toLocaleString("id-ID")}`}
+                          tick={{ fontSize: 12, fill: "#374151" }}
+                          tickMargin={12}
+                        />
+                        <Tooltip formatter={(value, name) => [`Rp ${Number(value || 0).toLocaleString("id-ID")}`, name]} />
+                        <Legend />
+                        <Bar dataKey="budget" name="Budget" fill="#a78bfa" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="actual" name="Actual" fill="#22c55e" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
