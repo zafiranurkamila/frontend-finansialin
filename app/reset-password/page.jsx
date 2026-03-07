@@ -7,6 +7,18 @@ import "../style/auth-action.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
 
+async function parseApiResponse(response) {
+  const raw = await response.text();
+
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {
+      message: `Unexpected server response (${response.status}).`,
+    };
+  }
+}
+
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,6 +51,7 @@ export default function ResetPasswordPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
           email,
@@ -47,7 +60,7 @@ export default function ResetPasswordPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await parseApiResponse(response);
 
       if (!response.ok) {
         setStatus("error");

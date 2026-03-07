@@ -15,7 +15,6 @@ function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [verificationUrl, setVerificationUrl] = useState("");
   const router = useRouter();
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -63,20 +62,9 @@ function Register() {
 
       // Registrasi berhasil
       setSuccess(true);
-
-      const token = data?.verification?.token;
-      if (token) {
-        const nextUrl = `/verify-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
-        setVerificationUrl(nextUrl);
-      }
       
       // Auto redirect setelah 2 detik
       setTimeout(() => {
-        if (token) {
-          router.push(`/verify-email?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`);
-          return;
-        }
-
         router.push("/login");
       }, 2000);
     } catch (err) {
@@ -95,12 +83,12 @@ function Register() {
           <div className="modal-content">
             <div className="modal-icon">✓</div>
             <h2>Registration Successful!</h2>
-            <p>Please verify your email before login.</p>
+            <p>Akun kamu berhasil dibuat. Silakan login.</p>
             <button
-              onClick={() => router.push(verificationUrl || "/login")}
+              onClick={() => router.push("/login")}
               className="modal-btn"
             >
-              {verificationUrl ? "Verify Email Now" : "Go to Login"}
+              Go to Login
             </button>
           </div>
         </div>
