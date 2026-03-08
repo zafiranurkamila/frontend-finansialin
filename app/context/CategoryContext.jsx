@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { fetchWithAuth } from '../utils/authHelper';
 
 const CategoryContext = createContext();
 
@@ -26,12 +27,8 @@ export function CategoryProvider({ children }) {
                 return;
             }
 
-            const response = await fetch(`${BACKEND_URL}/api/categories`, {
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/categories`, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
             });
 
             console.log("Categories response status:", response.status);
@@ -40,38 +37,20 @@ export function CategoryProvider({ children }) {
                 const data = await response.json();
                 console.log("✅ Categories loaded:", data);
                 
-                // Load from localStorage to get type info
-                const savedIncome = JSON.parse(localStorage.getItem('income_categories') || '[]');
-                const savedExpense = JSON.parse(localStorage.getItem('expense_categories') || '[]');
-                
                 // Transform categories
                 const transformed = data.map(cat => ({
                     id: cat.idCategory,
                     name: cat.name,
+                    type: cat.type || 'expense',
                     userId: cat.idUser,
                     createdAt: cat.createdAt
                 }));
-                
-                // Filter by type based on saved data
-                const income = transformed.filter(cat => 
-                    savedIncome.some(saved => saved.id === cat.id)
-                );
-                const expense = transformed.filter(cat => 
-                    savedExpense.some(saved => saved.id === cat.id)
-                );
-                
-                // If no cached type info, fallback: put all categories into both lists so nama tidak "Unknown"
-                if (income.length === 0 && expense.length === 0) {
-                    setIncomeCategories(transformed);
-                    setExpenseCategories(transformed);
-                } else {
-                    // Include uncategorized new categories as expense by default so tetap muncul
-                    const remaining = transformed.filter(cat => 
-                        !income.some(i => i.id === cat.id) && !expense.some(e => e.id === cat.id)
-                    );
-                    setIncomeCategories(income);
-                    setExpenseCategories([...expense, ...remaining]);
-                }
+
+                const income = transformed.filter(cat => cat.type === 'income');
+                const expense = transformed.filter(cat => cat.type !== 'income');
+
+                setIncomeCategories(income);
+                setExpenseCategories(expense);
             } else {
                 console.error("❌ Failed to fetch categories:", response.status);
                 const errorData = await response.json();
@@ -91,13 +70,9 @@ export function CategoryProvider({ children }) {
 
             console.log("➕ Adding category:", name, "Type:", type);
 
-            const response = await fetch(`${BACKEND_URL}/api/categories`, {
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/categories`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name }),
+                body: JSON.stringify({ name, type }),
             });
 
             console.log("Add category response status:", response.status);
@@ -114,20 +89,18 @@ export function CategoryProvider({ children }) {
             const transformed = {
                 id: newCategory.idCategory,
                 name: newCategory.name,
+                type: newCategory.type || type,
                 userId: newCategory.idUser,
                 createdAt: newCategory.createdAt,
-                type: type // Save type in frontend only
             };
             
             // Add to appropriate list
             if (type === 'income') {
                 const updated = [...incomeCategories, transformed];
                 setIncomeCategories(updated);
-                localStorage.setItem('income_categories', JSON.stringify(updated));
             } else {
                 const updated = [...expenseCategories, transformed];
                 setExpenseCategories(updated);
-                localStorage.setItem('expense_categories', JSON.stringify(updated));
             }
             
             return transformed;
@@ -142,12 +115,8 @@ export function CategoryProvider({ children }) {
             const token = localStorage.getItem('access_token');
             console.log("🗑️ Deleting category:", id, "Type:", type);
 
-            const response = await fetch(`${BACKEND_URL}/api/categories/${id}`, {
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/categories/${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
             });
 
             console.log("Delete category response status:", response.status);
@@ -164,11 +133,9 @@ export function CategoryProvider({ children }) {
             if (type === 'income') {
                 const updated = incomeCategories.filter(c => c.id !== id);
                 setIncomeCategories(updated);
-                localStorage.setItem('income_categories', JSON.stringify(updated));
             } else {
                 const updated = expenseCategories.filter(c => c.id !== id);
                 setExpenseCategories(updated);
-                localStorage.setItem('expense_categories', JSON.stringify(updated));
             }
         } catch (err) {
             console.error('❌ Delete category error:', err);

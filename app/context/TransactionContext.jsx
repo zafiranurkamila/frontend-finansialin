@@ -73,6 +73,7 @@ export function TransactionProvider({ children }) {
             description: transaction.description,
             date: transaction.date,
             source: transaction.source,
+            receiptImageUrl: transaction.receiptImageUrl || null,
             idCategory: transaction.idCategory,
             category: transaction.category,
             userId: transaction.userId || transaction.idUser
@@ -130,7 +131,8 @@ export function TransactionProvider({ children }) {
                         ...updatedData,
                         id: t.id,
                         idTransaction: t.idTransaction,
-                        amount: parseFloat(updatedData.amount || t.amount)
+                        amount: parseFloat(updatedData.amount || t.amount),
+                        receiptImageUrl: updatedData.receiptImageUrl ?? t.receiptImageUrl ?? null,
                     };
                 }
                 return t;

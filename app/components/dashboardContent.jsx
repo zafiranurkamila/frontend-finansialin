@@ -5,6 +5,9 @@ import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
 import { useLanguage } from "../context/LanguageContext";
 import TransactionDetailModal from "./TransactionDetailModal";
+import FinanceAssistantWidget from "./FinanceAssistantWidget";
+import SubscriptionDashboardWidget from "./SubscriptionDashboardWidget";
+import PredictiveBudgetWidget from "./PredictiveBudgetWidget";
 import { fetchWithAuth } from "../utils/authHelper";
 
 function DashboardContent() {
@@ -203,6 +206,10 @@ function DashboardContent() {
 
         {/* Right Section */}
         <div className="right-section">
+          <PredictiveBudgetWidget />
+          <FinanceAssistantWidget />
+          <SubscriptionDashboardWidget />
+
           <div className="widget-box">
             <h3>Recent Notifications</h3>
             {filteredNotifications.length === 0 ? (

@@ -102,6 +102,20 @@ function TransactionDetailModal({ isOpen, onClose, transaction, categoryName }) 
               <p className="description-text">{transaction.description}</p>
             </div>
           )}
+
+          {transaction.receiptImageUrl && (
+            <div className="description-section">
+              <div className="description-header">
+                <FaFileAlt className="description-icon" />
+                <h3>Receipt / QRIS Proof</h3>
+              </div>
+              <img
+                src={transaction.receiptImageUrl}
+                alt="Receipt proof"
+                style={{ width: "100%", maxWidth: "320px", borderRadius: "10px", border: "1px solid #ddd" }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="transaction-detail-footer">

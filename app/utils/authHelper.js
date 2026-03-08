@@ -42,6 +42,8 @@ export const refreshAccessToken = async () => {
 
 export const fetchWithAuth = async (url, options = {}) => {
     const token = localStorage.getItem('access_token');
+    const refreshToken = localStorage.getItem('refresh_token');
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     
     // Build headers - only add Content-Type if there's a body
     const headers = {
@@ -49,7 +51,7 @@ export const fetchWithAuth = async (url, options = {}) => {
         'Authorization': `Bearer ${token}`,
     };
     
-    if (options.body) {
+    if (options.body && !isFormData) {
         headers['Content-Type'] = 'application/json';
     }
     
@@ -61,6 +63,10 @@ export const fetchWithAuth = async (url, options = {}) => {
 
     // If 401, try to refresh token and retry
     if (response.status === 401) {
+        if (!refreshToken) {
+            return response;
+        }
+
         console.log('🔄 Token expired, refreshing...');
         
         try {
@@ -72,7 +78,7 @@ export const fetchWithAuth = async (url, options = {}) => {
                 'Authorization': `Bearer ${newToken}`,
             };
             
-            if (options.body) {
+            if (options.body && !isFormData) {
                 retryHeaders['Content-Type'] = 'application/json';
             }
             
@@ -95,14 +101,25 @@ export const isTokenExpired = (token) => {
     if (!token) return true;
 
     try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const parts = token.split('.');
+        // Opaque token (non-JWT) cannot be decoded client-side; do not force-refresh here.
+        if (parts.length !== 3) {
+            return false;
+        }
+
+        const payload = JSON.parse(atob(parts[1]));
+        if (!payload?.exp) {
+            return false;
+        }
+
         const expiry = payload.exp * 1000; // Convert to milliseconds
         const now = Date.now();
         
         // Consider expired if less than 5 minutes remaining
         return expiry - now < 5 * 60 * 1000;
     } catch (error) {
-        return true;
+        // Fail-open: if parsing fails, rely on fetchWithAuth 401 handling instead.
+        return false;
     }
 };
 
@@ -110,6 +127,11 @@ export const isTokenExpired = (token) => {
 export const setupTokenRefresh = () => {
     const checkAndRefresh = async () => {
         const token = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (!token || !refreshToken) {
+            return;
+        }
         
         if (isTokenExpired(token)) {
             console.log('⚠️ Token is about to expire, refreshing...');

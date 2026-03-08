@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { useTransactions } from "./TransactionContext";
 import { useCategories } from "../context/CategoryContext";
+import { fetchWithAuth } from "../utils/authHelper";
 
 const BudgetContext = createContext();
 
@@ -56,16 +57,14 @@ export function BudgetProvider({ children }) {
 
       console.log("🔍 Loading budgets from backend...");
 
-      const response = await fetch(`${BACKEND_URL}/api/budgets`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const responseWithAuth = await fetchWithAuth(`${BACKEND_URL}/api/budgets`, {
+        method: "GET",
       });
 
-      console.log("Budgets response status:", response.status);
+      console.log("Budgets response status:", responseWithAuth.status);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (responseWithAuth.ok) {
+        const data = await responseWithAuth.json();
         console.log("✅ RAW Budgets from backend:", data);
         console.log("✅ First budget structure:", data[0]);
 
@@ -109,7 +108,7 @@ export function BudgetProvider({ children }) {
           localStorage.setItem("budgets_cache", JSON.stringify(mapped));
         }
       } else {
-        console.error("❌ Failed to load budgets:", response.status);
+        console.error("❌ Failed to load budgets:", responseWithAuth.status);
       }
     } catch (err) {
       console.error("❌ Load budgets error:", err);
@@ -248,11 +247,9 @@ export function BudgetProvider({ children }) {
 
         console.log(`📊 Checking budget ${budgetId} (${budget.category})`);
 
-        const response = await fetch(`${BACKEND_URL}/api/budgets/${budgetId}/usage`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetchWithAuth(`${BACKEND_URL}/api/budgets/${budgetId}/usage`, {
+            method: "GET",
+          });
 
         if (response.ok) {
           const usage = await response.json();
@@ -289,10 +286,8 @@ export function BudgetProvider({ children }) {
 
       console.log("📤 Fetch URL:", url);
 
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetchWithAuth(url, {
+        method: "GET",
       });
 
       if (response.ok) {
@@ -428,10 +423,8 @@ export function BudgetProvider({ children }) {
 
       console.log("📤 Goals fetch URL:", url);
 
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetchWithAuth(url, {
+        method: "GET",
       });
 
       if (response.ok) {

@@ -103,6 +103,7 @@ function TransactionPage() {
         description: t.description,
         date: t.date,
         source: t.source,
+        receiptImageUrl: t.receiptImageUrl || null,
         idCategory: t.idCategory,
         category: t.category, // Backend might include joined category data
         userId: t.idUser,
@@ -115,6 +116,21 @@ function TransactionPage() {
     }
   };
 
+  const buildTransactionFormData = (transaction) => {
+    const formData = new FormData();
+    formData.append("type", transaction.type);
+    formData.append("amount", String(transaction.amount));
+    formData.append("idCategory", String(transaction.idCategory));
+
+    if (transaction.description) formData.append("description", transaction.description);
+    if (transaction.date) formData.append("date", transaction.date);
+    if (transaction.source) formData.append("source", transaction.source);
+    if (transaction.removeReceiptImage) formData.append("removeReceiptImage", "1");
+    if (transaction.receiptImage instanceof File) formData.append("receiptImage", transaction.receiptImage);
+
+    return formData;
+  };
+
   const handleAddTransaction = async (transaction) => {
     try {
       console.log("=== ADD TRANSACTION START ===");
@@ -122,7 +138,7 @@ function TransactionPage() {
 
       const response = await fetchWithAuth(`${BACKEND_URL}/api/transactions`, {
         method: "POST",
-        body: JSON.stringify(transaction),
+        body: buildTransactionFormData(transaction),
       });
 
       console.log("2️⃣ Response status:", response.status);
@@ -145,6 +161,7 @@ function TransactionPage() {
         description: newTransaction.description,
         date: newTransaction.date,
         source: newTransaction.source,
+        receiptImageUrl: newTransaction.receiptImageUrl || null,
         idCategory: newTransaction.idCategory,
         category: newTransaction.category,
         userId: newTransaction.idUser,
@@ -180,20 +197,28 @@ function TransactionPage() {
 
       const response = await fetchWithAuth(`${BACKEND_URL}/api/transactions/${transactionToEdit.id}`, {
         method: "PUT",
-        body: JSON.stringify(updatedData),
+        body: buildTransactionFormData(updatedData),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update transaction");
+        let message = "Failed to update transaction";
+        try {
+          const errorData = await response.json();
+          message = errorData.message || message;
+        } catch {}
+        throw new Error(message);
       }
 
       const updated = await response.json();
-      updateTransaction(transactionToEdit.id, updated);
+      updateTransaction(transactionToEdit.id, {
+        ...updated,
+        receiptImageUrl: updated.receiptImageUrl || null,
+      });
       setIsEditModalOpen(false);
       setTransactionToEdit(null);
     } catch (err) {
       console.error("Edit transaction error:", err);
-      alert("Gagal mengupdate transaksi");
+      throw err;
     }
   };
 

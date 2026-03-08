@@ -7,6 +7,7 @@ import ProfileDropdown from "../components/ProfileDropdown";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useUser } from "../context/UserContext";
 import { useLanguage } from "../context/LanguageContext";
+import { fetchWithAuth } from "../utils/authHelper";
 import "../style/dashboard.css";
 import "../style/settings.css";
 import { FaUser, FaBell, FaSave, FaLanguage } from 'react-icons/fa';
@@ -69,20 +70,11 @@ function SettingsPage() {
 
     const fetchUserProfile = async () => {
         try {
-            const token = localStorage.getItem("access_token");
-            const response = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/auth/profile`, {
                 method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
             });
 
             if (!response.ok) {
-                if (response.status === 401) {
-                    localStorage.removeItem("access_token");
-                    router.push("/login");
-                }
                 throw new Error("Failed to fetch profile");
             }
 
@@ -133,14 +125,8 @@ function SettingsPage() {
         setIsSaving(true);
 
         try {
-            const token = localStorage.getItem("access_token");
-            
-            const response = await fetch(`${BACKEND_URL}/api/users/profile`, {
+            const response = await fetchWithAuth(`${BACKEND_URL}/api/users/profile`, {
                 method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
                 body: JSON.stringify({
                     name: formData.name,
                     email: formData.email

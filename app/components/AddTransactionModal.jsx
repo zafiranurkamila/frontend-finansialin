@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { FaTimes, FaPlus, FaTrash } from 'react-icons/fa';
 import { useCategories } from '../context/CategoryContext';
+import { useFundingSources } from '../context/FundingSourceContext';
+import { fetchWithAuth } from '../utils/authHelper';
 import '../style/modal.css';
 
 function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
@@ -20,9 +22,78 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
     const [newCategoryName, setNewCategoryName] = useState('');
     const [addingCategory, setAddingCategory] = useState(false);
     const [showCategoryList, setShowCategoryList] = useState(false);
+    const [receiptFile, setReceiptFile] = useState(null);
+    const [receiptPreviewUrl, setReceiptPreviewUrl] = useState('');
+    const [showSourceInput, setShowSourceInput] = useState(false);
+    const [newSourceName, setNewSourceName] = useState('');
+    const [newSourceBalance, setNewSourceBalance] = useState('0');
+    const [addingSource, setAddingSource] = useState(false);
+    const [categorizationHint, setCategorizationHint] = useState(null);
 
     const { getCategoriesByType, addCategory, getCategoryByName, deleteCategory } = useCategories();
+    const { fundingSources, fetchFundingSources, addFundingSource } = useFundingSources();
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
+
+    React.useEffect(() => {
+        if (isOpen) {
+            fetchFundingSources();
+        }
+    }, [isOpen]);
+
+    React.useEffect(() => {
+        const description = (formData.description || '').trim();
+        const source = (formData.source || '').trim();
+
+        if (!isOpen || (description === '' && source === '')) {
+            setCategorizationHint(null);
+            return;
+        }
+
+        const timeoutId = setTimeout(async () => {
+            try {
+                const query = new URLSearchParams({
+                    type: formData.type,
+                    description,
+                    source,
+                }).toString();
+
+                const response = await fetchWithAuth(`${BACKEND_URL}/api/categories/suggest?${query}`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                setCategorizationHint(data);
+
+                if (!formData.categoryId && data?.suggested?.idCategory && Number(data.confidence || 0) >= 0.65) {
+                    setFormData((prev) => ({
+                        ...prev,
+                        categoryId: String(data.suggested.idCategory),
+                    }));
+                }
+            } catch (error) {
+                console.error('Smart categorization error:', error);
+            }
+        }, 400);
+
+        return () => clearTimeout(timeoutId);
+    }, [isOpen, formData.type, formData.description, formData.source]);
+
+    const handleReceiptChange = (e) => {
+        const file = e.target.files?.[0];
+
+        if (!file) {
+            setReceiptFile(null);
+            setReceiptPreviewUrl('');
+            return;
+        }
+
+        setReceiptFile(file);
+        setReceiptPreviewUrl(URL.createObjectURL(file));
+    };
 
     // Get categories for current type
     const currentCategories = getCategoriesByType(formData.type);
@@ -135,7 +206,8 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
                 description: formData.description || undefined,
                 date: new Date(formData.date).toISOString(),
                 source: formData.source || undefined,
-                idCategory: parseInt(formData.categoryId)
+                idCategory: parseInt(formData.categoryId),
+                receiptImage: receiptFile || undefined,
             };
 
             console.log("📤 Sending to parent:", transactionData);
@@ -155,7 +227,12 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
 
             setShowCategoryInput(false);
             setNewCategoryName('');
+            setShowSourceInput(false);
+            setNewSourceName('');
+            setNewSourceBalance('0');
             setShowCategoryList(false);
+            setReceiptFile(null);
+            setReceiptPreviewUrl('');
             setError('');
 
             // onClose(); // Biarkan parent yang close modal setelah success
@@ -168,6 +245,36 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
     };
 
     if (!isOpen) return null;
+
+    const selectedSource = fundingSources.find((src) => src.name === formData.source);
+
+    const handleAddSource = async () => {
+        const name = newSourceName.trim();
+        if (!name) {
+            setError('Funding source name cannot be empty');
+            return;
+        }
+
+        const exists = fundingSources.some((src) => src.name.toLowerCase() === name.toLowerCase());
+        if (exists) {
+            setError('Funding source already exists');
+            return;
+        }
+
+        setAddingSource(true);
+        try {
+            const created = await addFundingSource(name, parseFloat(newSourceBalance || '0') || 0);
+            setFormData((prev) => ({ ...prev, source: created.name }));
+            setShowSourceInput(false);
+            setNewSourceName('');
+            setNewSourceBalance('0');
+            setError('');
+        } catch (err) {
+            setError(err.message || 'Failed to add funding source');
+        } finally {
+            setAddingSource(false);
+        }
+    };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -247,14 +354,16 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
                                 {currentCategories.map(cat => (
                                     <div key={cat.id} className="category-item">
                                         <span className="category-name">{cat.name}</span>
-                                        <button
-                                            type="button"
-                                            className="delete-category-btn"
-                                            onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                                            title="Delete category"
-                                        >
-                                            <FaTrash />
-                                        </button>
+                                        {cat.userId ? (
+                                            <button
+                                                type="button"
+                                                className="delete-category-btn"
+                                                onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                                                title="Delete category"
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        ) : null}
                                     </div>
                                 ))}
                             </div>
@@ -322,20 +431,73 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
                                 </button>
                             </div>
                         )}
+
+                        {categorizationHint?.suggested ? (
+                            <p style={{ marginTop: '8px', fontSize: '12px', color: '#475569' }}>
+                                Suggestion: {categorizationHint.suggested.name} ({Math.round((categorizationHint.confidence || 0) * 100)}% confidence)
+                            </p>
+                        ) : null}
                     </div>
 
                     {/* Source */}
                     <div className="form-group">
-                        <label htmlFor="source">Source</label>
-                        <input
-                            type="text"
-                            id="source"
-                            name="source"
-                            value={formData.source}
-                            onChange={handleChange}
-                            placeholder="e.g., Cash, Bank, Wallet"
-                            disabled={loading}
-                        />
+                        <div className="category-header">
+                            <label htmlFor="source">Funding Source</label>
+                            <button
+                                type="button"
+                                className="manage-categories-btn"
+                                onClick={() => setShowSourceInput((v) => !v)}
+                            >
+                                {showSourceInput ? 'Hide' : 'Add Source'}
+                            </button>
+                        </div>
+
+                        <div className="category-input-wrapper">
+                            <select
+                                id="source"
+                                name="source"
+                                value={formData.source}
+                                onChange={handleChange}
+                                disabled={loading}
+                            >
+                                <option value="">Select source (optional)</option>
+                                {fundingSources.map((src) => (
+                                    <option key={src.idFundingSource} value={src.name}>
+                                        {src.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {selectedSource ? (
+                            <p style={{ marginTop: '8px', fontSize: '12px', color: '#475569' }}>
+                                Available: Rp {selectedSource.availableBalance.toLocaleString('id-ID')}
+                            </p>
+                        ) : null}
+
+                        {showSourceInput ? (
+                            <div className="new-category-input" style={{ marginTop: '10px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Source name (Cash, BCA, OVO)"
+                                    value={newSourceName}
+                                    onChange={(e) => setNewSourceName(e.target.value)}
+                                    disabled={addingSource}
+                                />
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="Initial balance"
+                                    value={newSourceBalance}
+                                    onChange={(e) => setNewSourceBalance(e.target.value)}
+                                    disabled={addingSource}
+                                />
+                                <button type="button" className="btn-save-category" onClick={handleAddSource} disabled={addingSource}>
+                                    {addingSource ? 'Adding...' : 'Save Source'}
+                                </button>
+                            </div>
+                        ) : null}
                     </div>
 
                     {/* Date */}
@@ -350,6 +512,28 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
                             disabled={loading}
                             required
                         />
+                    </div>
+
+                    {/* Receipt Image */}
+                    <div className="form-group">
+                        <label htmlFor="receiptImage">QRIS / Receipt Image</label>
+                        <input
+                            type="file"
+                            id="receiptImage"
+                            name="receiptImage"
+                            accept="image/*"
+                            onChange={handleReceiptChange}
+                            disabled={loading}
+                        />
+                        {receiptPreviewUrl && (
+                            <div style={{ marginTop: '10px' }}>
+                                <img
+                                    src={receiptPreviewUrl}
+                                    alt="Receipt preview"
+                                    style={{ maxWidth: '180px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Description */}

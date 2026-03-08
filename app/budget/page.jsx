@@ -9,6 +9,7 @@ import ProfileDropdown from "../components/ProfileDropdown";
 import { useBudget } from "../context/BudgetContext";
 import { useCategories } from "../context/CategoryContext";
 import { useLanguage } from "../context/LanguageContext";
+import { fetchWithAuth, setupTokenRefresh } from "../utils/authHelper";
 import ConfirmDialog from "../components/ConfirmDialog";
 import "../style/dashboard.css";
 import "../style/budget.css";
@@ -60,6 +61,11 @@ function BudgetGoalsPage() {
       setIsAuthed(true);
     }
     setLoading(false);
+
+    const cleanup = setupTokenRefresh();
+    return () => {
+      if (cleanup) cleanup();
+    };
   }, [router]);
 
   // Load data on mount and when coming back to page
@@ -172,8 +178,6 @@ function BudgetGoalsPage() {
 
   const handleAddBudget = async (budgetData) => {
     try {
-      const token = localStorage.getItem("access_token");
-
       // Convert period to dates for backend
       const { periodStart, periodEnd } = getPeriodDates(budgetData.period);
 
@@ -186,12 +190,8 @@ function BudgetGoalsPage() {
 
       console.log("📤 Creating budget:", payload);
 
-      const response = await fetch(`${BACKEND_URL}/api/budgets`, {
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/budgets`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(payload),
       });
 
@@ -232,7 +232,6 @@ function BudgetGoalsPage() {
     try {
       if (!budgetToEdit) return;
 
-      const token = localStorage.getItem("access_token");
       const budgetId = budgetToEdit.id || budgetToEdit.idBudget;
 
       // Use amount from updatedData directly
@@ -244,12 +243,8 @@ function BudgetGoalsPage() {
 
       console.log("📤 Updating budget:", budgetId, payload);
 
-      const response = await fetch(`${BACKEND_URL}/api/budgets/${budgetId}`, {
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/budgets/${budgetId}`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(payload),
       });
 
@@ -281,15 +276,10 @@ function BudgetGoalsPage() {
     try {
       if (!budgetToDeleteId) return;
 
-      const token = localStorage.getItem("access_token");
-
       console.log("🗑️ Deleting budget:", budgetToDeleteId);
 
-      const response = await fetch(`${BACKEND_URL}/api/budgets/${budgetToDeleteId}`, {
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/budgets/${budgetToDeleteId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (!response.ok) {

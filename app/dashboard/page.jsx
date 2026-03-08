@@ -77,6 +77,7 @@ function DashboardPage() {
                 description: t.description,
                 date: t.date,
                 source: t.source,
+                receiptImageUrl: t.receiptImageUrl || null,
                 idCategory: t.idCategory,
                 category: t.category,
                 userId: t.idUser
@@ -93,9 +94,18 @@ function DashboardPage() {
         try {
             console.log("📤 Adding transaction from dashboard:", transaction);
 
+            const formData = new FormData();
+            formData.append('type', transaction.type);
+            formData.append('amount', String(transaction.amount));
+            formData.append('idCategory', String(transaction.idCategory));
+            if (transaction.description) formData.append('description', transaction.description);
+            if (transaction.date) formData.append('date', transaction.date);
+            if (transaction.source) formData.append('source', transaction.source);
+            if (transaction.receiptImage instanceof File) formData.append('receiptImage', transaction.receiptImage);
+
             const response = await fetchWithAuth(`${BACKEND_URL}/api/transactions`, {
                 method: "POST",
-                body: JSON.stringify(transaction),
+                body: formData,
             });
 
             if (!response.ok) {
@@ -116,6 +126,7 @@ function DashboardPage() {
                 description: newTransaction.description,
                 date: newTransaction.date,
                 source: newTransaction.source,
+                receiptImageUrl: newTransaction.receiptImageUrl || null,
                 idCategory: newTransaction.idCategory,
                 category: newTransaction.category,
                 userId: newTransaction.idUser

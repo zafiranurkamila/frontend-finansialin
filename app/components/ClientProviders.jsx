@@ -5,17 +5,20 @@ import { TransactionProvider } from '../context/TransactionContext';
 import { CategoryProvider } from '../context/CategoryContext';
 import { BudgetProvider } from '../context/BudgetContext';
 import { LanguageProvider } from '../context/LanguageContext';
+import { FundingSourceProvider } from '../context/FundingSourceContext';
 
 export default function ClientProviders({ children }) {
     return (
         <LanguageProvider>
             <UserProvider>
                 <CategoryProvider>
-                    <TransactionProvider>
-                        <BudgetProvider>
-                            {children}
-                        </BudgetProvider>
-                    </TransactionProvider>
+                    <FundingSourceProvider>
+                        <TransactionProvider>
+                            <BudgetProvider>
+                                {children}
+                            </BudgetProvider>
+                        </TransactionProvider>
+                    </FundingSourceProvider>
                 </CategoryProvider>
             </UserProvider>
         </LanguageProvider>

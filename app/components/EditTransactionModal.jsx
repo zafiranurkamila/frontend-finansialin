@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaPlus, FaTrash } from 'react-icons/fa';
 import { useCategories } from '../context/CategoryContext';
+import { useFundingSources } from '../context/FundingSourceContext';
 import '../style/modal.css';
 
 function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction }) {
@@ -19,8 +20,22 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
     const [newCategoryName, setNewCategoryName] = useState('');
     const [addingCategory, setAddingCategory] = useState(false);
     const [showCategoryList, setShowCategoryList] = useState(false);
+    const [receiptFile, setReceiptFile] = useState(null);
+    const [receiptPreviewUrl, setReceiptPreviewUrl] = useState('');
+    const [removeReceiptImage, setRemoveReceiptImage] = useState(false);
+    const [showSourceInput, setShowSourceInput] = useState(false);
+    const [newSourceName, setNewSourceName] = useState('');
+    const [newSourceBalance, setNewSourceBalance] = useState('0');
+    const [addingSource, setAddingSource] = useState(false);
 
     const { getCategoriesByType, addCategory, getCategoryByName, deleteCategory } = useCategories();
+    const { fundingSources, fetchFundingSources, addFundingSource } = useFundingSources();
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchFundingSources();
+        }
+    }, [isOpen]);
 
     // Get categories for current type
     const currentCategories = getCategoriesByType(formData.type);
@@ -38,8 +53,30 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                 date: transaction.date ? transaction.date.split('T')[0] : new Date().toISOString().split('T')[0],
                 source: transaction.source || ''
             });
+            setReceiptFile(null);
+            setReceiptPreviewUrl(transaction.receiptImageUrl || '');
+            setRemoveReceiptImage(false);
         }
     }, [transaction]);
+
+    const handleReceiptChange = (e) => {
+        const file = e.target.files?.[0];
+
+        if (!file) {
+            setReceiptFile(null);
+            return;
+        }
+
+        setReceiptFile(file);
+        setReceiptPreviewUrl(URL.createObjectURL(file));
+        setRemoveReceiptImage(false);
+    };
+
+    const handleRemoveReceipt = () => {
+        setReceiptFile(null);
+        setReceiptPreviewUrl('');
+        setRemoveReceiptImage(true);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -114,7 +151,7 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!formData.amount || !formData.categoryId) {
@@ -134,15 +171,51 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
             description: formData.description || undefined,
             date: new Date(formData.date).toISOString(),
             source: formData.source || undefined,
-            idCategory: parseInt(formData.categoryId)
+            idCategory: parseInt(formData.categoryId),
+            receiptImage: receiptFile || undefined,
+            removeReceiptImage,
         };
 
         console.log("📤 Updating transaction with:", updatedData);
-        onEditTransaction(updatedData);
-        onClose();
+        try {
+            await onEditTransaction(updatedData);
+            onClose();
+        } catch (err) {
+            setError(err.message || 'Failed to update transaction');
+        }
     };
 
     if (!isOpen || !transaction) return null;
+
+    const selectedSource = fundingSources.find((src) => src.name === formData.source);
+
+    const handleAddSource = async () => {
+        const name = newSourceName.trim();
+        if (!name) {
+            setError('Funding source name cannot be empty');
+            return;
+        }
+
+        const exists = fundingSources.some((src) => src.name.toLowerCase() === name.toLowerCase());
+        if (exists) {
+            setError('Funding source already exists');
+            return;
+        }
+
+        setAddingSource(true);
+        try {
+            const created = await addFundingSource(name, parseFloat(newSourceBalance || '0') || 0);
+            setFormData((prev) => ({ ...prev, source: created.name }));
+            setShowSourceInput(false);
+            setNewSourceName('');
+            setNewSourceBalance('0');
+            setError('');
+        } catch (err) {
+            setError(err.message || 'Failed to add funding source');
+        } finally {
+            setAddingSource(false);
+        }
+    };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -219,14 +292,16 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                                 {currentCategories.map(cat => (
                                     <div key={cat.id} className="category-item">
                                         <span className="category-name">{cat.name}</span>
-                                        <button
-                                            type="button"
-                                            className="delete-category-btn"
-                                            onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                                            title="Delete category"
-                                        >
-                                            <FaTrash />
-                                        </button>
+                                        {cat.userId ? (
+                                            <button
+                                                type="button"
+                                                className="delete-category-btn"
+                                                onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                                                title="Delete category"
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        ) : null}
                                     </div>
                                 ))}
                             </div>
@@ -296,15 +371,62 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
 
                     {/* Source */}
                     <div className="form-group">
-                        <label htmlFor="source">Source</label>
-                        <input
-                            type="text"
-                            id="source"
-                            name="source"
-                            value={formData.source}
-                            onChange={handleChange}
-                            placeholder="e.g., Cash, Bank, Wallet"
-                        />
+                        <div className="category-header">
+                            <label htmlFor="source">Funding Source</label>
+                            <button
+                                type="button"
+                                className="manage-categories-btn"
+                                onClick={() => setShowSourceInput((v) => !v)}
+                            >
+                                {showSourceInput ? 'Hide' : 'Add Source'}
+                            </button>
+                        </div>
+
+                        <div className="category-input-wrapper">
+                            <select
+                                id="source"
+                                name="source"
+                                value={formData.source}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select source (optional)</option>
+                                {fundingSources.map((src) => (
+                                    <option key={src.idFundingSource} value={src.name}>
+                                        {src.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {selectedSource ? (
+                            <p style={{ marginTop: '8px', fontSize: '12px', color: '#475569' }}>
+                                Available: Rp {selectedSource.availableBalance.toLocaleString('id-ID')}
+                            </p>
+                        ) : null}
+
+                        {showSourceInput ? (
+                            <div className="new-category-input" style={{ marginTop: '10px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Source name (Cash, BCA, OVO)"
+                                    value={newSourceName}
+                                    onChange={(e) => setNewSourceName(e.target.value)}
+                                    disabled={addingSource}
+                                />
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="Initial balance"
+                                    value={newSourceBalance}
+                                    onChange={(e) => setNewSourceBalance(e.target.value)}
+                                    disabled={addingSource}
+                                />
+                                <button type="button" className="btn-save-category" onClick={handleAddSource} disabled={addingSource}>
+                                    {addingSource ? 'Adding...' : 'Save Source'}
+                                </button>
+                            </div>
+                        ) : null}
                     </div>
 
                     {/* Date */}
@@ -318,6 +440,33 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                             onChange={handleChange}
                             required
                         />
+                    </div>
+
+                    {/* Receipt Image */}
+                    <div className="form-group">
+                        <label htmlFor="receiptImage">QRIS / Receipt Image</label>
+                        <input
+                            type="file"
+                            id="receiptImage"
+                            name="receiptImage"
+                            accept="image/*"
+                            onChange={handleReceiptChange}
+                        />
+
+                        {receiptPreviewUrl && (
+                            <div style={{ marginTop: '10px' }}>
+                                <img
+                                    src={receiptPreviewUrl}
+                                    alt="Receipt preview"
+                                    style={{ maxWidth: '180px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                />
+                                <div style={{ marginTop: '8px' }}>
+                                    <button type="button" className="btn-cancel" onClick={handleRemoveReceipt}>
+                                        Remove Image
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Description */}
