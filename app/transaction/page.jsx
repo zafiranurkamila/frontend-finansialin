@@ -10,6 +10,7 @@ import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
 import { useBudget } from "../context/BudgetContext";
 import { fetchWithAuth, setupTokenRefresh } from "../utils/authHelper";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../style/dashboard.css";
 import "../style/transaction.css";
 import { FaEdit, FaTrash } from "react-icons/fa";
@@ -103,7 +104,7 @@ function TransactionPage() {
         description: t.description,
         date: t.date,
         source: t.source,
-        receiptImageUrl: t.receiptImageUrl || null,
+        receiptImageUrl: resolveMediaUrl(t.receiptImageUrl),
         idCategory: t.idCategory,
         category: t.category, // Backend might include joined category data
         userId: t.idUser,
@@ -161,7 +162,7 @@ function TransactionPage() {
         description: newTransaction.description,
         date: newTransaction.date,
         source: newTransaction.source,
-        receiptImageUrl: newTransaction.receiptImageUrl || null,
+        receiptImageUrl: resolveMediaUrl(newTransaction.receiptImageUrl),
         idCategory: newTransaction.idCategory,
         category: newTransaction.category,
         userId: newTransaction.idUser,
@@ -212,7 +213,7 @@ function TransactionPage() {
       const updated = await response.json();
       updateTransaction(transactionToEdit.id, {
         ...updated,
-        receiptImageUrl: updated.receiptImageUrl || null,
+        receiptImageUrl: resolveMediaUrl(updated.receiptImageUrl),
       });
       setIsEditModalOpen(false);
       setTransactionToEdit(null);

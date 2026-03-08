@@ -10,9 +10,12 @@ function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [backendNotifications, setBackendNotifications] = useState([]);
+  const [toastAlerts, setToastAlerts] = useState([]);
   const [notifPrefs, setNotifPrefs] = useState({ transactionAlerts: true, budgetAlerts: true });
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
+  const initializedRef = useRef(false);
+  const seenUnreadIdsRef = useRef(new Set());
 
   const { notifications: localNotifications, unreadNotifications, markNotificationAsRead, markAllNotificationsAsRead, deleteNotification, clearAllNotifications } = useTransactions();
 
@@ -68,11 +71,48 @@ function NotificationDropdown() {
       if (response.ok) {
         const data = await response.json();
         setBackendNotifications(data);
+
+        const unread = (Array.isArray(data) ? data : []).filter((n) => !n.read);
+
+        if (!initializedRef.current) {
+          unread.forEach((n) => seenUnreadIdsRef.current.add(n.idNotification));
+          initializedRef.current = true;
+          return;
+        }
+
+        const freshUnread = unread.filter((n) => !seenUnreadIdsRef.current.has(n.idNotification));
+        freshUnread.forEach((n) => seenUnreadIdsRef.current.add(n.idNotification));
+
+        if (freshUnread.length > 0) {
+          setToastAlerts((prev) => {
+            const next = [...prev];
+            freshUnread.forEach((n) => {
+              next.push({
+                id: `toast-${n.idNotification}-${Date.now()}`,
+                message: n.message,
+                type: n.type,
+              });
+            });
+            return next.slice(-4);
+          });
+        }
       }
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
     }
   };
+
+  useEffect(() => {
+    if (!toastAlerts.length) return;
+
+    const timers = toastAlerts.map((alert) =>
+      setTimeout(() => {
+        setToastAlerts((prev) => prev.filter((item) => item.id !== alert.id));
+      }, 4000)
+    );
+
+    return () => timers.forEach((t) => clearTimeout(t));
+  }, [toastAlerts]);
 
   // Load preferences on mount
   useEffect(() => {
@@ -304,6 +344,17 @@ function NotificationDropdown() {
         <FaBell />
         {totalUnreadNotifications > 0 && <span className="notif-badge">{totalUnreadNotifications}</span>}
       </button>
+
+      {toastAlerts.length > 0 && (
+        <div className="notif-toast-stack">
+          {toastAlerts.map((alert) => (
+            <div key={alert.id} className="notif-toast-item">
+              <span className="notif-toast-title">New Notification</span>
+              <span className="notif-toast-message">{alert.message}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {isOpen && typeof window !== "undefined" && createPortal(<NotificationDropdownContent />, document.body)}
     </div>

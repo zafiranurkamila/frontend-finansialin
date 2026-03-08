@@ -10,6 +10,7 @@ import { useTransactions } from "../context/TransactionContext";
 import { useCategories } from "../context/CategoryContext";
 import { useLanguage } from "../context/LanguageContext";
 import { fetchWithAuth } from "../utils/authHelper";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import ConfirmDialog from '../components/ConfirmDialog';
 import "../style/dashboard.css";
 import DashboardBanner from "../components/DashboardBanner";
@@ -77,7 +78,7 @@ function DashboardPage() {
                 description: t.description,
                 date: t.date,
                 source: t.source,
-                receiptImageUrl: t.receiptImageUrl || null,
+                receiptImageUrl: resolveMediaUrl(t.receiptImageUrl),
                 idCategory: t.idCategory,
                 category: t.category,
                 userId: t.idUser
@@ -126,7 +127,7 @@ function DashboardPage() {
                 description: newTransaction.description,
                 date: newTransaction.date,
                 source: newTransaction.source,
-                receiptImageUrl: newTransaction.receiptImageUrl || null,
+                receiptImageUrl: resolveMediaUrl(newTransaction.receiptImageUrl),
                 idCategory: newTransaction.idCategory,
                 category: newTransaction.category,
                 userId: newTransaction.idUser

@@ -1,11 +1,15 @@
 // app/components/TransactionDetailModal.jsx
 "use client";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { FaTimes, FaCalendar, FaTag, FaFileAlt, FaWallet, FaDollarSign, FaPlus, FaMinus } from "react-icons/fa";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../style/transactionDetailModal.css";
 
 function TransactionDetailModal({ isOpen, onClose, transaction, categoryName }) {
   if (!isOpen || !transaction) return null;
+
+  const [imageFailed, setImageFailed] = useState(false);
+  const resolvedReceiptUrl = useMemo(() => resolveMediaUrl(transaction.receiptImageUrl), [transaction.receiptImageUrl]);
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString("id-ID", {
@@ -103,17 +107,22 @@ function TransactionDetailModal({ isOpen, onClose, transaction, categoryName }) 
             </div>
           )}
 
-          {transaction.receiptImageUrl && (
+          {resolvedReceiptUrl && (
             <div className="description-section">
               <div className="description-header">
                 <FaFileAlt className="description-icon" />
                 <h3>Receipt / QRIS Proof</h3>
               </div>
-              <img
-                src={transaction.receiptImageUrl}
-                alt="Receipt proof"
-                style={{ width: "100%", maxWidth: "320px", borderRadius: "10px", border: "1px solid #ddd" }}
-              />
+              {!imageFailed ? (
+                <img
+                  src={resolvedReceiptUrl}
+                  alt="Receipt proof"
+                  onError={() => setImageFailed(true)}
+                  style={{ width: "100%", maxWidth: "320px", borderRadius: "10px", border: "1px solid #ddd" }}
+                />
+              ) : (
+                <p className="detail-value">Receipt image cannot be loaded.</p>
+              )}
             </div>
           )}
         </div>

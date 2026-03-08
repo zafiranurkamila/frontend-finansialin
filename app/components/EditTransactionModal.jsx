@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaTimes, FaPlus, FaTrash } from 'react-icons/fa';
 import { useCategories } from '../context/CategoryContext';
 import { useFundingSources } from '../context/FundingSourceContext';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 import '../style/modal.css';
 
 function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction }) {
@@ -54,7 +55,7 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                 source: transaction.source || ''
             });
             setReceiptFile(null);
-            setReceiptPreviewUrl(transaction.receiptImageUrl || '');
+            setReceiptPreviewUrl(resolveMediaUrl(transaction.receiptImageUrl) || '');
             setRemoveReceiptImage(false);
         }
     }, [transaction]);
@@ -458,6 +459,9 @@ function EditTransactionModal({ isOpen, onClose, onEditTransaction, transaction 
                                 <img
                                     src={receiptPreviewUrl}
                                     alt="Receipt preview"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                    }}
                                     style={{ maxWidth: '180px', borderRadius: '8px', border: '1px solid #ddd' }}
                                 />
                                 <div style={{ marginTop: '8px' }}>
