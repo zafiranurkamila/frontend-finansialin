@@ -1,15 +1,19 @@
 // app/components/TransactionDetailModal.jsx
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaTimes, FaCalendar, FaTag, FaFileAlt, FaWallet, FaDollarSign, FaPlus, FaMinus } from "react-icons/fa";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../style/transactionDetailModal.css";
 
 function TransactionDetailModal({ isOpen, onClose, transaction, categoryName }) {
-  if (!isOpen || !transaction) return null;
-
   const [imageFailed, setImageFailed] = useState(false);
-  const resolvedReceiptUrl = useMemo(() => resolveMediaUrl(transaction.receiptImageUrl), [transaction.receiptImageUrl]);
+  const resolvedReceiptUrl = useMemo(() => resolveMediaUrl(transaction?.receiptImageUrl), [transaction?.receiptImageUrl]);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [transaction?.id, transaction?.idTransaction, transaction?.receiptImageUrl]);
+
+  if (!isOpen || !transaction) return null;
 
   const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString("id-ID", {

@@ -144,6 +144,72 @@
   animation: subtleFloat 3s ease-in-out infinite;
 }
 
+/* Minimal modal overrides */
+.modal-overlay {
+  background: rgba(17, 24, 39, 0.35);
+  backdrop-filter: none;
+}
+
+.transaction-detail-modal {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  animation: none;
+}
+
+.transaction-detail-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 20px 24px;
+}
+
+.transaction-detail-header h2 {
+  font-size: 18px;
+  letter-spacing: 0;
+}
+
+.transaction-detail-content {
+  padding: 20px 24px;
+}
+
+.amount-section,
+.detail-item,
+.description-section,
+.additional-info {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
+  animation: none;
+}
+
+.amount-section.income {
+  border-left: 3px solid #00aa13;
+}
+
+.amount-section.expense {
+  border-left: 3px solid #ef4444;
+}
+
+.detail-item:hover {
+  transform: none;
+  border-color: #d1d5db;
+  box-shadow: none;
+}
+
+.detail-icon {
+  border-radius: 8px;
+}
+
+.btn-close-detail {
+  background: #00aa13;
+  border-radius: 10px;
+}
+
+.btn-close-detail:hover {
+  background: #019611;
+}
+
 .amount-info {
   flex: 1;
 }
@@ -508,4 +574,73 @@
   50% {
     transform: translateY(-4px);
   }
+}
+
+/* Gojek-like minimal modal palette */
+.transaction-detail-modal {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14) !important;
+}
+
+.transaction-detail-header,
+.transaction-detail-footer {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+.amount-section,
+.detail-item,
+.description-section,
+.additional-info {
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.amount-section.income {
+  border-left: 3px solid #00aa13 !important;
+  border-radius: 14px;
+  background: #f7fbf8 !important;
+}
+
+.amount-section.expense {
+  border-left: 3px solid #ef4444 !important;
+  border-radius: 14px;
+  background: #fff7f7 !important;
+}
+
+.details-grid {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.detail-item {
+  border-radius: 0;
+  padding: 12px 4px;
+  border-bottom: 1px solid #eef2f0 !important;
+}
+
+.detail-item:last-child {
+  border-bottom: none !important;
+}
+
+.detail-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+}
+
+.description-section {
+  background: #f8faf9 !important;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.btn-close-detail {
+  background: #00aa13 !important;
+}
+
+.btn-close-detail:hover {
+  background: #019611 !important;
 }

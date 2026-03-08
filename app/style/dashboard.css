@@ -18,6 +18,13 @@
 
 /* Logout Fade Out Animation */
 @keyframes fadeOut {
+
+    /* Minimal visual overrides (clean, flat, low-noise) */
+    body,
+    html {
+      background: #f6f8f7;
+    }
+
   from {
     opacity: 1;
     transform: scale(1);
@@ -30,6 +37,13 @@
 
 .dashboard-container.logout {
   animation: fadeOut 0.5s ease-in forwards;
+
+    .dashboard-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      box-shadow: none;
+    }
+
 }
 
 /*Global*/
@@ -40,6 +54,11 @@
 }
 
 body,
+
+    .sidebar-header {
+      color: #111827;
+    }
+
 html {
   margin: 0;
   padding: 0;
@@ -48,15 +67,39 @@ html {
   color: #111827;
   height: 100%;
   overflow: hidden;
+
+    .nav-item a {
+      color: #374151;
+    }
+
 }
 
 /*container*/
 .dashboard-container {
   display: flex;
+
+    .nav-item.active {
+      background: #f3f4f6;
+      border-left: 3px solid #00aa13;
+    }
+
   height: 100vh;
   width: 100%;
   overflow: hidden;
   gap: 24px;
+
+    .logout-btn {
+      background: #ffffff;
+      color: #ef4444;
+      border: 1px solid #fee2e2;
+    }
+
+    .logout-btn:hover {
+      background: #fef2f2;
+      transform: none;
+      box-shadow: none;
+    }
+
   position: relative;
   z-index: 1;
 }
@@ -74,6 +117,13 @@ html {
   margin-bottom: 0;
   position: relative;
   z-index: 100;
+
+    .add-transaction-btn:hover {
+      background: #019611;
+      transform: none;
+      box-shadow: none;
+    }
+
   overflow: visible;
   box-shadow: 0 2px 8px rgba(52, 77, 51, 0.08);
 }
@@ -82,6 +132,12 @@ html {
 .main-content-area {
     flex: 1; 
     display: flex;
+
+    .card:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
     flex-direction: column;
     padding-top: 24px;
     padding-right: 24px;
@@ -105,6 +161,14 @@ html {
 
 /*sidebar*/
 .sidebar {
+
+    .budget-section h3,
+    .transaction-category,
+    .transaction-desc,
+    .transaction-date {
+      color: #111827;
+    }
+
   width: 256px;
   background: linear-gradient(180deg, #344d33 0%, #2a3d29 100%);
   color: white;
@@ -126,6 +190,12 @@ html {
 
 .sidebar-nav {
   flex-grow: 1;
+
+    .transaction-item:hover {
+      background: #f9fafb;
+      box-shadow: none;
+    }
+
 }
 
 .sidebar-nav ul {
@@ -137,6 +207,101 @@ html {
 
 .nav-item {
   padding: 14px 24px;
+
+    .notification-widget-item,
+    .quick-stat-item,
+    .assistant-metric,
+    .subscription-item,
+    .predictive-warning-item,
+    .predictive-trend-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-left-width: 3px;
+      box-shadow: none;
+    }
+
+    .assistant-widget,
+    .subscription-widget,
+    .predictive-widget {
+      border-left-width: 3px;
+    }
+
+    /* Gojek-like palette overrides */
+    :root {
+      --gojek-green: #00aa13;
+      --gojek-green-dark: #019611;
+      --gojek-blue: #00aed6;
+      --gojek-bg: #f5f7f6;
+    }
+
+    body,
+    html,
+    .main-content-area {
+      background: var(--gojek-bg) !important;
+    }
+
+    .sidebar {
+      background: var(--gojek-green) !important;
+      border-right: none !important;
+    }
+
+    .sidebar-header,
+    .nav-item,
+    .nav-item a {
+      color: #ffffff !important;
+    }
+
+    .nav-item.active,
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.16) !important;
+      border-left: 3px solid #ffffff !important;
+    }
+
+    .dashboard-header {
+      border-bottom: 1px solid #e5e7eb !important;
+    }
+
+    .add-transaction-btn,
+    .btn-close-detail {
+      background: var(--gojek-green) !important;
+    }
+
+    .add-transaction-btn:hover,
+    .btn-close-detail:hover {
+      background: var(--gojek-green-dark) !important;
+    }
+
+    .widget-box,
+    .card,
+    .budget-section,
+    .transaction-item,
+    .notification-widget-item,
+    .quick-stat-item,
+    .assistant-metric,
+    .subscription-item,
+    .predictive-warning-item,
+    .predictive-trend-card {
+      background: #ffffff !important;
+      border: 1px solid #e5e7eb !important;
+      box-shadow: none !important;
+    }
+
+    .assistant-widget {
+      border-left: 3px solid var(--gojek-green) !important;
+    }
+
+    .subscription-widget {
+      border-left: 3px solid var(--gojek-blue) !important;
+    }
+
+    .predictive-widget {
+      border-left: 3px solid #f59e0b !important;
+    }
+
+    .subscription-amount,
+    .quick-stat-value {
+      color: var(--gojek-green) !important;
+    }
   font-size: 15px;
   cursor: pointer;
   opacity: 0.85;
@@ -905,4 +1070,55 @@ html {
     100% {
         background-position: -200% 0;
     }
+}
+
+/* Final de-boxed overrides */
+.content-split {
+  gap: 18px !important;
+}
+
+.budget-section,
+.widget-box,
+.card,
+.transaction-item,
+.notification-widget-item,
+.quick-stat-item,
+.assistant-metric,
+.subscription-item,
+.predictive-warning-item,
+.predictive-trend-card {
+  border: none !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  background: #ffffff !important;
+}
+
+.transactions-list {
+  gap: 10px !important;
+}
+
+.transaction-item {
+  align-items: center !important;
+  padding: 14px 16px !important;
+  border-left: none !important;
+}
+
+.transaction-amount {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  border-left: none !important;
+}
+
+.notification-widget-item,
+.quick-stat-item,
+.assistant-metric,
+.subscription-item,
+.predictive-warning-item,
+.predictive-trend-card {
+  border-radius: 14px !important;
+}
+
+.widget-box h3 {
+  font-size: 15px;
+  letter-spacing: 0;
 }

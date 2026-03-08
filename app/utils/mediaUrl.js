@@ -10,6 +10,19 @@ export function resolveMediaUrl(url) {
   }
 
   if (/^https?:\/\//i.test(url)) {
+    try {
+      const incoming = new URL(url);
+      const backend = new URL(BACKEND_URL);
+
+      // If backend returned a storage URL from a different host/port (often APP_URL mismatch),
+      // rewrite it to the active backend origin so the browser can fetch the file.
+      if (incoming.pathname.startsWith("/storage/") && incoming.origin !== backend.origin) {
+        return `${backend.origin}${incoming.pathname}${incoming.search}`;
+      }
+    } catch {
+      // Keep original URL if parsing fails.
+    }
+
     return url;
   }
 
