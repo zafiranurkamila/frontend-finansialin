@@ -126,13 +126,29 @@ function NotificationDropdown() {
     }
   }, [isOpen]);
 
-  // Auto-refresh notifications every 30 seconds
+  // Auto-refresh notifications more frequently to reduce toast delay.
   useEffect(() => {
+    fetchNotifications();
+
     const interval = setInterval(() => {
       fetchNotifications();
-    }, 30000); // 30 seconds
+    }, 5000);
 
-    return () => clearInterval(interval);
+    const handleFocus = () => fetchNotifications();
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        fetchNotifications();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   // Combine local and backend notifications
