@@ -116,6 +116,9 @@ export default function AIInsightsPage() {
     return Math.round(ratioScore * 0.4 + balanceScore * 0.35 + activityScore * 0.25);
   }, [income30, expense30, currentBalance, last30Days.length]);
 
+  const isOverspending = useMemo(() => totalExpenses > totalIncome, [totalExpenses, totalIncome]);
+  const overspendingAmount = useMemo(() => Math.max(0, totalExpenses - totalIncome), [totalExpenses, totalIncome]);
+
   const warningText = useMemo(() => {
     if (income30 <= 0) return "Data pemasukan 30 hari belum cukup untuk prediksi yang akurat.";
     const ratio = expense30 / income30;
@@ -258,6 +261,13 @@ export default function AIInsightsPage() {
     return conf < 0.65;
   };
 
+  const getItemConfidenceLevel = (item) => {
+    const conf = Number(item?.confidence ?? 0);
+    if (conf >= 0.8) return "high";
+    if (conf >= 0.6) return "medium";
+    return "low";
+  };
+
   const saveAsTransaction = async () => {
     if (!txForm.amount || Number(txForm.amount) <= 0) {
       setSaveTxError("Nominal transaksi harus diisi lebih dari 0.");
@@ -354,6 +364,12 @@ export default function AIInsightsPage() {
               Halaman ini menyiapkan fitur yang kamu minta: chatbot dengan konteks transaksi,
               scan struk, predictive budgeting, dan metrik kesehatan finansial.
             </p>
+            {isOverspending ? (
+              <div className="overspending-alert" role="alert">
+                <strong>Peringatan Keuangan:</strong> Pengeluaran kamu sudah melampaui pemasukan sebesar
+                {` Rp ${overspendingAmount.toLocaleString("id-ID")}`}. Prioritaskan kebutuhan utama dulu dan tunda pengeluaran yang tidak mendesak.
+              </div>
+            ) : null}
             <div className="ai-hero-metrics">
               <div className="metric-card">
                 <span>Health Score</span>
@@ -537,8 +553,13 @@ export default function AIInsightsPage() {
                   ) : null}
                   <ul>
                     {(ocrResult?.items || []).map((item, idx) => (
-                      <li key={`${item.name}-${idx}`}>
-                        {item.qty}x {item.name} - Rp {Number(item.price).toLocaleString("id-ID")}
+                      <li key={`${item.name}-${idx}`} className={`ocr-item-row ${getItemConfidenceLevel(item) === "low" ? "low" : ""}`}>
+                        <span className="ocr-item-main">
+                          {item.qty}x {item.name} - Rp {Number(item.price).toLocaleString("id-ID")}
+                        </span>
+                        <span className={`ocr-item-confidence ${getItemConfidenceLevel(item)}`}>
+                          {Math.round(Number(item.confidence || 0) * 100)}%
+                        </span>
                       </li>
                     ))}
                   </ul>

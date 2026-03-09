@@ -18,13 +18,16 @@ import DashboardBanner from "../components/DashboardBanner";
 function DashboardPage() {
     const router = useRouter();
     const { t } = useLanguage();
-    const { addTransaction, setTransactionsFromBackend } = useTransactions();
+    const { addTransaction, setTransactionsFromBackend, totalIncome, totalExpenses } = useTransactions();
     const { fetchCategories } = useCategories();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isAuthed, setIsAuthed] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [errorToast, setErrorToast] = useState("");
+    const isOverspending = totalExpenses > totalIncome;
+    const overspendingAmount = Math.max(0, totalExpenses - totalIncome);
 
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
@@ -140,7 +143,11 @@ function DashboardPage() {
             setIsModalOpen(false);
         } catch (err) {
             console.error("❌ Add transaction error:", err);
-            alert("Failed to add transaction: " + err.message);
+            const rawMessage = String(err?.message || "");
+            const friendlyMessage = rawMessage.includes("Insufficient balance for this expense")
+                ? "Saldo kamu belum cukup untuk menambahkan pengeluaran ini."
+                : "Transaksi belum berhasil ditambahkan. Coba lagi ya.";
+            setErrorToast(friendlyMessage);
         }
     };
 
@@ -190,6 +197,13 @@ function DashboardPage() {
             <Sidebar onLogoutAttempt={handleLogoutAttempt} />
 
             <div className="main-content-area">
+                {errorToast ? (
+                    <div className="app-error-toast" role="alert">
+                        <span>{errorToast}</span>
+                        <button type="button" onClick={() => setErrorToast("")}>x</button>
+                    </div>
+                ) : null}
+
                 <header className="dashboard-header">
                     <h2 className="page-title">{t('dashboard')}</h2>
 
@@ -201,6 +215,11 @@ function DashboardPage() {
 
                 <main className="main-content-wrapper">
                     <DashboardBanner />
+                    {isOverspending ? (
+                        <div className="overspending-inline-notice" role="alert">
+                            Pengeluaran sudah melebihi pemasukan sebesar Rp {overspendingAmount.toLocaleString("id-ID")}. Tahan pengeluaran tambahan dulu ya.
+                        </div>
+                    ) : null}
                     <button className="add-transaction-btn" onClick={() => setIsModalOpen(true)}>
                         + {t('addTransaction')}
                     </button>

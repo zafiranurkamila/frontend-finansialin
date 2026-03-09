@@ -31,8 +31,11 @@ function TransactionPage() {
   const [isAuthed, setIsAuthed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [errorToast, setErrorToast] = useState("");
 
   const { transactions, addTransaction, updateTransaction, deleteTransaction, setTransactionsFromBackend, totalIncome, totalExpenses, currentBalance } = useTransactions();
+  const isOverspending = totalExpenses > totalIncome;
+  const overspendingAmount = Math.max(0, totalExpenses - totalIncome);
 
   const { getCategoryById } = useCategories();
 
@@ -183,7 +186,11 @@ function TransactionPage() {
       console.log("=== ADD TRANSACTION END ===");
     } catch (err) {
       console.error("❌ Add transaction error:", err);
-      alert("Gagal menambahkan transaksi: " + err.message);
+      const rawMessage = String(err?.message || "");
+      const friendlyMessage = rawMessage.includes("Insufficient balance for this expense")
+        ? "Saldo kamu belum cukup untuk menambahkan pengeluaran ini."
+        : "Transaksi belum berhasil ditambahkan. Coba lagi ya.";
+      setErrorToast(friendlyMessage);
     }
   };
 
@@ -261,13 +268,13 @@ function TransactionPage() {
           errMsg = errData?.message || errMsg;
           console.error("❌ Delete error response:", errData);
         } catch {}
-        alert(errMsg);
+        setErrorToast("Transaksi belum berhasil dihapus. Coba ulang lagi.");
         setIsAlertOpen(false);
         setTransactionToDelete(null);
       }
     } catch (err) {
       console.error("❌ Delete transaction error:", err);
-      alert("Gagal menghapus transaksi: " + (err?.message || "Unknown error"));
+      setErrorToast("Transaksi belum berhasil dihapus. Coba ulang lagi.");
       setIsAlertOpen(false);
       setTransactionToDelete(null);
     } finally {
@@ -325,6 +332,13 @@ function TransactionPage() {
       <Sidebar onLogoutAttempt={handleLogoutAttempt} />
 
       <div className="main-content-area">
+        {errorToast ? (
+          <div className="app-error-toast" role="alert">
+            <span>{errorToast}</span>
+            <button type="button" onClick={() => setErrorToast("")}>x</button>
+          </div>
+        ) : null}
+
         <header className="dashboard-header">
           <h2 className="page-title">Transactions</h2>
 
@@ -352,6 +366,12 @@ function TransactionPage() {
           </div>
 
           {/* Actions Bar */}
+          {isOverspending ? (
+            <div className="overspending-inline-notice" role="alert">
+              Pengeluaran sudah melebihi pemasukan sebesar Rp {overspendingAmount.toLocaleString("id-ID")}. Pertimbangkan kurangi transaksi non-prioritas sebelum menambah pengeluaran baru.
+            </div>
+          ) : null}
+
           <div className="actions-bar">
             <div className="filter-buttons">
               <button className={`filter-btn ${filter === "all" ? "active" : ""}`} onClick={() => setFilter("all")}>

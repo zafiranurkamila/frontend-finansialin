@@ -1,3 +1,46 @@
+.app-error-toast {
+  margin: 12px 22px 16px;
+  border-radius: 12px;
+  border: 1px solid #f3b3b3;
+  background: linear-gradient(135deg, #fff3f3 0%, #ffe9e9 100%);
+  color: #8b1f1f;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  animation: fadeSlideUp 0.25s ease-out;
+}
+
+.app-error-toast button {
+  border: none;
+  border-radius: 8px;
+  background: #ffd9d9;
+  color: #8b1f1f;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  padding: 5px 8px;
+}
+
+.app-error-toast button:hover {
+  background: #ffc3c3;
+}
+
+.overspending-inline-notice {
+  margin: 8px 22px 14px;
+  border-radius: 12px;
+  border: 1px solid #f3c3c3;
+  background: linear-gradient(135deg, #fff7f7 0%, #ffefef 100%);
+  color: #992323;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
 :root {
     --forest-900: #1f2e1d;
     --forest-800: #2a3d29;

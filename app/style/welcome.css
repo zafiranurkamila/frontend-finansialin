@@ -1,77 +1,199 @@
-/* ===== Layout Utama ===== */
 .welcome-page {
-  margin: 0;
-  padding: 0;
   min-height: 100vh;
-  width: 100vw;
-  height: 100vh;
-  font-family: "Poppins", sans-serif;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  color: #344d33;
-  background-image: url("https://i.pinimg.com/1200x/e4/f2/3a/e4f23a358dd572f90270edad95b77f7f.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  justify-content: center;
+  padding: 24px 20px;
+  position: relative;
   overflow: hidden;
+  background:
+    radial-gradient(48% 46% at 92% 8%, #2dcb71 0%, #2dcb71 56%, transparent 57%),
+    radial-gradient(42% 38% at 52% 110%, #24b864 0%, #24b864 54%, transparent 55%),
+    linear-gradient(145deg, #140326 0%, #1a0732 52%, #120222 100%);
 }
 
-/* ===== Overlay agar teks tetap jelas ===== */
-.welcome-page::before {
-  content: "";
+.welcome-cloud {
   position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.75);
-  z-index: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  background: rgba(45, 203, 113, 0.18);
 }
 
-/* ===== Konten ===== */
-.welcome-page h1 {
-  font-size: 48px;
-  font-weight: 700;
-  color: #344d33;
-  margin-bottom: 30px;
-  text-align: center;
+.cloud-left {
+  width: 270px;
+  height: 100px;
+  left: -90px;
+  bottom: 120px;
+}
+
+.cloud-right {
+  width: 320px;
+  height: 120px;
+  right: -120px;
+  top: 80px;
+}
+
+.welcome-shell {
   position: relative;
-  z-index: 1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  width: min(1080px, 100%);
+  background: rgba(245, 252, 248, 0.94);
+  border: 1px solid #dce9e2;
+  border-radius: 22px;
+  box-shadow: 0 18px 38px rgba(21, 58, 37, 0.12);
+  padding: 14px 18px 22px;
+  animation: welcomeIn 0.55s ease-out;
 }
 
-/* ===== Tombol ===== */
-.welcome-page a {
-  text-decoration: none;
-  background-color: #344d33;
-  color: #ffffff;
-  padding: 16px 60px;
-  border-radius: 40px;
+.welcome-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border-bottom: 1px dashed #b7d7c4;
+  padding-bottom: 12px;
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2dcb71;
+  box-shadow: 0 0 0 3px rgba(45, 203, 113, 0.22);
+}
+
+.brand-wrap h1 {
   font-size: 18px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(52, 77, 51, 0.25);
+  color: #1a4b33;
+  margin: 0;
+}
+
+.welcome-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.hero-illustration {
+  min-height: 300px;
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.hero-image {
+  width: 360px;
+  max-width: 82%;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid #c7dfd0;
+  position: absolute;
+  bottom: 78px;
+  z-index: 3;
+  filter: drop-shadow(0 12px 22px rgba(21, 56, 37, 0.2));
+}
+
+.halo {
+  position: absolute;
+  width: 120px;
+  height: 26px;
+  border: 4px solid #ffd34f;
+  border-radius: 999px;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-20%) rotate(-8deg);
+  z-index: 4;
+}
+
+.cloud-base {
+  position: absolute;
+  bottom: 10px;
+  width: 360px;
+  height: 94px;
+  border-radius: 999px;
+  background: #f7fffa;
+  border: 1px solid #cae7d5;
+  box-shadow: 0 10px 18px rgba(21, 56, 37, 0.08);
   z-index: 1;
-  display: inline-block;
 }
 
-.welcome-page a:hover {
-  background-color: #2b3d28;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(52, 77, 51, 0.3);
+.ground-wave {
+  position: absolute;
+  bottom: 0;
+  left: 14%;
+  width: 72%;
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5ab57e 0%, #43a66f 48%, #5ab57e 100%);
+  opacity: 0.45;
+  z-index: 2;
 }
 
-/* ===== Animasi Masuk ===== */
-@keyframes fadeIn {
+.hero-copy h2 {
+  margin: 0;
+  color: #1c5a3c;
+  font-size: 28px;
+  letter-spacing: 0.8px;
+}
+
+.hero-copy p {
+  margin-top: 10px;
+  color: #2f6148;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.welcome-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.welcome-btn {
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2aa865 0%, #1e9759 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(42, 168, 101, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(42, 168, 101, 0.28);
+}
+
+.btn-secondary {
+  background: #fff;
+  border: 1px solid #cfe2d7;
+  color: #204f37;
+}
+
+.btn-secondary:hover {
+  background: #f3faf6;
+}
+
+@keyframes welcomeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -79,38 +201,37 @@
   }
 }
 
-.welcome-page {
-  animation: fadeIn 0.7s ease-out;
-}
-
-.welcome-page h1 {
-  animation: fadeIn 0.7s ease-out 0.2s backwards;
-}
-
-.welcome-page a {
-  animation: fadeIn 0.7s ease-out 0.4s backwards;
-}
-
-/* ===== Responsif ===== */
-@media (max-width: 768px) {
-  .welcome-page h1 {
-    font-size: 36px;
-    padding: 0 20px;
+@media (max-width: 860px) {
+  .welcome-shell {
+    padding: 16px 14px 22px;
   }
 
-  .welcome-page a {
-    font-size: 16px;
-    padding: 14px 40px;
-  }
-}
-
-@media (max-width: 480px) {
-  .welcome-page h1 {
-    font-size: 28px;
+  .welcome-hero {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .welcome-page a {
-    font-size: 14px;
-    padding: 12px 30px;
+  .welcome-actions {
+    gap: 8px;
+  }
+
+  .hero-illustration {
+    min-height: 250px;
+  }
+
+  .hero-image {
+    width: 290px;
+    height: 170px;
+    bottom: 66px;
+  }
+
+  .cloud-base {
+    width: 280px;
+    height: 74px;
+  }
+
+  .ground-wave {
+    left: 8%;
+    width: 84%;
   }
 }

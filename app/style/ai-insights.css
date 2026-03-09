@@ -25,6 +25,35 @@
   color: rgba(243, 255, 248, 0.9);
 }
 
+.overspending-alert {
+  margin-top: 18px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(220, 38, 38, 0.18);
+  border: 1px solid rgba(254, 202, 202, 0.55);
+  color: #ffe7e7;
+  font-size: 13px;
+  font-weight: 600;
+  animation: overspendingPulse 1.8s ease-in-out infinite;
+}
+
+.overspending-alert strong {
+  color: #fff5f5;
+}
+
+@keyframes overspendingPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.25);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(248, 113, 113, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(248, 113, 113, 0);
+  }
+}
+
 .ai-hero-metrics {
   margin-top: 16px;
   display: grid;
@@ -421,6 +450,51 @@
 .ocr-result li {
   font-size: 13px;
   margin-bottom: 4px;
+}
+
+.ocr-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+.ocr-item-row.low {
+  background: #fff4f4;
+  border: 1px solid #f4c6c6;
+}
+
+.ocr-item-main {
+  color: #2c4034;
+}
+
+.ocr-item-confidence {
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 8px;
+  min-width: 42px;
+  text-align: center;
+}
+
+.ocr-item-confidence.high {
+  color: #176a41;
+  background: #e9f8f0;
+  border: 1px solid #b8dfca;
+}
+
+.ocr-item-confidence.medium {
+  color: #7b5a10;
+  background: #fff7e6;
+  border: 1px solid #efd08d;
+}
+
+.ocr-item-confidence.low {
+  color: #9b1f1f;
+  background: #ffecec;
+  border: 1px solid #efb2b2;
 }
 
 .ocr-edit-form {
