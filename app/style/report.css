@@ -666,3 +666,39 @@
         text-align: left;
     }
 }
+
+/* Fintech palette overrides */
+.report-container {
+    border-radius: 20px;
+    border-color: #e6ece8;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.month-select:focus,
+.filter-btn:hover {
+    border-color: #00aa13;
+}
+
+.report-btn,
+.filter-btn.active {
+    background: #00aa13;
+    border-color: #00aa13;
+}
+
+.report-btn:hover,
+.filter-btn.active:hover {
+    background: #019611;
+}
+
+.report-summary-card {
+    border-radius: 16px;
+}
+
+.report-summary-card.balance {
+    border-color: #00aa13;
+    background: linear-gradient(135deg, #eaf8ee 0%, #d8f3df 100%);
+}
+
+.category-rank {
+    background: #00aa13;
+}

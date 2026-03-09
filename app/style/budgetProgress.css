@@ -175,3 +175,29 @@
         justify-content: space-between;
     }
 }
+
+/* Fintech palette overrides */
+.budget-section {
+    border: 1px solid #e6ece8;
+    border-radius: 20px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.budget-progress-item {
+    border-radius: 12px;
+    border-color: #e6ece8;
+}
+
+.budget-progress-item.warning {
+    background: #fff8e8;
+    border-color: #fde68a;
+}
+
+.budget-progress-item.over-budget {
+    background: #fff1f1;
+    border-color: #fecaca;
+}
+
+.progress-bar-fill {
+    background: linear-gradient(90deg, #00aa13 0%, #1db954 100%);
+}

@@ -144,3 +144,27 @@
     height: 16px;
     flex-shrink: 0;
 }
+
+/* Fintech palette overrides */
+.profile-avatar-btn svg {
+    color: #00aa13;
+}
+
+.profile-avatar-btn img {
+    border-color: #00aa13;
+}
+
+.profile-dropdown-portal {
+    border-radius: 16px;
+    border-color: #e6ece8;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+.profile-dropdown-header {
+    background: linear-gradient(160deg, #00ba2a 0%, #00aa13 62%, #009a1b 100%);
+}
+
+.profile-menu-item:hover {
+    background: #eaf8ee;
+    color: #0f172a;
+}

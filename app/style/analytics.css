@@ -9,6 +9,35 @@
     overflow-x: hidden;
 }
 
+/* Fintech palette overrides */
+.analytics-page {
+    background: #f2f6f4;
+}
+
+.analytics-tabs {
+    border-bottom-color: #e6ece8;
+    margin-bottom: 30px;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+    color: #0f172a;
+}
+
+.tab-btn::after {
+    background: #00aa13;
+}
+
+.analytics-summary .summary-card,
+.chart-card,
+.top-categories,
+.insights-card {
+    background: #ffffff !important;
+    border: 1px solid #e6ece8 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
 .analytics-page::before {
     content: '';
     position: fixed;

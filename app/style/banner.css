@@ -240,6 +240,22 @@
         height: 160px;
     }
 
+
+/* Fintech palette overrides */
+.dashboard-banner {
+    background: linear-gradient(160deg, #00ba2a 0%, #00aa13 62%, #009a1b 100%);
+    border-radius: 24px;
+    box-shadow: 0 14px 28px rgba(0, 170, 19, 0.24);
+}
+
+.banner-subtitle,
+.tip-item {
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.tip-icon {
+    color: #dcfce7;
+}
     .circle-1 {
         width: 130px;
         height: 130px;
