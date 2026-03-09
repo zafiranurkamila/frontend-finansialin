@@ -167,7 +167,7 @@ select:focus-visible {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(155deg, #0d8a34 0%, #0a7a2f 55%, #086628 100%);
+  background: linear-gradient(155deg, #2a5644 0%, #224437 55%, #193027 100%);
   font-family: "Poppins", sans-serif;
 }
 
@@ -235,7 +235,7 @@ select:focus-visible {
 /* Loading Bar - Di atas halaman */
 .loading-bar {
   height: 4px;
-  background: linear-gradient(90deg, #0a9734, #22c55e, #0a9734);
+  background: linear-gradient(90deg, #1e9759, #2aa865, #17834d);
   background-size: 200% 100%;
   animation: slideBar 2s linear infinite;
   position: fixed;
@@ -256,8 +256,8 @@ select:focus-visible {
 
 /* Unified fintech palette */
 :root {
-  --fin-green: #00aa13;
-  --fin-green-dark: #019611;
+  --fin-green: #1e9759;
+  --fin-green-dark: #17834d;
   --fin-green-soft: #eaf8ee;
   --fin-bg: #f2f6f4;
   --fin-surface: #ffffff;

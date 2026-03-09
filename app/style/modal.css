@@ -164,8 +164,8 @@
 }
 
 .type-btn.active.income {
-    background: #10B981;
-    border-color: #10B981;
+    background: #2aa865;
+    border-color: #2aa865;
     color: white;
 }
 
@@ -546,14 +546,14 @@
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: #00aa13;
-    box-shadow: 0 0 0 3px rgba(0, 170, 19, 0.12);
+    border-color: #1e9759;
+    box-shadow: 0 0 0 3px rgba(30, 151, 89, 0.12);
 }
 
 .type-btn.active.income,
 .btn-submit {
-    background: #00aa13;
-    border-color: #00aa13;
+    background: #1e9759;
+    border-color: #1e9759;
 }
 
 .type-btn.active.expense {
@@ -562,13 +562,13 @@
 }
 
 .btn-submit:hover {
-    background: #019611;
-    box-shadow: 0 8px 20px rgba(0, 170, 19, 0.26);
+    background: #17834d;
+    box-shadow: 0 8px 20px rgba(30, 151, 89, 0.26);
 }
 
 .manage-categories-btn {
-    color: #00aa13;
-    border-color: #00aa13;
+    color: #1e9759;
+    border-color: #1e9759;
 }
 
 .manage-categories-btn:hover {

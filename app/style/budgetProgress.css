@@ -123,7 +123,7 @@
 
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3B82F6 0%, #10B981 100%);
+    background: linear-gradient(90deg, #3B82F6 0%, #2aa865 100%);
     transition: width 0.3s ease;
 }
 
@@ -155,7 +155,7 @@
 }
 
 .status-normal {
-    color: #10B981;
+    color: #2aa865;
 }
 
 /* Responsive */
@@ -199,5 +199,5 @@
 }
 
 .progress-bar-fill {
-    background: linear-gradient(90deg, #00aa13 0%, #1db954 100%);
+    background: linear-gradient(90deg, #1e9759 0%, #1db954 100%);
 }

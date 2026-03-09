@@ -154,7 +154,7 @@
 .mark-all-read-btn {
     background: none;
     border: none;
-    color: #10B981;
+    color: #2aa865;
     cursor: pointer;
     transition: all 0.2s;
     padding: 0;
@@ -236,7 +236,7 @@
 
 /* Income Type */
 .notification-item.income {
-    border-left: 4px solid #10B981;
+    border-left: 4px solid #2aa865;
 }
 
 .notification-item.income.unread {
@@ -333,7 +333,7 @@
 .mark-read-btn {
     background: none;
     border: none;
-    color: #10B981;
+    color: #2aa865;
     cursor: pointer;
     font-size: 18px;
     padding: 0;
@@ -352,7 +352,7 @@
 }
 
 .mark-read-btn.read {
-    color: #10B981;
+    color: #2aa865;
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -501,7 +501,7 @@
 }
 
 .mark-all-read-btn {
-    color: #00aa13;
+    color: #1e9759;
 }
 
 .mark-all-read-btn:hover {
@@ -520,7 +520,7 @@
 
 .notification-item.unread {
     background: linear-gradient(135deg, #f0fbf3 0%, #e6f8ea 100%);
-    border-left-color: #00aa13;
+    border-left-color: #1e9759;
 }
 
 .notif-toast-item {

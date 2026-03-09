@@ -7,7 +7,7 @@
   margin-bottom: 6px;
 }
 /* ===== KEYFRAME ANIMATIONS ===== */
-@keyframes slideInLeft {
+@keyframes registerSlideInLeft {
   from {
     transform: translateX(-100%);
     opacity: 0;
@@ -18,7 +18,7 @@
   }
 }
 
-@keyframes slideInRight {
+@keyframes registerSlideInRight {
   from {
     transform: translateX(100%);
     opacity: 0;
@@ -29,7 +29,7 @@
   }
 }
 
-@keyframes fadeInUp {
+@keyframes registerFadeInUp {
   from {
     transform: translateY(20px);
     opacity: 0;
@@ -40,7 +40,7 @@
   }
 }
 
-@keyframes slideIn {
+@keyframes registerModalIn {
   from {
     transform: scale(0.95) translateY(-20px);
     opacity: 0;
@@ -51,7 +51,7 @@
   }
 }
 
-@keyframes fadeIn {
+@keyframes registerFadeIn {
   from {
     opacity: 0;
   }
@@ -60,7 +60,7 @@
   }
 }
 
-@keyframes pulse {
+@keyframes registerPulse {
   0%, 100% {
     opacity: 1;
   }
@@ -85,6 +85,40 @@ html, body {
   font-family: "Poppins", sans-serif;
   overflow: hidden;
   position: relative;
+  padding: 24px;
+  gap: 20px;
+  background:
+    radial-gradient(48% 46% at 8% 8%, #2dcb71 0%, #2dcb71 56%, transparent 57%),
+    radial-gradient(42% 38% at 54% 110%, #24b864 0%, #24b864 54%, transparent 55%),
+    linear-gradient(145deg, #140326 0%, #1a0732 52%, #120222 100%);
+}
+
+.register-page::before {
+  content: "";
+  position: absolute;
+  top: 86px;
+  right: 58px;
+  width: 168px;
+  height: 124px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.92) 3px, transparent 3.4px);
+  background-size: 20px 20px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.register-page::after {
+  content: "";
+  position: absolute;
+  right: 34px;
+  bottom: 42px;
+  width: 120px;
+  height: 72px;
+  background:
+    repeating-linear-gradient(-40deg, transparent 0 11px, rgba(46, 213, 115, 0.85) 11px 14px, transparent 14px 25px),
+    repeating-linear-gradient(40deg, transparent 0 11px, rgba(46, 213, 115, 0.85) 11px 14px, transparent 14px 25px);
+  opacity: 0.55;
+  border-radius: 10px;
+  pointer-events: none;
 }
 
 /* ===== Bagian Kiri (Form Putih) ===== */
@@ -99,7 +133,32 @@ html, body {
   box-sizing: border-box;
   position: relative;
   z-index: 2;
-  animation: slideInRight 0.7s ease-out;
+  animation: registerSlideInRight 0.7s ease-out;
+  border-radius: 36px;
+  box-shadow: 0 18px 32px rgba(15, 23, 42, 0.1);
+  border: 1px solid #e2ebe5;
+  overflow: hidden;
+}
+
+.register-left::before {
+  content: "";
+  position: absolute;
+  right: -10px;
+  bottom: -16px;
+  width: 300px;
+  height: 300px;
+  background-image: url("https://i.pinimg.com/736x/af/5b/6d/af5b6d761154f4e8b536ffd936e59730.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.11;
+  filter: grayscale(15%);
+  pointer-events: none;
+}
+
+.register-left > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ===== Bagian Kanan (Panel Hijau) ===== */
@@ -113,25 +172,82 @@ html, body {
   align-items: center;
   text-align: center;
   padding: 0 60px;
-  animation: slideInLeft 0.7s ease-out;
+  animation: registerSlideInLeft 0.7s ease-out;
+  border-radius: 36px;
+  box-shadow: 0 22px 42px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+}
+
+.register-right::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  left: -60px;
+  width: 210px;
+  height: 210px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.register-right::after {
+  content: "";
+  position: absolute;
+  right: -35px;
+  bottom: -38px;
+  width: 170px;
+  height: 170px;
+  border-radius: 42px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transform: rotate(16deg);
+  pointer-events: none;
+}
+
+.auth-illustration-wrap {
+  width: 124px;
+  height: 124px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.08), 0 8px 20px rgba(0, 0, 0, 0.12);
+  position: relative;
+  z-index: 1;
+}
+
+.auth-logo {
+  width: 74px;
+  height: 74px;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #17834d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 16px rgba(23, 131, 77, 0.25);
 }
 
 /* ===== Brand & Subtitle ===== */
-.brand {
+.register-left .brand {
   color: #344d33;
   font-weight: 700;
   font-size: 36px;
   margin-bottom: 4px;
   text-align: center;
-  animation: fadeInUp 0.6s ease-out 0.35s both;
+  animation: registerFadeInUp 0.6s ease-out 0.35s both;
 }
 
-.subtitle {
+.register-left .subtitle {
   color: #344d33;
   font-size: 15px;
   margin-bottom: 16px;
   text-align: center;
-  animation: fadeInUp 0.6s ease-out 0.5s both;
+  animation: registerFadeInUp 0.6s ease-out 0.5s both;
 }
 
 /* ===== Form ===== */
@@ -140,7 +256,7 @@ html, body {
   flex-direction: column;
   width: 100%;
   max-width: 360px;
-  animation: fadeInUp 0.6s ease-out 0.65s both;
+  animation: registerFadeInUp 0.6s ease-out 0.65s both;
 }
 
 /* ===== Label & Input ===== */
@@ -239,7 +355,7 @@ html, body {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 16px;
-  animation: fadeInUp 0.6s ease-out 0.35s both;
+  animation: registerFadeInUp 0.6s ease-out 0.35s both;
 }
 
 .register-right p {
@@ -247,7 +363,7 @@ html, body {
   line-height: 1.6;
   margin-bottom: 28px;
   color: #e9e9e9;
-  animation: fadeInUp 0.6s ease-out 0.5s both;
+  animation: registerFadeInUp 0.6s ease-out 0.5s both;
 }
 
 /* Button Login di panel hijau */
@@ -256,20 +372,20 @@ html, body {
   border: 2px solid #ffffff;
   color: #ffffff;
   padding: 10px 60px;
-  border-radius: 50px;
+  border-radius: 999px;
   font-size: 16px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
   display: inline-block;
-  animation: fadeInUp 0.6s ease-out 0.65s both;
+  animation: registerFadeInUp 0.6s ease-out 0.65s both;
 }
 
 .register-right .btn-login:hover {
   background-color: #ffffff;
   color: #344d33;
-  transform: scale(1.05);
+  transform: translateY(-1px) scale(1.04);
 }
 
 /* ===== Error Message ===== */
@@ -280,7 +396,7 @@ html, body {
   border-radius: 4px;
   margin-bottom: 1rem;
   text-align: center;
-  animation: fadeInUp 0.3s ease-out;
+  animation: registerFadeInUp 0.3s ease-out;
 }
 
 /* ===== Modal Success ===== */
@@ -295,7 +411,7 @@ html, body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  animation: registerFadeIn 0.3s ease-out;
 }
 
 .modal-content {
@@ -305,7 +421,7 @@ html, body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   text-align: center;
   max-width: 400px;
-  animation: slideIn 0.4s ease-out;
+  animation: registerModalIn 0.4s ease-out;
 }
 
 .modal-icon {
@@ -353,11 +469,11 @@ html, body {
 }
 .input-hint + label { margin-top: 2px; }
 .hint-list + label { margin-top: 2px; }
-.input-hint.ok { color: #059669; }
+.input-hint.ok { color: #1e9759; }
 .input-hint.warn { color: #b91c1c; }
 .hint-list { margin-top: 2px; font-size: 0.85rem; color: #6b7280; line-height: 1.2; }
 .hint-list > div { margin-top: 2px; }
-.hint-list .ok { color: #059669; }
+.hint-list .ok { color: #1e9759; }
 .hint-list .warn { color: #b91c1c; }
 
 .modal-btn:hover {
@@ -365,7 +481,7 @@ html, body {
 }
 
 /* ===== Loading ===== */
-.loading {
+.auth-loading {
   position: fixed;
   top: 0;
   left: 0;
@@ -378,21 +494,23 @@ html, body {
   z-index: 9999;
 }
 
-.loading-container {
+.auth-loading-container {
   text-align: center;
 }
 
-.loading-text {
+.auth-loading-text {
   font-size: 36px;
   font-weight: 700;
   color: #344d33;
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: registerPulse 1.5s ease-in-out infinite;
 }
 
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
   .register-page {
     flex-direction: column;
+    padding: 14px;
+    gap: 12px;
   }
 
   .register-left,
@@ -400,17 +518,18 @@ html, body {
     width: 100%;
     height: 50%;
     padding: 20px;
+    border-radius: 26px;
   }
 
   .register-left {
-    animation: slideInRight 0.7s ease-out;
+    animation: registerSlideInRight 0.7s ease-out;
   }
 
   .register-right {
-    animation: slideInLeft 0.7s ease-out;
+    animation: registerSlideInLeft 0.7s ease-out;
   }
 
-  .brand {
+  .register-left .brand {
     font-size: 28px;
   }
 
@@ -421,27 +540,27 @@ html, body {
 
 /* Fintech palette overrides */
 .register-right {
-  background: linear-gradient(165deg, #00ba2a 0%, #00aa13 62%, #009a1b 100%);
+  background: linear-gradient(165deg, #2aa865 0%, #1e9759 62%, #17834d 100%);
 }
 
-.brand,
-.subtitle,
+.register-left .brand,
+.register-left .subtitle,
 .register-form label,
 .toggle-password {
   color: #0f172a;
 }
 
 .register-form input:focus {
-  border-color: #00aa13;
-  box-shadow: 0 0 0 3px rgba(0, 170, 19, 0.12);
+  border-color: #1e9759;
+  box-shadow: 0 0 0 3px rgba(30, 151, 89, 0.14);
 }
 
 .register-left .btn-signup,
 .modal-btn {
-  background: #00aa13;
+  background: #1e9759;
 }
 
 .register-left .btn-signup:hover,
 .modal-btn:hover {
-  background: #019611;
+  background: #17834d;
 }

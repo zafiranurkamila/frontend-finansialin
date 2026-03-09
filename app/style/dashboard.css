@@ -3,14 +3,14 @@
     --forest-800: #2a3d29;
     --forest-700: #344d33;
     --forest-600: #3d7a38;
-    --forest-500: #10B981;
+    --forest-500: #2aa865;
     --forest-300: #d4e8d1;
     --forest-200: #e3f0e0;
     --forest-150: #ecf5e9;
     --forest-100: #f5faf4;
     --forest-050: #fafdfb;
-    --accent-500: #10B981;
-    --accent-600: #059669;
+    --accent-500: #2aa865;
+    --accent-600: #1e9759;
     --accent-700: #047857;
     --text-primary: #1f2e1d;
     --text-secondary: #3d5a3b;
@@ -80,7 +80,7 @@ html {
 
     .nav-item.active {
       background: #f3f4f6;
-      border-left: 3px solid #00aa13;
+      border-left: 3px solid #1e9759;
     }
 
   height: 100vh;
@@ -119,7 +119,7 @@ html {
   z-index: 100;
 
     .add-transaction-btn:hover {
-      background: #019611;
+      background: #17834d;
       transform: none;
       box-shadow: none;
     }
@@ -228,8 +228,8 @@ html {
 
     /* Gojek-like palette overrides */
     :root {
-      --gojek-green: #00aa13;
-      --gojek-green-dark: #019611;
+      --gojek-green: #1e9759;
+      --gojek-green-dark: #17834d;
       --gojek-blue: #00aed6;
       --gojek-bg: #f5f7f6;
     }
@@ -319,19 +319,19 @@ html {
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-left: 4px solid #10B981;
+  border-left: 4px solid #2aa865;
   padding-left: 20px;
 }
 
 .nav-item.active {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, transparent 100%);
-  color: #10B981 !important;
-  border-left: 4px solid #10B981;
+  background: linear-gradient(90deg, rgba(42, 168, 101, 0.2) 0%, transparent 100%);
+  color: #2aa865 !important;
+  border-left: 4px solid #2aa865;
   padding-left: 20px;
 }
 
 .nav-item.active a {
-  color: #10B981 !important;
+  color: #2aa865 !important;
   font-weight: 600;
 }
 
@@ -345,20 +345,20 @@ html {
   width: 100%;
   padding: 12px;
   border: none;
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(10, 150, 109, 0.2) 100%);
-  color: #10B981;
+  background: linear-gradient(90deg, rgba(42, 168, 101, 0.2) 0%, rgba(10, 150, 109, 0.2) 100%);
+  color: #2aa865;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(42, 168, 101, 0.3);
 }
 
 .logout-btn:hover {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.3) 0%, rgba(10, 150, 109, 0.3) 100%);
+  background: linear-gradient(90deg, rgba(42, 168, 101, 0.3) 0%, rgba(10, 150, 109, 0.3) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 4px 12px rgba(42, 168, 101, 0.2);
 }
 
 /*page title*/
@@ -394,7 +394,7 @@ html {
 
 .add-transaction-btn {
   padding: 14px 32px;
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  background: linear-gradient(135deg, #2aa865 0%, #1e9759 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -402,7 +402,7 @@ html {
   font-weight: 600;
   font-size: 14px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 4px 12px rgba(42, 168, 101, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -411,9 +411,9 @@ html {
 }
 
 .add-transaction-btn:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e9759 0%, #047857 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 6px 16px rgba(42, 168, 101, 0.35);
 }
 
 .add-transaction-btn:active {
@@ -425,14 +425,14 @@ html {
   background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFB 100%);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+  box-shadow: 0 2px 8px rgba(42, 168, 101, 0.08);
   border: 1px solid #D1F2E8;
   transition: all 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.12);
+  box-shadow: 0 8px 16px rgba(42, 168, 101, 0.12);
 }
 
 .card-header {
@@ -555,7 +555,7 @@ html {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-left: 4px solid #10B981;
+  border-left: 4px solid #2aa865;
   box-sizing: border-box;
   width: 100% !important;
   max-width: 100% !important;
@@ -580,7 +580,7 @@ html {
 
 .transaction-item:hover {
   background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 4px 12px rgba(42, 168, 101, 0.2);
   border-color: rgba(255, 255, 255, 0.25);
 }
 
@@ -656,12 +656,12 @@ html {
   padding: 20px;
   border: 1px solid #D1F2E8;
   min-height: 160px;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+  box-shadow: 0 2px 8px rgba(42, 168, 101, 0.08);
   transition: all 0.3s ease;
 }
 
 .widget-box:hover {
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12);
+  box-shadow: 0 4px 12px rgba(42, 168, 101, 0.12);
   transform: translateY(-2px);
 }
 
@@ -692,13 +692,13 @@ html {
   background: linear-gradient(135deg, #D1F2E8 0%, #E0F9F6 100%);
   border-radius: 8px;
   align-items: flex-start;
-  border-left: 3px solid #10B981;
+  border-left: 3px solid #2aa865;
 }
 
 .notif-widget-icon {
   font-size: 20px;
   flex-shrink: 0;
-  color: #10B981;
+  color: #2aa865;
 }
 
 .notif-widget-content {
@@ -732,7 +732,7 @@ html {
   padding: 12px;
   background: linear-gradient(135deg, #D1F2E8 0%, #E0F9F6 100%);
   border-radius: 8px;
-  border-left: 3px solid #10B981;
+  border-left: 3px solid #2aa865;
 }
 
 .quick-stat-label {
@@ -744,11 +744,11 @@ html {
 .quick-stat-value {
   font-size: 18px;
   font-weight: 700;
-  color: #10B981;
+  color: #2aa865;
 }
 
 .assistant-widget {
-  border-left: 4px solid #10B981;
+  border-left: 4px solid #2aa865;
 }
 
 .assistant-metrics {
@@ -792,7 +792,7 @@ html {
 }
 
 .assistant-chip {
-  border: 1px solid #10B981;
+  border: 1px solid #2aa865;
   color: #047857;
   background: #ecfdf5;
   border-radius: 999px;
@@ -807,7 +807,7 @@ html {
 }
 
 .assistant-chip.active {
-  background: #10B981;
+  background: #2aa865;
   color: #ffffff;
 }
 
@@ -996,7 +996,7 @@ html {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-  background: linear-gradient(155deg, #0d8a34 0%, #0a7a2f 55%, #086628 100%);
+  background: linear-gradient(155deg, #2a5644 0%, #224437 55%, #193027 100%);
     font-family: 'Poppins', sans-serif;
 }
 
@@ -1058,7 +1058,7 @@ html {
 
 .loading-bar {
     height: 4px;
-  background: linear-gradient(90deg, #0a9734, #22c55e, #0a9734);
+  background: linear-gradient(90deg, #1e9759, #2aa865, #17834d);
     background-size: 200% 100%;
     animation: slideBar 2s linear infinite;
     position: fixed;
@@ -1142,11 +1142,11 @@ html {
 
 .hero-balance-card {
   grid-column: 1 / -1;
-  background: linear-gradient(160deg, #00ba2a 0%, #00a91f 58%, #009a1b 100%) !important;
+  background: linear-gradient(160deg, #2aa865 0%, #1e9759 58%, #17834d 100%) !important;
   color: #ffffff !important;
   border-radius: 26px !important;
   padding: 20px 20px 18px !important;
-  box-shadow: 0 14px 28px rgba(0, 170, 19, 0.28) !important;
+  box-shadow: 0 14px 28px rgba(30, 151, 89, 0.28) !important;
 }
 
 .hero-balance-card h4,
@@ -1280,10 +1280,10 @@ html {
 }
 
 .sidebar {
-  background: linear-gradient(180deg, #00ba2a 0%, #00aa13 62%, #009a1b 100%) !important;
+  background: linear-gradient(180deg, #2aa865 0%, #1e9759 62%, #17834d 100%) !important;
   width: 248px !important;
   border-radius: 0 20px 20px 0;
-  box-shadow: 8px 0 22px rgba(0, 170, 19, 0.2) !important;
+  box-shadow: 8px 0 22px rgba(30, 151, 89, 0.2) !important;
 }
 
 .sidebar-header {
@@ -1398,9 +1398,9 @@ html {
 
 /* Force banner style from main dashboard stylesheet */
 .main-content-wrapper .dashboard-banner {
-  background: linear-gradient(140deg, #0fa63a 0%, #0a9734 45%, #09882f 100%) !important;
+  background: linear-gradient(140deg, #193027 0%, #224437 45%, #2a5644 100%) !important;
   border-radius: 26px !important;
-  box-shadow: 0 14px 28px rgba(9, 136, 47, 0.24) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.22) !important;
 }
 
 .main-content-wrapper .dashboard-banner::before {
@@ -1421,14 +1421,14 @@ html {
 }
 
 .main-content-wrapper .add-transaction-btn {
-  background: linear-gradient(135deg, #0fa63a 0%, #0a9734 100%) !important;
+  background: linear-gradient(135deg, #2aa865 0%, #1e9759 100%) !important;
   border-radius: 14px !important;
   font-size: 14px;
   font-weight: 700;
 }
 
 .main-content-wrapper .add-transaction-btn:hover {
-  background: linear-gradient(135deg, #0d9a36 0%, #08872e 100%) !important;
+  background: linear-gradient(135deg, #1e9759 0%, #17834d 100%) !important;
 }
 
 /* Right panel refresh: Recent Notifications + Quick Stats */

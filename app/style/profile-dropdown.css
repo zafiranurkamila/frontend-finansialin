@@ -147,11 +147,11 @@
 
 /* Fintech palette overrides */
 .profile-avatar-btn svg {
-    color: #00aa13;
+    color: #1e9759;
 }
 
 .profile-avatar-btn img {
-    border-color: #00aa13;
+    border-color: #1e9759;
 }
 
 .profile-dropdown-portal {
@@ -161,7 +161,7 @@
 }
 
 .profile-dropdown-header {
-    background: linear-gradient(160deg, #00ba2a 0%, #00aa13 62%, #009a1b 100%);
+    background: linear-gradient(160deg, #2aa865 0%, #1e9759 62%, #17834d 100%);
 }
 
 .profile-menu-item:hover {

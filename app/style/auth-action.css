@@ -149,12 +149,12 @@
 }
 
 .auth-form input:focus {
-  border-color: #00aa13;
-  box-shadow: 0 0 0 3px rgba(0, 170, 19, 0.12);
+  border-color: #1e9759;
+  box-shadow: 0 0 0 3px rgba(30, 151, 89, 0.12);
 }
 
 .primary-btn {
-  background: #00aa13;
+  background: #1e9759;
 }
 
 .secondary-btn {

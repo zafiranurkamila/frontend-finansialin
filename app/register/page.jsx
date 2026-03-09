@@ -183,6 +183,9 @@ function Register() {
         </div>
 
       <div className="register-right">
+        <div className="auth-illustration-wrap">
+          <div className="auth-logo" aria-label="Finansialin logo">FI</div>
+        </div>
         <h2>Welcome Back!</h2>
         <p>
           To keep connect with us please <br /> login with your personal info

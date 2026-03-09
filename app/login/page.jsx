@@ -235,6 +235,9 @@ function Login() {
       )}
 
       <div className="login-left">
+        <div className="auth-illustration-wrap">
+          <div className="auth-logo" aria-label="Finansialin logo">FI</div>
+        </div>
         <h2>Hello, Friend!</h2>
         <p>Enter your personal details <br /> and start journey with us</p>
         <Link href="/register" className="btn-signup-login">

@@ -16,6 +16,7 @@ function Sidebar({ onLogoutAttempt }) {
         { name: t('transaction'), path: '/transaction' },
         { name: t('budgetGoals'), path: '/budget' },
         { name: t('analytics'), path: '/analytics' },
+        { name: 'AI Insights', path: '/ai-insights' },
         { name: t('settings'), path: '/settings' },
     ];
 

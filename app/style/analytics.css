@@ -25,7 +25,7 @@
 }
 
 .tab-btn::after {
-    background: #00aa13;
+    background: #1e9759;
 }
 
 .analytics-summary .summary-card,
@@ -48,7 +48,7 @@
     opacity: 1 !important;
     width: 180px;
     height: 180px;
-    background: radial-gradient(circle, rgba(0, 170, 19, 0.1) 0%, transparent 72%);
+    background: radial-gradient(circle, rgba(30, 151, 89, 0.1) 0%, transparent 72%);
 }
 
 .chart-card {
@@ -82,7 +82,7 @@
     right: 0;
     bottom: 0;
     background: 
-        radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 20% 50%, rgba(42, 168, 101, 0.08) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(45, 106, 79, 0.06) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
@@ -123,7 +123,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    background: linear-gradient(90deg, #2aa865 0%, #1e9759 100%);
     transform: scaleX(0);
     transform-origin: center;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -173,7 +173,7 @@
     border: 1.5px solid rgba(45, 106, 79, 0.12);
     box-shadow: 
         0 4px 15px rgba(45, 106, 79, 0.08),
-        0 0 40px rgba(16, 185, 129, 0.04);
+        0 0 40px rgba(42, 168, 101, 0.04);
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     overflow: hidden;
@@ -186,14 +186,14 @@
     left: 0;
     right: 0;
     height: 5px;
-    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    background: linear-gradient(90deg, #2aa865 0%, #1e9759 100%);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .analytics-summary .summary-card.income::before {
-    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    background: linear-gradient(90deg, #2aa865 0%, #1e9759 100%);
 }
 
 .analytics-summary .summary-card.expense::before {
@@ -211,7 +211,7 @@
     right: 0;
     width: 200px;
     height: 200px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(42, 168, 101, 0.08) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.5s;
 }
@@ -220,8 +220,8 @@
     transform: translateY(-12px);
     box-shadow: 
         0 20px 40px rgba(45, 106, 79, 0.15),
-        0 0 60px rgba(16, 185, 129, 0.08);
-    border-color: rgba(16, 185, 129, 0.3);
+        0 0 60px rgba(42, 168, 101, 0.08);
+    border-color: rgba(42, 168, 101, 0.3);
 }
 
 .analytics-summary .summary-card:hover::before {
@@ -253,7 +253,7 @@
 }
 
 .analytics-summary .summary-card.income .summary-amount {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    background: linear-gradient(135deg, #2aa865 0%, #1e9759 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -283,7 +283,7 @@
     border: 1.5px solid rgba(45, 106, 79, 0.12);
     box-shadow: 
         0 4px 15px rgba(45, 106, 79, 0.08),
-        0 0 40px rgba(16, 185, 129, 0.04);
+        0 0 40px rgba(42, 168, 101, 0.04);
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     overflow: hidden;
@@ -296,7 +296,7 @@
     right: -50%;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(42, 168, 101, 0.1) 0%, transparent 70%);
     opacity: 0;
     transition: all 0.5s;
 }
@@ -304,9 +304,9 @@
 .chart-card:hover {
     box-shadow: 
         0 20px 40px rgba(45, 106, 79, 0.15),
-        0 0 60px rgba(16, 185, 129, 0.08);
+        0 0 60px rgba(42, 168, 101, 0.08);
     transform: translateY(-8px);
-    border-color: rgba(16, 185, 129, 0.3);
+    border-color: rgba(42, 168, 101, 0.3);
 }
 
 .chart-card:hover::before {
@@ -336,7 +336,7 @@
     display: inline-block;
     width: 5px;
     height: 28px;
-    background: linear-gradient(180deg, #10B981 0%, #344d33 100%);
+    background: linear-gradient(180deg, #2aa865 0%, #344d33 100%);
     border-radius: 3px;
     animation: slideInLeft 0.6s ease-out;
 }
@@ -366,7 +366,7 @@
     border: 1.5px solid rgba(45, 106, 79, 0.12);
     box-shadow: 
         0 4px 15px rgba(45, 106, 79, 0.08),
-        0 0 40px rgba(16, 185, 129, 0.04);
+        0 0 40px rgba(42, 168, 101, 0.04);
     position: relative;
     overflow: hidden;
     z-index: 1;
@@ -379,7 +379,7 @@
     right: -100px;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(42, 168, 101, 0.08) 0%, transparent 70%);
 }
 
 .statistics-section h3 {
@@ -399,7 +399,7 @@
     display: inline-block;
     width: 5px;
     height: 28px;
-    background: linear-gradient(180deg, #10B981 0%, #344d33 100%);
+    background: linear-gradient(180deg, #2aa865 0%, #344d33 100%);
     border-radius: 3px;
     animation: slideInLeft 0.6s ease-out;
 }
@@ -417,8 +417,8 @@
     flex-direction: column;
     gap: 14px;
     padding: 28px;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(45, 106, 79, 0.05) 100%);
-    border: 1.5px solid rgba(16, 185, 129, 0.15);
+    background: linear-gradient(135deg, rgba(42, 168, 101, 0.08) 0%, rgba(45, 106, 79, 0.05) 100%);
+    border: 1.5px solid rgba(42, 168, 101, 0.15);
     border-radius: 14px;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
@@ -429,18 +429,18 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+    background: linear-gradient(135deg, rgba(42, 168, 101, 0.1) 0%, transparent 100%);
     opacity: 0;
     transition: opacity 0.4s;
 }
 
 .stat-item:hover {
-    border-color: rgba(16, 185, 129, 0.4);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(45, 106, 79, 0.08) 100%);
+    border-color: rgba(42, 168, 101, 0.4);
+    background: linear-gradient(135deg, rgba(42, 168, 101, 0.12) 0%, rgba(45, 106, 79, 0.08) 100%);
     transform: translateY(-8px);
     box-shadow: 
-        0 12px 28px rgba(16, 185, 129, 0.15),
-        inset 0 0 30px rgba(16, 185, 129, 0.05);
+        0 12px 28px rgba(42, 168, 101, 0.15),
+        inset 0 0 30px rgba(42, 168, 101, 0.05);
 }
 
 .stat-item:hover::before {
@@ -467,7 +467,7 @@
 }
 
 .stat-value.income {
-    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    background: linear-gradient(135deg, #2aa865 0%, #1e9759 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -504,7 +504,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+    background: radial-gradient(circle at center, rgba(42, 168, 101, 0.05) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.4s;
 }
@@ -521,7 +521,7 @@
 
 .empty-state-large .empty-icon {
     font-size: 80px;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(45, 106, 79, 0.3) 100%);
+    background: linear-gradient(135deg, rgba(42, 168, 101, 0.3) 0%, rgba(45, 106, 79, 0.3) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -556,7 +556,7 @@
     border: 1.5px solid rgba(45, 106, 79, 0.12);
     box-shadow: 
         0 4px 15px rgba(45, 106, 79, 0.08),
-        0 0 40px rgba(16, 185, 129, 0.04);
+        0 0 40px rgba(42, 168, 101, 0.04);
     margin-bottom: 48px;
     position: relative;
     overflow: hidden;
@@ -949,5 +949,217 @@
 
 .budget-alert-item {
     border-left: none !important;
+}
+
+/* Final consistency override: Analytics = Dashboard language */
+.analytics-page-shell .dashboard-header {
+    margin: 2px 0 10px !important;
+    min-height: 86px !important;
+    border-radius: 14px !important;
+    padding: 0 22px !important;
+}
+
+.analytics-page-shell .page-title {
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    color: #1e3124 !important;
+    letter-spacing: -0.2px !important;
+}
+
+.analytics-page-shell .main-content-wrapper {
+    margin-top: 2px !important;
+    padding: 18px !important;
+}
+
+.analytics-tabs {
+    margin-bottom: 16px !important;
+    border-bottom: 1px solid #e6ece8 !important;
+}
+
+.tab-btn {
+    color: #64748b !important;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+    color: #1f2937 !important;
+}
+
+.tab-btn::after {
+    height: 3px !important;
+    background: #0a9734 !important;
+}
+
+.tab-btn svg,
+.tab-btn.active svg,
+.tab-btn:hover svg {
+    color: #1f2937 !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.analytics-summary {
+    gap: 16px !important;
+    margin-bottom: 20px !important;
+}
+
+.analytics-summary .summary-card {
+    background: #ffffff !important;
+    border: 1px solid #e6ece8 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+    padding: 18px !important;
+}
+
+.analytics-summary .summary-card::before,
+.analytics-summary .summary-card::after {
+    display: none !important;
+}
+
+.analytics-summary .summary-card h4 {
+    margin: 0 0 8px 0 !important;
+    font-size: 12px !important;
+    color: #6b7280 !important;
+    letter-spacing: 0.2px !important;
+}
+
+.analytics-summary .summary-amount {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    font-family: "Poppins", sans-serif !important;
+    letter-spacing: 0 !important;
+    line-height: 1.25 !important;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+}
+
+.analytics-summary .summary-card.income .summary-amount {
+    color: #0ea86a !important;
+}
+
+.analytics-summary .summary-card.expense .summary-amount {
+    color: #ef4444 !important;
+}
+
+.analytics-summary .summary-card.balance .summary-amount {
+    color: #2f5d44 !important;
+}
+
+.chart-card h3::before,
+.statistics-section h3::before,
+.budget-alerts-title::before {
+    display: none !important;
+}
+
+.chart-card,
+.statistics-section,
+.budget-alerts-section,
+.top-categories,
+.insights-card,
+.budget-alert-item {
+    border-left: none !important;
+}
+
+/* Hard fix: summary amount must be small on all variants */
+.analytics-page-shell .analytics-summary .summary-card .summary-amount,
+.analytics-page-shell .analytics-summary .summary-card.income .summary-amount,
+.analytics-page-shell .analytics-summary .summary-card.expense .summary-amount,
+.analytics-page-shell .analytics-summary .summary-card.balance .summary-amount {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap;
+}
+
+/* Layout balance fix: spacing before/after statistics must feel even */
+.analytics-page-shell .charts-grid {
+    margin-bottom: 28px !important;
+}
+
+.analytics-page-shell .statistics-section {
+    margin-bottom: 28px !important;
+}
+
+.analytics-page-shell .statistics-section h3 {
+    margin-bottom: 24px !important;
+}
+
+/* Budget alert should read as solid red, not transparent tint */
+.analytics-page-shell .budget-alert-item {
+    background: #ffe3e3 !important;
+    border: 1px solid #ef4444 !important;
+    box-shadow: 0 8px 18px rgba(239, 68, 68, 0.14) !important;
+}
+
+.analytics-page-shell .budget-progress-bar {
+    background: #fecaca !important;
+    border-color: #fca5a5 !important;
+}
+
+/* Statistics typography: align with sidebar style and smaller sizing */
+.analytics-page-shell .statistics-section h3 {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+}
+
+.analytics-page-shell .statistics-section .stat-label {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.2px !important;
+    text-transform: none !important;
+    color: #4b5563 !important;
+}
+
+.analytics-page-shell .statistics-section .stat-value,
+.analytics-page-shell .statistics-section .stat-value.income,
+.analytics-page-shell .statistics-section .stat-value.expense,
+.analytics-page-shell .statistics-section .stat-value.balance {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+/* Analytics full typography sync (sidebar-like clean style) */
+.analytics-page-shell .analytics-tabs .tab-btn {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+}
+
+.analytics-page-shell .chart-card h3,
+.analytics-page-shell .budget-alerts-title,
+.analytics-page-shell .top-categories h3,
+.analytics-page-shell .insights-card h3 {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+}
+
+.analytics-page-shell .analytics-summary .summary-card h4,
+.analytics-page-shell .chart-card p,
+.analytics-page-shell .top-categories p,
+.analytics-page-shell .insights-card p,
+.analytics-page-shell .budget-alert-details,
+.analytics-page-shell .budget-percent {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+}
+
+.analytics-page-shell .budget-alert-category,
+.analytics-page-shell .top-categories li,
+.analytics-page-shell .insights-card li,
+.analytics-page-shell .chart-card li {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
 }
 

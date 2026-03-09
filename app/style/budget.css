@@ -433,12 +433,12 @@
 }
 
 .add-budget-btn {
-  background: #00aa13 !important;
-  box-shadow: 0 10px 20px rgba(0, 170, 19, 0.24) !important;
+  background: #1e9759 !important;
+  box-shadow: 0 10px 20px rgba(30, 151, 89, 0.24) !important;
 }
 
 .add-budget-btn:hover {
-  background: #019611 !important;
+  background: #17834d !important;
 }
 
 /* De-box budget goals */
