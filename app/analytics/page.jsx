@@ -240,7 +240,7 @@ export default function AnalyticsPage() {
     );
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container analytics-page-shell">
       <Sidebar onLogoutAttempt={handleLogoutAttempt} />
 
       <div className="main-content-area">
@@ -325,7 +325,7 @@ export default function AnalyticsPage() {
                         />
                         <Tooltip formatter={(value, name) => [`Rp ${Number(value || 0).toLocaleString("id-ID")}`, name]} />
                         <Legend />
-                        <Bar dataKey="budget" name="Budget" fill="#a78bfa" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="budget" name="Budget" fill="#16a34a" radius={[6, 6, 0, 0]} />
                         <Bar dataKey="actual" name="Actual" fill="#22c55e" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>

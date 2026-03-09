@@ -167,7 +167,7 @@ select:focus-visible {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #344d33;
+  background: linear-gradient(155deg, #0d8a34 0%, #0a7a2f 55%, #086628 100%);
   font-family: "Poppins", sans-serif;
 }
 
@@ -177,6 +177,11 @@ select:focus-visible {
   align-items: center;
   gap: 24px;
   text-align: center;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 /* Spinner Hidden */
@@ -186,10 +191,10 @@ select:focus-visible {
 
 /* Loading Text - Large Animated */
 .loading-text {
-  color: #344d33;
-  font-size: 48px;
+  color: #ffffff;
+  font-size: 44px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   animation: fadeInOut 2s ease-in-out infinite;
 }
 
@@ -230,7 +235,7 @@ select:focus-visible {
 /* Loading Bar - Di atas halaman */
 .loading-bar {
   height: 4px;
-  background: linear-gradient(90deg, #10b981, #fef3c7, #10b981);
+  background: linear-gradient(90deg, #0a9734, #22c55e, #0a9734);
   background-size: 200% 100%;
   animation: slideBar 2s linear infinite;
   position: fixed;

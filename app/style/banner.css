@@ -240,22 +240,6 @@
         height: 160px;
     }
 
-
-/* Fintech palette overrides */
-.dashboard-banner {
-    background: linear-gradient(160deg, #00ba2a 0%, #00aa13 62%, #009a1b 100%);
-    border-radius: 24px;
-    box-shadow: 0 14px 28px rgba(0, 170, 19, 0.24);
-}
-
-.banner-subtitle,
-.tip-item {
-    color: rgba(255, 255, 255, 0.94);
-}
-
-.tip-icon {
-    color: #dcfce7;
-}
     .circle-1 {
         width: 130px;
         height: 130px;
@@ -336,4 +320,28 @@
     .banner-illustration {
         display: none;
     }
+}
+
+/* Fintech palette overrides */
+.dashboard-banner {
+    background: linear-gradient(140deg, #16d84a 0%, #00ba2a 45%, #00aa13 100%) !important;
+    border-radius: 24px;
+    box-shadow: 0 14px 28px rgba(0, 170, 19, 0.24);
+}
+
+.dashboard-banner::before {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 72%);
+}
+
+.dashboard-banner::after {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 72%);
+}
+
+.banner-subtitle,
+.tip-item {
+    color: rgba(255, 255, 255, 0.96);
+}
+
+.tip-icon {
+    color: #eaffef;
 }

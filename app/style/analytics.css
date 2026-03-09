@@ -38,6 +38,42 @@
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
 }
 
+/* De-box analytics sections */
+.analytics-summary .summary-card {
+    border-radius: 28px 28px 18px 18px !important;
+    overflow: hidden;
+}
+
+.analytics-summary .summary-card::after {
+    opacity: 1 !important;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(0, 170, 19, 0.1) 0%, transparent 72%);
+}
+
+.chart-card {
+    border-radius: 30px 30px 20px 20px !important;
+}
+
+.top-categories,
+.insights-card {
+    border-radius: 26px !important;
+}
+
+/* Analytics tab/logo icon color sync */
+.analytics-tabs .tab-btn svg {
+    color: #7c8b86;
+}
+
+.analytics-tabs .tab-btn:hover svg,
+.analytics-tabs .tab-btn.active svg {
+    color: #0a9734;
+}
+
+.empty-state-large .empty-icon {
+    color: #0a9734;
+}
+
 .analytics-page::before {
     content: '';
     position: fixed;
@@ -703,5 +739,215 @@
     margin: 0;
     font-size: 15px;
     line-height: 1.6;
+}
+
+/* Final accent variations: green + blue */
+.analytics-tabs .tab-btn {
+    color: #7a8798;
+}
+
+.analytics-tabs .tab-btn:nth-child(1).active {
+    color: #0a9734 !important;
+}
+
+.analytics-tabs .tab-btn:nth-child(1).active::after {
+    background: linear-gradient(90deg, #0a9734 0%, #16a34a 100%) !important;
+}
+
+.analytics-tabs .tab-btn:nth-child(1).active svg {
+    color: #0a9734 !important;
+}
+
+.analytics-tabs .tab-btn:nth-child(2).active {
+    color: #0a9734 !important;
+}
+
+.analytics-tabs .tab-btn:nth-child(2).active::after {
+    background: linear-gradient(90deg, #0a9734 0%, #16a34a 100%) !important;
+}
+
+.analytics-tabs .tab-btn:nth-child(2).active svg {
+    color: #0a9734 !important;
+}
+
+.empty-state-large {
+    background: linear-gradient(145deg, #eef8f1 0%, #edf5ff 100%);
+    border-color: #b7d6c4;
+}
+
+.empty-state-large .empty-icon {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    background-clip: border-box !important;
+    color: #0a9734 !important;
+    filter: drop-shadow(0 4px 10px rgba(10, 151, 52, 0.22));
+}
+
+/* Keep analytics header clean (prevent dashboard-home oversized styles) */
+.analytics-page-shell .dashboard-header {
+    margin: 8px 0 16px !important;
+    min-height: 80px !important;
+    border-radius: 14px !important;
+    padding: 0 20px !important;
+}
+
+.analytics-page-shell .dashboard-header::after {
+    display: none !important;
+}
+
+.analytics-page-shell .page-title {
+    font-size: 48px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    color: #1e3124 !important;
+    padding-top: 0 !important;
+}
+
+.analytics-page-shell .header-actions {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    gap: 12px !important;
+}
+
+.analytics-page-shell .dashboard-header .notif-icon,
+.analytics-page-shell .dashboard-header .profile-avatar-btn {
+    width: 40px !important;
+    height: 40px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Final cleanup: align Analytics with Dashboard visual language */
+.analytics-page-shell .dashboard-header {
+    margin: 8px 0 12px !important;
+    min-height: 72px !important;
+    border-radius: 14px !important;
+    padding: 0 20px !important;
+}
+
+.analytics-page-shell .page-title {
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.2px !important;
+    color: #1e3124 !important;
+}
+
+.analytics-page-shell .header-actions {
+    background: #f4f8f5 !important;
+    border: 1px solid #e4ebe6 !important;
+    border-radius: 999px !important;
+    padding: 6px 10px !important;
+    gap: 8px !important;
+}
+
+.analytics-page-shell .dashboard-header .notif-icon,
+.analytics-page-shell .dashboard-header .profile-avatar-btn {
+    width: 40px !important;
+    height: 40px !important;
+    background: #ffffff !important;
+    border: 1px solid #e4ebe6 !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06) !important;
+}
+
+.analytics-tabs {
+    margin-bottom: 22px !important;
+}
+
+.tab-btn {
+    color: #6b7280 !important;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+    color: #1f2937 !important;
+    transform: none !important;
+}
+
+.tab-btn::after {
+    background: linear-gradient(90deg, #0a9734 0%, #16a34a 100%) !important;
+    height: 3px !important;
+}
+
+.tab-btn svg,
+.tab-btn.active svg,
+.tab-btn:hover svg {
+    color: #1f2937 !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.analytics-summary {
+    gap: 18px !important;
+    margin-bottom: 26px !important;
+}
+
+.analytics-summary .summary-card {
+    border-radius: 20px !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    border: 1px solid #e6ece8 !important;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+.analytics-summary .summary-card::before,
+.analytics-summary .summary-card::after {
+    display: none !important;
+}
+
+.analytics-summary .summary-card h4 {
+    margin: 0 0 10px 0 !important;
+    font-size: 14px !important;
+    color: #6b7280 !important;
+    letter-spacing: 0.3px !important;
+}
+
+.analytics-summary .summary-amount,
+.analytics-summary .summary-card.income .summary-amount,
+.analytics-summary .summary-card.expense .summary-amount,
+.analytics-summary .summary-card.balance .summary-amount {
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+    color: #111827 !important;
+    font-size: 42px !important;
+    font-weight: 800 !important;
+}
+
+.chart-card,
+.statistics-section,
+.budget-alerts-section,
+.top-categories,
+.insights-card {
+    border-radius: 22px !important;
+    background: #ffffff !important;
+    border: 1px solid #e6ece8 !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05) !important;
+}
+
+.chart-card::before,
+.statistics-section::before,
+.budget-alerts-section::before {
+    display: none !important;
+}
+
+.chart-card h3::before,
+.statistics-section h3::before,
+.budget-alerts-title::before {
+    display: none !important;
+}
+
+.chart-card h3,
+.statistics-section h3,
+.budget-alerts-title {
+    color: #1e3124 !important;
+    gap: 0 !important;
+}
+
+.budget-alert-item {
+    border-left: none !important;
 }
 

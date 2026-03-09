@@ -76,6 +76,69 @@
   transform: translateY(0);
 }
 
+/* Sticky over-budget alert */
+.budget-over-alert {
+  position: sticky;
+  top: 10px;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid #ef4444;
+  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.18);
+}
+
+.budget-over-alert-icon {
+  color: #ffffff;
+  background: #dc2626;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.budget-over-alert-content strong {
+  display: block;
+  color: #7f1d1d;
+  font-size: 14px;
+  margin-bottom: 2px;
+  letter-spacing: 0.2px;
+}
+
+.budget-over-alert-content p {
+  margin: 0;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.budget-over-alert-close {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #fca5a5;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.budget-over-alert-close:hover {
+  background: #dc2626;
+}
+
 /* Budget Grid - SLIGHTLY SMALLER THAN ORIGINAL */
 .budget-grid {
   display: grid;
@@ -376,4 +439,27 @@
 
 .add-budget-btn:hover {
   background: #019611 !important;
+}
+
+/* De-box budget goals */
+.budget-grid {
+  gap: 18px;
+}
+
+.budget-header {
+  border-radius: 24px 24px 16px 16px !important;
+}
+
+.budget-card {
+  border-radius: 26px 26px 16px 16px !important;
+  overflow: hidden;
+}
+
+.budget-card-header {
+  border-radius: 18px 18px 10px 10px;
+}
+
+.amount-item,
+.stat-item {
+  border-radius: 14px !important;
 }

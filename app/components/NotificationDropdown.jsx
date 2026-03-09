@@ -8,6 +8,7 @@ import "../style/notification.css";
 
 function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPositionReady, setIsPositionReady] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const [backendNotifications, setBackendNotifications] = useState([]);
   const [toastAlerts, setToastAlerts] = useState([]);
@@ -177,15 +178,38 @@ function NotificationDropdown() {
   // Calculate total unread from filtered notifications
   const totalUnreadNotifications = allNotifications.filter((n) => !n.read).length;
 
-  // Calculate dropdown position
-  useEffect(() => {
-    if (isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + 12,
-        right: window.innerWidth - rect.right,
-      });
+  const updateDropdownPosition = () => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    setDropdownPosition({
+      top: rect.bottom + 12,
+      right: window.innerWidth - rect.right,
+    });
+  };
+
+  const handleToggleDropdown = () => {
+    if (isOpen) {
+      setIsOpen(false);
+      setIsPositionReady(false);
+      return;
     }
+
+    updateDropdownPosition();
+    setIsPositionReady(true);
+    setIsOpen(true);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleReposition = () => updateDropdownPosition();
+    window.addEventListener("resize", handleReposition);
+    window.addEventListener("scroll", handleReposition, true);
+
+    return () => {
+      window.removeEventListener("resize", handleReposition);
+      window.removeEventListener("scroll", handleReposition, true);
+    };
   }, [isOpen]);
 
   // Close dropdown when click outside
@@ -356,7 +380,7 @@ function NotificationDropdown() {
 
   return (
     <div className="notification-wrapper">
-      <button ref={buttonRef} className="notif-icon" onClick={() => setIsOpen(!isOpen)}>
+      <button ref={buttonRef} className="notif-icon" onClick={handleToggleDropdown}>
         <FaBell />
         {totalUnreadNotifications > 0 && <span className="notif-badge">{totalUnreadNotifications}</span>}
       </button>
@@ -364,15 +388,15 @@ function NotificationDropdown() {
       {toastAlerts.length > 0 && (
         <div className="notif-toast-stack">
           {toastAlerts.map((alert) => (
-            <div key={alert.id} className="notif-toast-item">
-              <span className="notif-toast-title">New Notification</span>
+            <div key={alert.id} className={`notif-toast-item ${String(alert.type || "").toLowerCase()}`}>
+              <span className="notif-toast-title">Notifikasi Baru</span>
               <span className="notif-toast-message">{alert.message}</span>
             </div>
           ))}
         </div>
       )}
 
-      {isOpen && typeof window !== "undefined" && createPortal(<NotificationDropdownContent />, document.body)}
+      {isOpen && isPositionReady && typeof window !== "undefined" && createPortal(<NotificationDropdownContent />, document.body)}
     </div>
   );
 }

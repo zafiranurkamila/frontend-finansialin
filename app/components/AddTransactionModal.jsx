@@ -34,6 +34,30 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
     const { fundingSources, fetchFundingSources, addFundingSource } = useFundingSources();
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
 
+    const parseAmountInput = (raw) => {
+        if (raw === null || raw === undefined) return NaN;
+        const value = String(raw).trim();
+        if (!value) return NaN;
+
+        let normalized = value.replace(/\s+/g, '');
+        const lastComma = normalized.lastIndexOf(',');
+        const lastDot = normalized.lastIndexOf('.');
+
+        if (lastComma !== -1 && lastDot !== -1) {
+            if (lastComma > lastDot) {
+                normalized = normalized.replace(/\./g, '').replace(',', '.');
+            } else {
+                normalized = normalized.replace(/,/g, '');
+            }
+        } else if (lastComma !== -1) {
+            normalized = normalized.replace(/\./g, '').replace(',', '.');
+        } else {
+            normalized = normalized.replace(/,/g, '');
+        }
+
+        return Number(normalized);
+    };
+
     React.useEffect(() => {
         if (isOpen) {
             fetchFundingSources();
@@ -100,9 +124,10 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        const nextValue = name === 'amount' ? value.replace(/[^0-9.,]/g, '') : value;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: nextValue
         }));
         setError('');
     };
@@ -191,7 +216,8 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
             return;
         }
 
-        if (parseFloat(formData.amount) <= 0) {
+        const parsedAmount = parseAmountInput(formData.amount);
+        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
             setError('Amount must be greater than 0');
             return;
         }
@@ -202,7 +228,7 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
             // Prepare data untuk dikirim ke parent (page)
             const transactionData = {
                 type: formData.type,
-                amount: parseFloat(formData.amount),
+                amount: parsedAmount,
                 description: formData.description || undefined,
                 date: new Date(formData.date).toISOString(),
                 source: formData.source || undefined,
@@ -320,14 +346,13 @@ function AddTransactionModal({ isOpen, onClose, onAddTransaction }) {
                     <div className="form-group">
                         <label htmlFor="amount">Amount (Rp) *</label>
                         <input
-                            type="number"
+                            type="text"
                             id="amount"
                             name="amount"
                             value={formData.amount}
                             onChange={handleChange}
-                            placeholder="0.00"
-                            step="0.01"
-                            min="0"
+                            placeholder="0,00"
+                            inputMode="decimal"
                             disabled={loading}
                             required
                         />

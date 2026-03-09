@@ -455,31 +455,34 @@
     z-index: 10000;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     width: min(320px, calc(100vw - 32px));
 }
 
 .notif-toast-item {
-    background: #111827;
-    color: #ffffff;
-    border-radius: 10px;
-    padding: 10px 12px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
-    border-left: 4px solid #10B981;
+    background: #ffffff;
+    color: #0f172a;
+    border-radius: 14px;
+    padding: 11px 13px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+    border: 1px solid #e5ebe7;
     animation: slideDown 0.2s ease;
 }
 
 .notif-toast-title {
     display: block;
     font-size: 11px;
-    opacity: 0.8;
-    margin-bottom: 4px;
+    color: #0a9734;
+    font-weight: 700;
+    margin-bottom: 3px;
+    letter-spacing: 0.2px;
 }
 
 .notif-toast-message {
     display: block;
-    font-size: 12px;
-    line-height: 1.4;
+    font-size: 13px;
+    line-height: 1.42;
+    color: #1e293b;
 }
 
 /* Fintech palette overrides */
@@ -521,7 +524,32 @@
 }
 
 .notif-toast-item {
-    background: #0f172a;
-    border-left-color: #00aa13;
+    background: #ffffff;
     border-radius: 14px;
+}
+
+.notif-toast-item.expense,
+.notif-toast-item.transaction_deleted,
+.notif-toast-item.budget_exceeded,
+.notif-toast-item.danger {
+    border-color: #f1d7d7;
+}
+
+.notif-toast-item.expense .notif-toast-title,
+.notif-toast-item.transaction_deleted .notif-toast-title,
+.notif-toast-item.budget_exceeded .notif-toast-title,
+.notif-toast-item.danger .notif-toast-title {
+    color: #dc2626;
+}
+
+.notif-toast-item.budget,
+.notif-toast-item.budget_warning,
+.notif-toast-item.warning {
+    border-color: #f5e7cc;
+}
+
+.notif-toast-item.budget .notif-toast-title,
+.notif-toast-item.budget_warning .notif-toast-title,
+.notif-toast-item.warning .notif-toast-title {
+    color: #b45309;
 }

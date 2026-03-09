@@ -13,7 +13,7 @@ import { fetchWithAuth, setupTokenRefresh } from "../utils/authHelper";
 import ConfirmDialog from "../components/ConfirmDialog";
 import "../style/dashboard.css";
 import "../style/budget.css";
-import { FaPlus, FaEdit, FaTrash, FaChartLine, FaFilter } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaChartLine, FaFilter, FaExclamationTriangle, FaTimes } from "react-icons/fa";
 
 function BudgetGoalsPage() {
   const router = useRouter();
@@ -36,6 +36,7 @@ function BudgetGoalsPage() {
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [budgetGoals, setBudgetGoals] = useState(null);
+  const [dismissedOverBudgetAlert, setDismissedOverBudgetAlert] = useState(false);
 
   const { budgets, addBudget, updateBudget, deleteBudget, getBudgetProgress, loadBudgets, filterBudgets, getBudgetGoals } = useBudget();
   const { fetchCategories, allCategories } = useCategories();
@@ -364,6 +365,23 @@ function BudgetGoalsPage() {
   };
 
   const displayedBudgets = isFilterApplied ? filteredBudgets : budgets;
+  const overBudgetItems = displayedBudgets
+    .map((budget) => {
+      const progress = getBudgetProgress(budget.id || budget.idBudget);
+      return {
+        id: budget.id || budget.idBudget,
+        category: budget.category || "Kategori",
+        overAmount: progress.isOver ? progress.remaining : 0,
+      };
+    })
+    .filter((item) => item.overAmount > 0)
+    .sort((a, b) => b.overAmount - a.overAmount);
+
+  useEffect(() => {
+    if (overBudgetItems.length > 0) {
+      setDismissedOverBudgetAlert(false);
+    }
+  }, [overBudgetItems.length]);
 
   if (loading || !isAuthed)
     return (
@@ -400,6 +418,29 @@ function BudgetGoalsPage() {
               </button>
             </div>
           </div>
+
+          {overBudgetItems.length > 0 && !dismissedOverBudgetAlert && (
+            <div className="budget-over-alert" role="alert" aria-live="polite">
+              <span className="budget-over-alert-icon">
+                <FaExclamationTriangle />
+              </span>
+              <div className="budget-over-alert-content">
+                <strong>Budget melebihi batas</strong>
+                <p>
+                  {overBudgetItems.length} kategori over-budget. Terbesar di {overBudgetItems[0].category}: Rp {overBudgetItems[0].overAmount.toLocaleString("id-ID")}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="budget-over-alert-close"
+                onClick={() => setDismissedOverBudgetAlert(true)}
+                aria-label="Tutup peringatan budget"
+                title="Tutup"
+              >
+                <FaTimes />
+              </button>
+            </div>
+          )}
 
           {showFilters && (
             <div className="filter-section" style={{
