@@ -1122,3 +1122,148 @@ html {
   font-size: 15px;
   letter-spacing: 0;
 }
+
+/* Fintech reference style (mobile-bank inspired) */
+.dashboard-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 8px 32px;
+}
+
+.fintech-cards-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.hero-balance-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(160deg, #00ba2a 0%, #00a91f 58%, #009a1b 100%) !important;
+  color: #ffffff !important;
+  border-radius: 26px !important;
+  padding: 20px 20px 18px !important;
+  box-shadow: 0 14px 28px rgba(0, 170, 19, 0.28) !important;
+}
+
+.hero-balance-card h4,
+.hero-balance-card .card-icon,
+.hero-balance-card .value {
+  color: #ffffff !important;
+}
+
+.hero-balance-card .value {
+  font-size: 34px !important;
+  margin-top: 8px;
+  letter-spacing: -0.3px;
+}
+
+.hero-meta {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hero-meta-chip {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 10px 12px;
+  backdrop-filter: blur(2px);
+}
+
+.hero-meta-chip span {
+  display: block;
+  font-size: 11px;
+  opacity: 0.88;
+}
+
+.hero-meta-chip strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.hero-meta-chip.expense {
+  background: rgba(15, 23, 42, 0.16);
+}
+
+.compact-stat-card {
+  border-radius: 20px !important;
+  padding: 16px !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+.compact-stat-card .value {
+  font-size: 20px !important;
+  color: #0f172a !important;
+}
+
+.content-split {
+  grid-template-columns: minmax(0, 1fr) 340px !important;
+}
+
+.budget-section {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 24px !important;
+  padding: 18px !important;
+}
+
+.budget-section h3,
+.transaction-category,
+.transaction-desc,
+.transaction-date {
+  color: #0f172a !important;
+}
+
+.transaction-item {
+  background: #f8fafc !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+.transaction-item:hover {
+  background: #f1f5f9 !important;
+}
+
+.transaction-date {
+  color: #64748b !important;
+}
+
+.transaction-amount.income {
+  color: #16a34a !important;
+}
+
+.transaction-amount.expense {
+  color: #ef4444 !important;
+}
+
+.widget-box {
+  border-radius: 20px !important;
+  background: #ffffff !important;
+  padding: 16px !important;
+}
+
+@media (max-width: 960px) {
+  .content-split {
+    grid-template-columns: 1fr !important;
+  }
+
+  .right-section {
+    gap: 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-content {
+    padding: 14px 4px 20px;
+  }
+
+  .fintech-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-balance-card {
+    border-radius: 22px !important;
+  }
+}

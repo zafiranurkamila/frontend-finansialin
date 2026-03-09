@@ -737,3 +737,34 @@
   background: #ffecec;
   box-shadow: 0 6px 16px rgba(239, 68, 68, 0.15);
 }
+
+/* Fintech palette overrides */
+.transaction-summary,
+.actions-bar,
+.transaction-list-card,
+.transaction-table-wrapper {
+    background: #ffffff !important;
+    border: 1px solid #e7ede9 !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
+.summary-card {
+    border-radius: 16px !important;
+    border-color: #e7ede9 !important;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05) !important;
+}
+
+.filter-btn.active,
+.transaction-add-btn,
+.confirm-btn.confirm {
+    background: #00aa13 !important;
+    border-color: #00aa13 !important;
+    box-shadow: 0 8px 18px rgba(0, 170, 19, 0.24) !important;
+}
+
+.transaction-add-btn:hover,
+.filter-btn.active:hover,
+.confirm-btn.confirm:hover {
+    background: #019611 !important;
+}

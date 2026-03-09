@@ -481,3 +481,47 @@
     font-size: 12px;
     line-height: 1.4;
 }
+
+/* Fintech palette overrides */
+.notification-dropdown-portal {
+    border-radius: 20px;
+    border: 1px solid #e5ebe7;
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14);
+}
+
+.notification-header {
+    background: #ffffff;
+}
+
+.notification-header h3 {
+    color: #0f172a;
+}
+
+.mark-all-read-btn {
+    color: #00aa13;
+}
+
+.mark-all-read-btn:hover {
+    background: #eaf8ee;
+}
+
+.notification-list {
+    background: #f5f8f6;
+}
+
+.notification-item {
+    border-radius: 14px;
+    border: 1px solid #edf1ef;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.notification-item.unread {
+    background: linear-gradient(135deg, #f0fbf3 0%, #e6f8ea 100%);
+    border-left-color: #00aa13;
+}
+
+.notif-toast-item {
+    background: #0f172a;
+    border-left-color: #00aa13;
+    border-radius: 14px;
+}

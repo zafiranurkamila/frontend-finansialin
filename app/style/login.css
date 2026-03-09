@@ -520,3 +520,30 @@ html, body {
     font-size: 26px;
   }
 }
+
+/* Fintech palette overrides */
+.login-left {
+  background: linear-gradient(165deg, #00ba2a 0%, #00aa13 62%, #009a1b 100%);
+}
+
+.brand,
+.subtitle,
+.login-form label,
+.toggle-password {
+  color: #0f172a;
+}
+
+.login-form input:focus {
+  border-color: #00aa13;
+  box-shadow: 0 0 0 3px rgba(0, 170, 19, 0.12);
+}
+
+.btn-loginsignin,
+.modal-btn {
+  background: #00aa13;
+}
+
+.btn-loginsignin:hover,
+.modal-btn:hover {
+  background: #019611;
+}

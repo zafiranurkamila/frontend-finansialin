@@ -131,29 +131,39 @@ function DashboardContent() {
   return (
     <div className="dashboard-content">
       {/* Cards Grid */}
-      <div className="cards-grid">
-        <div className="card">
+      <div className="cards-grid fintech-cards-grid">
+        <div className="card hero-balance-card">
+          <div className="card-header">
+            <h4>{t('totalBalance')}</h4>
+            <FaWallet className="card-icon" style={{ color: '#ffffff' }} />
+          </div>
+          <div className="value">Rp{currentBalance.toLocaleString('id-ID')}</div>
+          <div className="hero-meta">
+            <div className="hero-meta-chip">
+              <span>{t('totalIncome')}</span>
+              <strong>+Rp{totalIncome.toLocaleString('id-ID')}</strong>
+            </div>
+            <div className="hero-meta-chip expense">
+              <span>{t('totalExpense')}</span>
+              <strong>-Rp{totalExpenses.toLocaleString('id-ID')}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div className="card compact-stat-card">
           <div className="card-header">
             <h4>{t('totalIncome')}</h4>
-            <FaChartLine className="card-icon" style={{ color: '#10B981' }} />
+            <FaChartLine className="card-icon" style={{ color: '#00aa13' }} />
           </div>
           <div className="value">Rp{totalIncome.toLocaleString('id-ID')}</div>
         </div>
 
-        <div className="card">
+        <div className="card compact-stat-card">
           <div className="card-header">
             <h4>{t('totalExpense')}</h4>
-            <FaChartBar className="card-icon" style={{ color: '#EF4444' }} />
+            <FaChartBar className="card-icon" style={{ color: '#ef4444' }} />
           </div>
           <div className="value">Rp{totalExpenses.toLocaleString('id-ID')}</div>
-        </div>
-
-        <div className="card">
-          <div className="card-header">
-            <h4>{t('totalBalance')}</h4>
-            <FaWallet className="card-icon" style={{ color: '#F59E0B' }} />
-          </div>
-          <div className="value">Rp{currentBalance.toLocaleString('id-ID')}</div>
         </div>
       </div>
 

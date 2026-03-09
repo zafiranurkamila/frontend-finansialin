@@ -248,3 +248,26 @@ select:focus-visible {
     background-position: 200% 0%;
   }
 }
+
+/* Unified fintech palette */
+:root {
+  --fin-green: #00aa13;
+  --fin-green-dark: #019611;
+  --fin-green-soft: #eaf8ee;
+  --fin-bg: #f2f6f4;
+  --fin-surface: #ffffff;
+  --fin-text: #0f172a;
+  --fin-muted: #64748b;
+}
+
+body {
+  background: var(--fin-bg);
+  color: var(--fin-text);
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--fin-green);
+}

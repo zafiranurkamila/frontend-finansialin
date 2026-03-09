@@ -650,3 +650,36 @@
         font-size: 14px;
     }
 }
+
+/* Fintech palette overrides */
+.settings-container {
+    background: #f3f7f5;
+    border-radius: 24px;
+}
+
+.settings-tabs,
+.settings-content {
+    background: #ffffff;
+    border: 1px solid #e6ece8;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.settings-tab:hover {
+    background: #eaf8ee;
+    color: #0f172a;
+}
+
+.settings-tab.active {
+    background: #00aa13;
+    box-shadow: 0 10px 20px rgba(0, 170, 19, 0.24);
+}
+
+.avatar-upload-btn,
+.save-btn {
+    background: #00aa13 !important;
+}
+
+.avatar-upload-btn:hover,
+.save-btn:hover {
+    background: #019611 !important;
+}

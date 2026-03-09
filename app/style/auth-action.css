@@ -130,3 +130,34 @@
     border-radius: 12px;
   }
 }
+
+/* Fintech palette overrides */
+.auth-action-page {
+  background: radial-gradient(circle at top left, #eaf8ee 0%, #f6faf8 45%, #ffffff 100%);
+}
+
+.auth-card {
+  border-color: #e6ece8;
+  border-radius: 20px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.auth-card h1,
+.auth-form label,
+.auth-footer a {
+  color: #0f172a;
+}
+
+.auth-form input:focus {
+  border-color: #00aa13;
+  box-shadow: 0 0 0 3px rgba(0, 170, 19, 0.12);
+}
+
+.primary-btn {
+  background: #00aa13;
+}
+
+.secondary-btn {
+  background: #eaf8ee;
+  color: #0f172a;
+}
