@@ -8,6 +8,7 @@ import ProfileDropdown from "../components/ProfileDropdown";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { useTransactions } from "../context/TransactionContext";
 import { useBudget } from "../context/BudgetContext";
+import { useCategories } from "../context/CategoryContext";
 import { fetchWithAuth } from "../utils/authHelper";
 import "../style/dashboard.css";
 import "../style/ai-insights.css";
@@ -30,8 +31,9 @@ function getTopExpenseCategories(transactions) {
 export default function AIInsightsPage() {
   const router = useRouter();
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000";
-  const { transactions, totalIncome, totalExpenses, currentBalance } = useTransactions();
+  const { transactions, addTransaction, totalIncome, totalExpenses, currentBalance } = useTransactions();
   const { budgets, getBudgetProgress, loadBudgets } = useBudget();
+  const { expenseCategories, allCategories } = useCategories();
   const [isAuthed, setIsAuthed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
@@ -40,9 +42,26 @@ export default function AIInsightsPage() {
   const [assistantError, setAssistantError] = useState("");
   const [assistantLoading, setAssistantLoading] = useState(false);
   const [assistantPrompts, setAssistantPrompts] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
   const [ocrModalOpen, setOcrModalOpen] = useState(false);
   const [receiptPreviewUrl, setReceiptPreviewUrl] = useState("");
-  const [ocrDummyResult, setOcrDummyResult] = useState(null);
+  const [selectedReceiptFile, setSelectedReceiptFile] = useState(null);
+  const [ocrResult, setOcrResult] = useState(null);
+  const [showRawOcrText, setShowRawOcrText] = useState(false);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrError, setOcrError] = useState("");
+  const [saveTxLoading, setSaveTxLoading] = useState(false);
+  const [saveTxError, setSaveTxError] = useState("");
+  const [saveTxSuccess, setSaveTxSuccess] = useState("");
+  const [txForm, setTxForm] = useState({
+    type: "expense",
+    amount: "",
+    date: new Date().toISOString().slice(0, 10),
+    idCategory: "",
+    description: "",
+    source: "",
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -125,16 +144,25 @@ export default function AIInsightsPage() {
   }, [budgets, getBudgetProgress, transactions]);
 
   const loadAssistantResponse = useCallback(
-    async (promptKey = "summary") => {
+    async (promptKey = "summary", message = "") => {
       try {
         setAssistantLoading(true);
         setAssistantError("");
-        setSelectedPromptKey(promptKey);
+        if (message) {
+          setSelectedPromptKey("free_text");
+        } else {
+          setSelectedPromptKey(promptKey);
+        }
 
-        const response = await fetchWithAuth(
-          `${BACKEND_URL}/api/insights/assistant?prompt=${encodeURIComponent(promptKey)}`,
-          { method: "GET" }
-        );
+        const query = new URLSearchParams();
+        query.set("prompt", promptKey);
+        if (message) {
+          query.set("message", message);
+        }
+
+        const response = await fetchWithAuth(`${BACKEND_URL}/api/insights/assistant?${query.toString()}`, {
+          method: "GET",
+        });
 
         if (!response.ok) {
           const errorPayload = await response.json().catch(() => ({}));
@@ -144,6 +172,9 @@ export default function AIInsightsPage() {
         const data = await response.json();
         setAssistantReply(data.assistantReply || "Belum ada jawaban dari assistant.");
         setAssistantPrompts(Array.isArray(data.quickPrompts) ? data.quickPrompts : []);
+        if (message) {
+          setChatHistory((prev) => [...prev, { role: "user", text: message }, { role: "assistant", text: data.assistantReply || "" }]);
+        }
       } catch (error) {
         setAssistantError(error.message || "Terjadi gangguan saat memuat assistant.");
       } finally {
@@ -159,7 +190,7 @@ export default function AIInsightsPage() {
   }, [isAuthed, loadAssistantResponse]);
 
   const handleReceiptUpload = useCallback(
-    (event) => {
+    async (event) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
@@ -168,24 +199,110 @@ export default function AIInsightsPage() {
       }
 
       const previewUrl = URL.createObjectURL(file);
-      const cleanName = file.name.replace(/\.[^/.]+$/, "") || "Merchant";
-      const now = new Date();
-
       setReceiptPreviewUrl(previewUrl);
-      setOcrDummyResult({
-        merchant: cleanName,
-        date: now.toLocaleDateString("id-ID"),
-        total: "125000",
-        items: [
-          { name: "Kopi Susu", qty: 2, price: 25000 },
-          { name: "Roti", qty: 1, price: 18000 },
-          { name: "Makanan Utama", qty: 1, price: 57000 },
-        ],
-        note: "OCR dummy aktif: hasil masih bisa diedit user sebelum simpan.",
-      });
+      setSelectedReceiptFile(file);
+      setShowRawOcrText(false);
+      setOcrError("");
+      setSaveTxError("");
+      setSaveTxSuccess("");
+
+      try {
+        setOcrLoading(true);
+        const formData = new FormData();
+        formData.append("receiptImage", file);
+
+        const response = await fetchWithAuth(`${BACKEND_URL}/api/insights/receipt-ocr`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.message || "Gagal memproses OCR struk.");
+        }
+
+        const data = await response.json();
+        setOcrResult(data);
+        setTxForm((prev) => ({
+          ...prev,
+          type: data?.suggested?.type || "expense",
+          amount: String(Math.round(Number(data?.total || 0))),
+          date: data?.date ? new Date(data.date).toISOString().slice(0, 10) : prev.date,
+          idCategory: data?.suggested?.idCategory ? String(data.suggested.idCategory) : prev.idCategory,
+          description: data?.suggested?.description || `Belanja di ${data?.merchant || "merchant"}`,
+          source: data?.suggested?.source || "",
+        }));
+      } catch (error) {
+        setOcrResult(null);
+        setOcrError(error.message || "OCR gagal diproses.");
+      } finally {
+        setOcrLoading(false);
+      }
     },
-    [receiptPreviewUrl]
+    [BACKEND_URL, receiptPreviewUrl]
   );
+
+  const handleChatSubmit = async () => {
+    const message = chatInput.trim();
+    if (!message || assistantLoading) return;
+    setChatInput("");
+    await loadAssistantResponse("summary", message);
+  };
+
+  const handleTxFormChange = (field, value) => {
+    setTxForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const isLowConfidenceField = (fieldName) => {
+    const conf = Number(ocrResult?.meta?.fieldConfidence?.[fieldName] ?? 1);
+    return conf < 0.65;
+  };
+
+  const saveAsTransaction = async () => {
+    if (!txForm.amount || Number(txForm.amount) <= 0) {
+      setSaveTxError("Nominal transaksi harus diisi lebih dari 0.");
+      return;
+    }
+
+    try {
+      setSaveTxLoading(true);
+      setSaveTxError("");
+      setSaveTxSuccess("");
+
+      const formData = new FormData();
+      formData.append("type", txForm.type);
+      formData.append("amount", String(txForm.amount));
+      formData.append("date", txForm.date);
+      formData.append("description", txForm.description || "");
+      if (txForm.idCategory) {
+        formData.append("idCategory", txForm.idCategory);
+      }
+      if (txForm.source) {
+        formData.append("source", txForm.source);
+      }
+      if (selectedReceiptFile) {
+        formData.append("receiptImage", selectedReceiptFile);
+      }
+
+      const response = await fetchWithAuth(`${BACKEND_URL}/api/transactions`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.message || "Gagal menyimpan transaksi.");
+      }
+
+      const created = await response.json();
+      addTransaction(created);
+      setSaveTxSuccess("Transaksi berhasil disimpan dari hasil scan struk.");
+    } catch (error) {
+      setSaveTxError(error.message || "Gagal simpan transaksi.");
+    } finally {
+      setSaveTxLoading(false);
+    }
+  };
 
   const handleLogoutAttempt = useCallback(() => {
     setIsLogoutAlertOpen(true);
@@ -276,11 +393,32 @@ export default function AIInsightsPage() {
               <div className="ai-output">
                 <p>
                   <strong>Prompt Aktif:</strong>{" "}
-                  {quickPrompts.find((prompt) => prompt.key === selectedPromptKey)?.label || "Ringkasan"}
+                  {quickPrompts.find((prompt) => prompt.key === selectedPromptKey)?.label || "Chat Bebas"}
                 </p>
                 {assistantLoading ? <p>Memproses data transaksi user...</p> : null}
                 {assistantError ? <p>{assistantError}</p> : null}
                 {!assistantLoading && !assistantError ? <p>{assistantReply}</p> : null}
+              </div>
+              <div className="chat-box">
+                <div className="chat-history">
+                  {chatHistory.map((chat, index) => (
+                    <div key={`${chat.role}-${index}`} className={`chat-bubble ${chat.role}`}>
+                      {chat.text}
+                    </div>
+                  ))}
+                  {!chatHistory.length ? <p className="chat-empty">Belum ada chat, coba tanya soal kondisi finansialmu.</p> : null}
+                </div>
+                <div className="chat-input-row">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(event) => setChatInput(event.target.value)}
+                    placeholder="Contoh: gimana cara hemat makan minggu ini?"
+                  />
+                  <button type="button" onClick={handleChatSubmit} disabled={assistantLoading}>
+                    Kirim
+                  </button>
+                </div>
               </div>
             </article>
 
@@ -366,18 +504,108 @@ export default function AIInsightsPage() {
               <div className="ocr-preview-grid">
                 <img src={receiptPreviewUrl} alt="Preview struk" className="ocr-preview-image" />
                 <div className="ocr-result">
-                  <h5>OCR Dummy Result</h5>
-                  <p><strong>Merchant:</strong> {ocrDummyResult?.merchant}</p>
-                  <p><strong>Tanggal:</strong> {ocrDummyResult?.date}</p>
-                  <p><strong>Total:</strong> Rp {Number(ocrDummyResult?.total || 0).toLocaleString("id-ID")}</p>
+                  <h5>OCR Backend Result</h5>
+                  {ocrLoading ? <p>Memproses OCR di backend...</p> : null}
+                  {ocrError ? <p className="ocr-error">{ocrError}</p> : null}
+                  {!ocrLoading && !ocrError ? (
+                    <>
+                      <p><strong>Merchant:</strong> {ocrResult?.merchant || "-"}</p>
+                      <p><strong>Tanggal:</strong> {ocrResult?.date ? new Date(ocrResult.date).toLocaleDateString("id-ID") : "-"}</p>
+                      <p><strong>Total:</strong> Rp {Number(ocrResult?.total || 0).toLocaleString("id-ID")}</p>
+                      <p><strong>Confidence:</strong> {Math.round(Number(ocrResult?.meta?.confidence || 0) * 100)}%</p>
+                      {ocrResult?.meta?.merchantTemplate ? (
+                        <p><strong>Template:</strong> {ocrResult.meta.merchantTemplate}</p>
+                      ) : null}
+                      {ocrResult?.meta?.validation ? (
+                        <div className={`ocr-validation ${ocrResult.meta.validation.isConsistent ? "ok" : "warn"}`}>
+                          {ocrResult.meta.validation.isConsistent
+                            ? `Valid: total OCR konsisten dengan jumlah item (selisih Rp ${Number(ocrResult.meta.validation.difference || 0).toLocaleString("id-ID")}).`
+                            : `Perlu review: total OCR tidak konsisten dengan jumlah item (selisih Rp ${Number(ocrResult.meta.validation.difference || 0).toLocaleString("id-ID")}).`}
+                        </div>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="raw-ocr-toggle"
+                        onClick={() => setShowRawOcrText((prev) => !prev)}
+                      >
+                        {showRawOcrText ? "Sembunyikan Raw OCR" : "Tampilkan Raw OCR"}
+                      </button>
+                      {showRawOcrText ? (
+                        <pre className="raw-ocr-text">{ocrResult?.meta?.rawText || "(Tidak ada raw text)"}</pre>
+                      ) : null}
+                    </>
+                  ) : null}
                   <ul>
-                    {(ocrDummyResult?.items || []).map((item, idx) => (
+                    {(ocrResult?.items || []).map((item, idx) => (
                       <li key={`${item.name}-${idx}`}>
                         {item.qty}x {item.name} - Rp {Number(item.price).toLocaleString("id-ID")}
                       </li>
                     ))}
                   </ul>
-                  <p className="ocr-note">{ocrDummyResult?.note}</p>
+
+                  <div className="ocr-edit-form">
+                    <label className={isLowConfidenceField("merchant") ? "low-confidence" : ""}>
+                      <span>Tipe</span>
+                      <select value={txForm.type} onChange={(event) => handleTxFormChange("type", event.target.value)}>
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                      </select>
+                    </label>
+                    <label className={isLowConfidenceField("total") ? "low-confidence" : ""}>
+                      <span>Nominal</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={txForm.amount}
+                        onChange={(event) => handleTxFormChange("amount", event.target.value)}
+                      />
+                    </label>
+                    <label className={isLowConfidenceField("date") ? "low-confidence" : ""}>
+                      <span>Tanggal</span>
+                      <input
+                        type="date"
+                        value={txForm.date}
+                        onChange={(event) => handleTxFormChange("date", event.target.value)}
+                      />
+                    </label>
+                    <label className={isLowConfidenceField("items") ? "low-confidence" : ""}>
+                      <span>Kategori</span>
+                      <select
+                        value={txForm.idCategory}
+                        onChange={(event) => handleTxFormChange("idCategory", event.target.value)}
+                      >
+                        <option value="">Pilih kategori</option>
+                        {(txForm.type === "income" ? allCategories.filter((c) => c.type === "income") : expenseCategories).map((cat) => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className={isLowConfidenceField("items") ? "low-confidence" : ""}>
+                      <span>Deskripsi</span>
+                      <input
+                        type="text"
+                        value={txForm.description}
+                        onChange={(event) => handleTxFormChange("description", event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>Sumber Dana (opsional)</span>
+                      <input
+                        type="text"
+                        value={txForm.source}
+                        onChange={(event) => handleTxFormChange("source", event.target.value)}
+                        placeholder="Contoh: Bank BCA"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="ocr-actions">
+                    <button type="button" className="save-transaction-btn" onClick={saveAsTransaction} disabled={saveTxLoading || ocrLoading}>
+                      {saveTxLoading ? "Menyimpan..." : "Simpan jadi transaksi"}
+                    </button>
+                    {saveTxError ? <p className="ocr-error">{saveTxError}</p> : null}
+                    {saveTxSuccess ? <p className="ocr-success">{saveTxSuccess}</p> : null}
+                  </div>
                 </div>
               </div>
             ) : (
